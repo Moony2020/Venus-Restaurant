@@ -51,7 +51,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                 <button
                   type="button"
                   onClick={() => scrollByStep(-1)}
-                  className="absolute -left-2 top-[46%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-[#0a0f14]/95 text-white/85 backdrop-blur transition hover:border-gold hover:text-gold md:h-8 md:w-8 lg:-left-2"
+                  className="absolute -left-3 top-[46%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-[#0a0f14]/95 text-white/85 backdrop-blur transition hover:border-gold hover:text-gold md:-left-5 md:h-8 md:w-8 lg:-left-3 xl:-left-2"
                   aria-label="Scroll categories left"
                 >
                   <ChevronLeft size={16} className="md:h-[16px] md:w-[16px]" />
@@ -61,7 +61,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                 <button
                   type="button"
                   onClick={() => scrollByStep(1)}
-                  className="absolute -right-2 top-[46%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-[#0a0f14]/95 text-white/85 backdrop-blur transition hover:border-gold hover:text-gold md:h-8 md:w-8 lg:-right-2"
+                  className="absolute -right-3 top-[46%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-[#0a0f14]/95 text-white/85 backdrop-blur transition hover:border-gold hover:text-gold md:-right-5 md:h-8 md:w-8 lg:-right-3 xl:-right-2"
                   aria-label="Scroll categories right"
                 >
                   <ChevronRight size={16} className="md:h-[16px] md:w-[16px]" />
