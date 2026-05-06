@@ -32,3 +32,13 @@ export async function apiPatch(path, payload, options = {}) {
   if (!res.ok) throw new Error(`Request failed: ${res.status}`);
   return res.json();
 }
+
+export async function apiDelete(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: options.headers || {}
+  });
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+  return res.status === 204 ? null : res.json();
+}

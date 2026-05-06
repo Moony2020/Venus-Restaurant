@@ -6,9 +6,10 @@ const tagMap = {
   spicy: { label: 'Stark', icon: Flame, className: 'bg-orange-500/15 text-orange-300 border-orange-400/30' }
 };
 
-const MenuCard = ({ item, onAdd, added }) => {
+const MenuCard = ({ item, onAdd, added, restaurantOpen = true }) => {
+  const disabled = !restaurantOpen || item.available === false;
   return (
-    <article className="group relative grid grid-cols-[1fr_104px] border border-white/15 bg-white/[0.03] p-4 transition hover:border-gold/40 sm:grid-cols-[1fr_120px] xl:grid-cols-[1fr_145px]">
+    <article className={`group relative grid grid-cols-[1fr_104px] border border-white/15 bg-white/[0.03] p-4 transition sm:grid-cols-[1fr_120px] xl:grid-cols-[1fr_145px] ${disabled ? 'opacity-45' : 'hover:border-gold/40'}`}>
       <div className="pr-3">
         <h3 className="text-[20px] font-display leading-[1.15] text-white break-words sm:text-[22px]">{item.name}</h3>
         <p className="mt-1 text-[16px] leading-none text-gold sm:text-[18px]">från {item.price} kr</p>
@@ -28,6 +29,11 @@ const MenuCard = ({ item, onAdd, added }) => {
             })}
           </div>
         )}
+        {item.available === false && (
+          <span className="mt-3 inline-flex rounded border border-red-300/30 bg-red-500/10 px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-red-200">
+            Ej tillgänglig
+          </span>
+        )}
       </div>
 
       <div className="relative self-center justify-self-end">
@@ -40,9 +46,14 @@ const MenuCard = ({ item, onAdd, added }) => {
         />
         <button
           type="button"
-          onClick={() => onAdd(item)}
+          onClick={() => !disabled && onAdd(item)}
+          disabled={disabled}
           className={`absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full border text-xl transition ${
-            added ? 'border-gold bg-gold text-black' : 'border-white/30 bg-[#111827] text-white hover:border-gold hover:text-gold'
+            disabled
+              ? 'cursor-not-allowed border-white/20 bg-[#111827] text-white/40'
+              : added
+                ? 'border-gold bg-gold text-black'
+                : 'border-white/30 bg-[#111827] text-white hover:border-gold hover:text-gold'
           }`}
           aria-label={`Lägg till ${item.name}`}
         >

@@ -3,9 +3,11 @@ import {
   createOrder,
   getTrackedOrder,
   getOrderByTrackingCode,
+  getOrderAnalytics,
   getOrdersAdmin,
   updateOrderStatus
 } from '../controllers/orderController.js';
+import { ensureRestaurantOpenForOrders, getKitchenOrders } from '../controllers/restaurantController.js';
 import { getMyOrders } from '../controllers/userOrderController.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { attachUserIfAny } from '../middleware/attachUserIfAny.js';
@@ -17,9 +19,17 @@ import {
 
 const router = express.Router();
 
-router.post('/', attachUserIfAny, validateCreateOrder, asyncHandler(createOrder));
+router.post(
+  '/',
+  attachUserIfAny,
+  asyncHandler(ensureRestaurantOpenForOrders),
+  validateCreateOrder,
+  asyncHandler(createOrder)
+);
 router.get('/my', verifyToken, asyncHandler(getMyOrders));
 router.get('/', verifyToken, requireRole('admin'), asyncHandler(getOrdersAdmin));
+router.get('/kitchen/active', verifyToken, requireRole('admin'), asyncHandler(getKitchenOrders));
+router.get('/analytics/daily', verifyToken, requireRole('admin'), asyncHandler(getOrderAnalytics));
 router.get('/track/:trackingCode', asyncHandler(getTrackedOrder));
 router.patch(
   '/:id/status',

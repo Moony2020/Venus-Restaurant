@@ -1,75 +1,63 @@
-﻿import MenuItem from './models/MenuItem.js';
+import MenuItem from './models/MenuItem.js';
 
 export async function seedMenuIfEmpty() {
-  // Clear existing menu to fix encoding issues
-  await MenuItem.deleteMany({});
+  const existingCount = await MenuItem.countDocuments();
+  if (existingCount > 0) return;
 
   await MenuItem.insertMany([
     {
       name: 'Miyazaki Wagyu',
       slug: 'miyazaki-wagyu',
-      category: 'main',
-      description: 'A5 Wagyu med tryffelsmör och rostade rödbetor.',
+      category: 'popular',
+      description: 'A5 Wagyu med tryffelsmor och rostade rodbetor.',
       image: '/images/hero-steak.png',
       price: 1250,
       lunchOfDay: true,
-      prepMinutes: 25
+      prepMinutes: 25,
+      position: 0
     },
     {
       name: 'Tartufo Pizza',
       slug: 'tartufo-pizza',
-      category: 'main',
+      category: 'pizza-class-4',
       description: 'Svart tryffel, fior di latte, lagrad sojaglasyr, guldflingor.',
       image: '/images/menu-pizza.png',
       price: 650,
-      prepMinutes: 18
+      prepMinutes: 18,
+      position: 1
     },
     {
       name: 'Cosmic Chocolate',
       slug: 'cosmic-chocolate',
-      category: 'dessert',
+      category: 'desserts',
       description: 'Saltkaramell, guldstoft, kakaonib-crunch.',
       image: '/images/menu-dessert.png',
       price: 350,
-      prepMinutes: 12
+      prepMinutes: 12,
+      position: 2
     },
     {
       name: 'Nightcap',
       slug: 'nightcap',
-      category: 'drink',
+      category: 'drinks',
       description: 'Gin, citron, timjan.',
       image: '/images/menu-drink.png',
       price: 145,
-      prepMinutes: 5
+      prepMinutes: 5,
+      position: 3
     },
     {
       name: 'Pommes Frites',
       slug: 'pommes-frites',
-      category: 'appetizer',
-      description: 'Krispiga pommes, lättsaltade.',
+      category: 'others',
+      description: 'Krispiga pommes, lattsaltade.',
       image: '/images/menu-starter.png',
       price: 69,
-      prepMinutes: 10
-    },
-    {
-      name: 'Sötpotatispommes',
-      slug: 'sotpotatispommes',
-      category: 'appetizer',
-      description: 'Sötpotatispommes med örtkrydda.',
-      image: '/images/menu-starter.png',
-      price: 75,
-      prepMinutes: 10
-    },
-    {
-      name: 'Lökringar',
-      slug: 'lokringar',
-      category: 'appetizer',
-      description: 'Friterade lökringar med aioli.',
-      image: '/images/menu-starter.png',
-      price: 75,
-      prepMinutes: 10
+      prepMinutes: 10,
+      position: 4
     }
   ]);
-  console.log('Menu re-seeded with UTF-8 characters');
+
+  console.log('Menu seeded');
 }
 

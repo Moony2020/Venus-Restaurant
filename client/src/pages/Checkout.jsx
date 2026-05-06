@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
 import { useCart } from '../context/CartContext';
 import { apiPost } from '../lib/api';
+import { useRestaurantStatus } from '../hooks/useRestaurantStatus';
 
 const field =
   'w-full border border-gold/25 bg-transparent px-4 py-4 text-base text-white placeholder:text-white/35 focus:border-gold focus:outline-none';
@@ -11,6 +12,7 @@ const ORDER_PREFS_KEY = 'venus_order_prefs';
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, total, clearCart } = useCart();
+  const { data: restaurantStatus } = useRestaurantStatus();
   const [contact, setContact] = useState({ customerName: '', email: '', phone: '', notes: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -51,9 +53,10 @@ const Checkout = () => {
 
   const etaText = orderPrefs.orderMode === 'delivery' ? orderPrefs.deliveryEtaText : orderPrefs.pickupEtaText;
   const finalTotal = Math.round(total) + (orderPrefs.orderMode === 'delivery' ? orderPrefs.deliveryFee : 0);
+  const isOpen = restaurantStatus?.nowStatus?.isOpen ?? true;
 
   const onPlaceOrder = async () => {
-    if (isSubmitting || normalizedItems.length === 0) return;
+    if (isSubmitting || normalizedItems.length === 0 || !isOpen) return;
 
     setIsSubmitting(true);
     setSubmitError('');
@@ -81,8 +84,8 @@ const Checkout = () => {
         state: { order, success: true },
         replace: true
       });
-    } catch {
-      setSubmitError('Something went wrong, try again');
+    } catch (err) {
+      setSubmitError(err?.message?.includes('403') ? 'Restaurangen är stängd just nu' : 'Något gick fel, försök igen');
     } finally {
       setIsSubmitting(false);
     }
@@ -120,6 +123,12 @@ const Checkout = () => {
             </div>
           </div>
 
+          {!isOpen && (
+            <p className="mt-6 border border-red-400/40 bg-red-950/20 px-4 py-3 text-sm text-red-200">
+              Restaurangen är stängd just nu.
+            </p>
+          )}
+
           {submitError && (
             <p className="mt-6 border border-red-400/40 bg-red-950/20 px-4 py-3 text-sm text-red-200">
               {submitError}
@@ -129,7 +138,7 @@ const Checkout = () => {
           <button
             type="button"
             onClick={onPlaceOrder}
-            disabled={isSubmitting || normalizedItems.length === 0}
+            disabled={isSubmitting || normalizedItems.length === 0 || !isOpen}
             className="mt-10 w-full border border-gold px-6 py-5 text-xs uppercase tracking-[0.24em] text-gold hover:bg-gold hover:text-black disabled:cursor-not-allowed disabled:opacity-50 xl:mt-12"
           >
             {isSubmitting ? 'Processing...' : `Place Order - ${finalTotal} SEK`}

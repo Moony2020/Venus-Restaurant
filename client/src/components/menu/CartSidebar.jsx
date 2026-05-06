@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 
 const CartSidebar = ({
   items,
@@ -9,7 +9,8 @@ const CartSidebar = ({
   deliveryAvailable,
   deliveryFee,
   pickupEtaText,
-  deliveryEtaText
+  deliveryEtaText,
+  restaurantOpen = true
 }) => {
   const finalTotal = total + (orderMode === 'delivery' ? deliveryFee : 0);
   const etaText = orderMode === 'delivery' ? deliveryEtaText : pickupEtaText;
@@ -79,11 +80,12 @@ const CartSidebar = ({
       </div>
 
       <div className="mt-3 border-t border-white/10 pt-3">
+        {!restaurantOpen && <p className="mb-2 text-xs text-red-300">Restaurangen är stängd just nu</p>}
         <p className="flex items-center justify-between text-[17px]">
           <span>Totalt</span>
           <span className="text-gold">{finalTotal} kr</span>
         </p>
-        {count > 0 ? (
+        {count > 0 && restaurantOpen ? (
           <Link to="/checkout" className="mt-3 block w-full border border-gold bg-gold px-3 py-3 text-center text-[11px] uppercase tracking-[0.16em] text-black transition hover:bg-goldSoft">
             Förhandsgranska beställning
           </Link>

@@ -87,6 +87,67 @@ export const getOrdersAdmin = async (req, res) => {
   res.json(orders);
 };
 
+export const getOrderAnalytics = async (req, res) => {
+  const days = Math.min(90, Math.max(1, Number(req.query.days) || 14));
+  const fromDate = new Date();
+  fromDate.setHours(0, 0, 0, 0);
+  fromDate.setDate(fromDate.getDate() - (days - 1));
+
+  const rows = await Order.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: fromDate }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          y: { $year: '$createdAt' },
+          m: { $month: '$createdAt' },
+          d: { $dayOfMonth: '$createdAt' }
+        },
+        ordersCount: { $sum: 1 },
+        revenue: { $sum: '$totalAmount' }
+      }
+    }
+  ]);
+
+  const map = new Map();
+  for (const row of rows) {
+    const key = `${row._id.y}-${String(row._id.m).padStart(2, '0')}-${String(row._id.d).padStart(2, '0')}`;
+    map.set(key, {
+      date: key,
+      ordersCount: row.ordersCount,
+      revenue: Math.round(row.revenue || 0)
+    });
+  }
+
+  const timeline = [];
+  const cursor = new Date(fromDate);
+  for (let i = 0; i < days; i += 1) {
+    const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
+    const row = map.get(key) || { date: key, ordersCount: 0, revenue: 0 };
+    timeline.push(row);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  const totals = timeline.reduce(
+    (acc, day) => {
+      acc.orders += day.ordersCount;
+      acc.revenue += day.revenue;
+      return acc;
+    },
+    { orders: 0, revenue: 0 }
+  );
+
+  res.json({
+    days,
+    fromDate,
+    totals,
+    timeline
+  });
+};
+
 export const updateOrderStatus = async (req, res) => {
   const { status } = req.body;
   const order = await Order.findById(req.params.id);

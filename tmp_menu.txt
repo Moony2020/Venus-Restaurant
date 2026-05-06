@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ShoppingBag, X } from 'lucide-react';
 import { io as createSocket } from 'socket.io-client';
@@ -42,16 +42,6 @@ const normalizeApiItem = (item) => ({
   available: item.available !== false
 });
 
-const isMenuDatasetUsable = (items, categoryIds) => {
-  if (!items.length) return false;
-  const present = new Set(items.map((i) => i.category));
-  const hasPopular = items.some(
-    (i) => i.category === 'popular' || (Array.isArray(i.tags) && i.tags.includes('popular'))
-  );
-  const covered = categoryIds.filter((id) => present.has(id)).length;
-  return hasPopular && covered >= Math.max(8, Math.floor(categoryIds.length * 0.55));
-};
-
 const Menu = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedCategory = searchParams.get('category') || '';
@@ -89,28 +79,19 @@ const Menu = () => {
 
   useEffect(() => {
     const socket = createSocket(SOCKET_URL, {
-      withCredentials: true,
-      autoConnect: true,
-      reconnection: true
+      transports: ['websocket'],
+      withCredentials: true
     });
 
     socket.on('menu:updated', (items) => {
       setLiveMenuItems((items || []).map(normalizeApiItem));
     });
 
-    return () => {
-      socket.removeAllListeners();
-      socket.disconnect();
-    };
+    return () => socket.disconnect();
   }, []);
 
   const catalogItems = useMemo(() => MENU_ITEMS, []);
-  const catalogCategoryIds = useMemo(() => MENU_CATEGORIES.map((c) => c.id), []);
-  const effectiveItems = useMemo(() => {
-    if (isMenuDatasetUsable(liveMenuItems, catalogCategoryIds)) return liveMenuItems;
-    if (isMenuDatasetUsable(normalizedApiItems, catalogCategoryIds)) return normalizedApiItems;
-    return catalogItems;
-  }, [liveMenuItems, normalizedApiItems, catalogItems, catalogCategoryIds]);
+  const effectiveItems = liveMenuItems.length >= 20 ? liveMenuItems : normalizedApiItems.length >= 20 ? normalizedApiItems : catalogItems;
 
   const categories = useMemo(() => {
     const fromCatalog = MENU_CATEGORIES.map((c) => c.id);
@@ -195,11 +176,11 @@ const Menu = () => {
               <p className={isOpen ? 'text-green-300' : 'text-red-300'}>{statusText}</p>
               {restaurantStatus?.week && (
                 <details className="text-white/60">
-                  <summary className="cursor-pointer hover:text-gold">Se öppettider</summary>
+                  <summary className="cursor-pointer hover:text-gold">Se Ã¶ppettider</summary>
                   <div className="mt-2 space-y-1 text-[11px]">
                     {Object.entries(restaurantStatus.week).map(([day, cfg]) => (
                       <p key={day} className="capitalize">
-                        {day}: {cfg.closed ? 'Stängt' : `${cfg.open} - ${cfg.close}`}
+                        {day}: {cfg.closed ? 'StÃ¤ngt' : `${cfg.open} - ${cfg.close}`}
                       </p>
                     ))}
                   </div>
@@ -215,7 +196,7 @@ const Menu = () => {
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Sök i menyn"
+                placeholder="SÃ¶k i menyn"
                 className="min-w-[220px] flex-1 border border-white/15 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/45 focus:border-gold focus:outline-none lg:min-w-[360px]"
               />
               {MENU_TAG_FILTERS.map((tag) => (
@@ -276,7 +257,7 @@ const Menu = () => {
           className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-gold px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-black shadow-2xl shadow-gold/20 xl:hidden"
         >
           <ShoppingBag size={18} />
-          {count} • {finalTotal} kr
+          {count} â€¢ {finalTotal} kr
         </button>
       )}
 
@@ -324,15 +305,15 @@ const Menu = () => {
                   : 'border-white/20 bg-white/[0.03] text-white/70 hover:border-gold/50 hover:text-gold'
               }`}
             >
-              Hämta själv
+              HÃ¤mta sjÃ¤lv
             </button>
           </div>
           <div className="mt-3">
             {!deliveryAvailable && orderMode === 'delivery' ? (
-              <p className="text-white/55">Ej tillgänglig</p>
+              <p className="text-white/55">Ej tillgÃ¤nglig</p>
             ) : (
               <>
-                <p className="text-sm text-white/60">{orderMode === 'pickup' ? 'Upphämtningstid' : 'Leveranstid'}</p>
+                <p className="text-sm text-white/60">{orderMode === 'pickup' ? 'UpphÃ¤mtningstid' : 'Leveranstid'}</p>
                 <p className="text-base font-semibold text-white/90">
                   {orderMode === 'delivery' ? deliveryEtaText : pickupEtaText}
                 </p>
@@ -347,7 +328,7 @@ const Menu = () => {
 
         <div className="mt-6 max-h-[44vh] space-y-4 overflow-y-auto">
           {cartItems.length === 0 ? (
-            <p className="text-sm text-white/55">Din varukorg är tom.</p>
+            <p className="text-sm text-white/55">Din varukorg Ã¤r tom.</p>
           ) : (
             cartItems.map((item) => (
               <div key={item._id} className="flex items-start justify-between gap-2 border-b border-white/10 pb-3">
@@ -364,7 +345,7 @@ const Menu = () => {
         </div>
 
         <div className="mt-5 border-t border-white/10 pt-4">
-          {!isOpen && <p className="mb-2 text-xs text-red-300">Restaurangen är stängd just nu</p>}
+          {!isOpen && <p className="mb-2 text-xs text-red-300">Restaurangen Ã¤r stÃ¤ngd just nu</p>}
           <p className="flex items-center justify-between text-xl">
             <span>Totalt</span>
             <span className="text-gold">{finalTotal} kr</span>
@@ -375,7 +356,7 @@ const Menu = () => {
               onClick={() => setIsMobileCartOpen(false)}
               className="mt-3 block w-full border border-gold bg-gold px-4 py-3 text-center text-xs uppercase tracking-[0.2em] text-black transition hover:bg-goldSoft"
             >
-              Förhandsgranska beställning
+              FÃ¶rhandsgranska bestÃ¤llning
             </Link>
           ) : (
             <span className="mt-3 block w-full cursor-not-allowed border border-white/20 bg-white/10 px-4 py-3 text-center text-xs uppercase tracking-[0.2em] text-white/40">
@@ -389,4 +370,3 @@ const Menu = () => {
 };
 
 export default Menu;
-

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, ClipboardList, LogOut, ChevronLeft } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, CalendarDays, LogOut, ChevronLeft, Settings } from 'lucide-react';
 
 const AdminHeader = () => {
   const { logout } = useAuth();
@@ -29,7 +29,15 @@ const AdminHeader = () => {
               <ClipboardList size={14} />
               Orders
             </Link>
+            <Link to="/admin/bookings" className="flex items-center gap-2 hover:text-white transition-colors">
+              <CalendarDays size={14} />
+              Bookings
+            </Link>
             <Link to="/admin" className="flex items-center gap-2 hover:text-white transition-colors">
+              <Settings size={14} />
+              Control
+            </Link>
+            <Link to="/admin/overview" className="flex items-center gap-2 hover:text-white transition-colors">
               <LayoutDashboard size={14} />
               Stats
             </Link>

@@ -20,8 +20,10 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const BookingSuccess = lazy(() => import('./pages/BookingSuccess'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
 const AdminLeads = lazy(() => import('./pages/AdminLeads'));
 const AdminOrders = lazy(() => import('./pages/AdminOrders'));
+const AdminBookings = lazy(() => import('./pages/AdminBookings'));
 const Kitchen = lazy(() => import('./pages/Kitchen'));
 const About = lazy(() => import('./pages/About'));
 const Bespoke = lazy(() => import('./pages/Bespoke'));
@@ -55,6 +57,14 @@ const App = () => (
             path="/admin"
             element={
               <ProtectedRoute adminOnly>
+                <AdminControlPanel />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/overview"
+            element={
+              <ProtectedRoute adminOnly>
                 <AdminDashboard />
               </ProtectedRoute>
             }
@@ -72,6 +82,14 @@ const App = () => (
             element={
               <ProtectedRoute adminOnly>
                 <AdminOrders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/bookings"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminBookings />
               </ProtectedRoute>
             }
           />

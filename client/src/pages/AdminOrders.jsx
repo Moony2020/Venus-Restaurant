@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { io as createSocket } from 'socket.io-client';
 import AdminHeader from '../layout/AdminHeader';
 import { useAuth } from '../context/AuthContext';
@@ -32,9 +32,23 @@ const getNextStatuses = (status) => {
   return [];
 };
 
+const pct = (current, previous) => {
+  if (previous === 0 && current === 0) return 0;
+  if (previous === 0) return 100;
+  return ((current - previous) / previous) * 100;
+};
+
+const fmtChange = (value) => {
+  const rounded = Math.round(value);
+  return `${rounded > 0 ? '+' : ''}${rounded}%`;
+};
+
+const changeClass = (value) => (value >= 0 ? 'text-green-400' : 'text-red-400');
+
 const AdminOrders = () => {
   const { token } = useAuth();
   const audioRef = useRef(null);
+
   const [orders, setOrders] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -45,16 +59,18 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [analyticsDays, setAnalyticsDays] = useState(14);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analytics, setAnalytics] = useState([]);
+  const [analyticsCache, setAnalyticsCache] = useState({});
+
   useEffect(() => {
     const audio = new Audio('/sounds/new-order.mp3');
     audio.preload = 'auto';
     audio.volume = 0.35;
     audioRef.current = audio;
 
-    const unlockAudio = () => {
-      setIsAudioUnlocked(true);
-    };
-
+    const unlockAudio = () => setIsAudioUnlocked(true);
     window.addEventListener('pointerdown', unlockAudio, { once: true });
 
     return () => {
@@ -74,11 +90,34 @@ const AdminOrders = () => {
       const data = await apiGet(`/orders${qs}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setOrders(data);
+      setOrders(data || []);
     } catch {
       setError('Could not load orders.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    if (!token) return;
+
+    if (analyticsCache[analyticsDays]) {
+      setAnalytics(analyticsCache[analyticsDays]);
+      return;
+    }
+
+    try {
+      setAnalyticsLoading(true);
+      const data = await apiGet(`/orders/analytics/daily?days=${analyticsDays}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const timeline = data?.timeline || [];
+      setAnalytics(timeline);
+      setAnalyticsCache((prev) => ({ ...prev, [analyticsDays]: timeline }));
+    } catch {
+      // keep dashboard usable if analytics fails
+    } finally {
+      setAnalyticsLoading(false);
     }
   };
 
@@ -87,6 +126,11 @@ const AdminOrders = () => {
     fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, statusFilter]);
+
+  useEffect(() => {
+    fetchAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, analyticsDays]);
 
   useEffect(() => {
     if (!token) return undefined;
@@ -123,20 +167,34 @@ const AdminOrders = () => {
       markHighlighted(updatedOrder._id);
     });
 
-    return () => {
-      socket.disconnect();
-    };
+    return () => socket.disconnect();
   }, [token, isSoundEnabled, isAudioUnlocked]);
 
   const visibleOrders = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return orders;
-    return orders.filter((order) =>
-      String(order.trackingCode || '')
-        .toLowerCase()
-        .includes(term)
-    );
+    return orders.filter((order) => String(order.trackingCode || '').toLowerCase().includes(term));
   }, [orders, search]);
+
+  const analyticsSummary = useMemo(() => {
+    const totalOrders = analytics.reduce((sum, day) => sum + (day.ordersCount || 0), 0);
+    const totalRevenue = analytics.reduce((sum, day) => sum + (day.revenue || 0), 0);
+    const today = analytics[analytics.length - 1] || { ordersCount: 0, revenue: 0 };
+    const yesterday = analytics[analytics.length - 2] || { ordersCount: 0, revenue: 0 };
+    const maxOrders = Math.max(1, ...analytics.map((d) => d.ordersCount || 0));
+    const allZero = analytics.length === 0 || analytics.every((d) => (d.ordersCount || 0) === 0);
+
+    return {
+      totalOrders,
+      totalRevenue,
+      today,
+      yesterday,
+      maxOrders,
+      allZero,
+      ordersChange: pct(today.ordersCount || 0, yesterday.ordersCount || 0),
+      revenueChange: pct(today.revenue || 0, yesterday.revenue || 0)
+    };
+  }, [analytics]);
 
   const updateStatus = async (id, nextStatus) => {
     try {
@@ -146,9 +204,7 @@ const AdminOrders = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setOrders((prev) =>
-        prev.map((order) => (order._id === id ? { ...order, status: updated.status } : order))
-      );
+      setOrders((prev) => prev.map((order) => (order._id === id ? { ...order, status: updated.status } : order)));
       setSelectedOrder((prev) => (prev && prev._id === id ? { ...prev, status: updated.status } : prev));
     } catch {
       setError('Failed to update order status.');
@@ -202,6 +258,80 @@ const AdminOrders = () => {
 
         {error && <div className="mt-5 border border-red-400/30 bg-red-900/20 p-3 text-sm text-red-200">{error}</div>}
 
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          <div className="border border-white/10 bg-panel p-4">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Today Orders</p>
+            <p className="mt-2 text-3xl text-gold">{analyticsSummary.today.ordersCount || 0}</p>
+            <p className={`mt-1 text-xs ${changeClass(analyticsSummary.ordersChange)}`}>
+              {fmtChange(analyticsSummary.ordersChange)} vs yesterday
+            </p>
+          </div>
+          <div className="border border-white/10 bg-panel p-4">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Today Revenue</p>
+            <p className="mt-2 text-3xl text-gold">{Math.round(analyticsSummary.today.revenue || 0)} SEK</p>
+            <p className={`mt-1 text-xs ${changeClass(analyticsSummary.revenueChange)}`}>
+              {fmtChange(analyticsSummary.revenueChange)} vs yesterday
+            </p>
+          </div>
+          <div className="border border-white/10 bg-panel p-4">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Last {analyticsDays} Days</p>
+            <p className="mt-2 text-3xl text-gold">{analyticsSummary.totalOrders} orders</p>
+            <p className="mt-1 text-sm text-white/60">{Math.round(analyticsSummary.totalRevenue)} SEK revenue</p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {[7, 14, 30].map((days) => (
+            <button
+              key={days}
+              type="button"
+              onClick={() => setAnalyticsDays(days)}
+              className={`border px-3 py-2 text-[10px] uppercase tracking-[0.14em] transition ${
+                analyticsDays === days
+                  ? 'border-gold bg-gold text-black'
+                  : 'border-white/15 bg-panel text-white/75 hover:border-gold hover:text-gold'
+              }`}
+            >
+              {days} days
+            </button>
+          ))}
+        </div>
+
+        {analyticsLoading ? (
+          <div className="mt-4 border border-white/10 bg-panel p-6 text-sm text-white/60">Loading analytics...</div>
+        ) : analyticsSummary.allZero ? (
+          <div className="mt-4 border border-white/10 bg-panel p-6 text-sm text-white/65">No orders in this period.</div>
+        ) : (
+          <div className="mt-4 border border-white/10 bg-panel p-4">
+            <p className="mb-3 text-[10px] uppercase tracking-[0.16em] text-white/50">Orders per day ({analyticsDays}d)</p>
+            <div className="grid grid-cols-[32px_1fr] gap-3">
+              <div className="flex h-16 flex-col justify-between text-[10px] text-white/45">
+                <span>{analyticsSummary.maxOrders}</span>
+                <span>{Math.round(analyticsSummary.maxOrders / 2)}</span>
+                <span>0</span>
+              </div>
+
+              <div className="grid grid-cols-7 gap-2 md:grid-cols-14">
+                {analytics.map((day) => {
+                  const height = Math.max(8, Math.round(((day.ordersCount || 0) / analyticsSummary.maxOrders) * 56));
+                  return (
+                    <div key={day.date} className="flex flex-col items-center gap-2">
+                      <div className="flex h-16 w-full items-end justify-center rounded border border-white/10 bg-black/20 p-1">
+                        <div
+                          className="w-full max-w-[20px] bg-gold/80"
+                          style={{ height }}
+                          title={`${day.date}: ${day.ordersCount} orders / ${Math.round(day.revenue || 0)} SEK`}
+                        />
+                      </div>
+                      <span className="text-[10px] text-white/45">{day.date.slice(5)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 overflow-x-auto border border-white/10">
           <table className="w-full min-w-[1080px] text-left text-sm">
             <thead className="bg-white/5 text-[10px] uppercase tracking-[0.18em] text-white/65">
@@ -246,9 +376,7 @@ const AdminOrders = () => {
                       </td>
                       <td className="px-4 py-4">{order.items?.length || 0}</td>
                       <td className="px-4 py-4">{Math.round(order.totalAmount || 0)} SEK</td>
-                      <td className="px-4 py-4 text-white/75">
-                        {order.orderMode === 'delivery' ? 'Leverans' : 'Hämta själv'}
-                      </td>
+                      <td className="px-4 py-4 text-white/75">{order.orderMode === 'delivery' ? 'Leverans' : 'Hämta själv'}</td>
                       <td className="px-4 py-4">
                         <span
                           className={`inline-flex rounded border px-2 py-1 text-[10px] uppercase tracking-[0.14em] ${STATUS_BADGE[order.status] || STATUS_BADGE.pending}`}

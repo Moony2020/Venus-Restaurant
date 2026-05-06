@@ -22,11 +22,17 @@ const STATUS_LABEL = {
 const Kitchen = () => {
   const { token } = useAuth();
   const audioRef = useRef(null);
+  const orderRefs = useRef({});
+  const latestOrderIdRef = useRef(null);
+  const printedOrderIdsRef = useRef(new Set());
+  const pendingHighlightsRef = useRef(new Set());
+  const isTabVisibleRef = useRef(true);
   const [orders, setOrders] = useState([]);
   const [now, setNow] = useState(Date.now());
   const [highlightIds, setHighlightIds] = useState([]);
   const [printOrder, setPrintOrder] = useState(null);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  const [isAutoPrintEnabled, setIsAutoPrintEnabled] = useState(false);
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -35,6 +41,41 @@ const Kitchen = () => {
     const t = setInterval(() => setNow(Date.now()), 30000);
     return () => clearInterval(t);
   }, []);
+
+  const scrollToOrder = (orderId) => {
+    const node = orderRefs.current[orderId];
+    if (node) {
+      node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  };
+
+  const mergeOrdersUnique = (incoming, current) => {
+    const map = new Map((current || []).map((order) => [order._id, order]));
+    (incoming || []).forEach((order) => {
+      if (!order?._id) return;
+      if (!ACTIVE_STATUSES.includes(order.status)) {
+        map.delete(order._id);
+        return;
+      }
+      map.set(order._id, { ...(map.get(order._id) || {}), ...order });
+    });
+
+    return [...map.values()];
+  };
+
+  const markHighlighted = (id) => {
+    setHighlightIds((prev) => (prev.includes(id) ? prev : [id, ...prev]));
+    setTimeout(() => {
+      setHighlightIds((prev) => prev.filter((entry) => entry !== id));
+    }, 3500);
+  };
+
+  const playSoundSafe = () => {
+    if (!isSoundEnabled || !isAudioUnlocked || !audioRef.current || !isTabVisibleRef.current) return;
+    if (!audioRef.current.paused) return;
+    audioRef.current.currentTime = 0;
+    audioRef.current.play().catch(() => {});
+  };
 
   useEffect(() => {
     const audio = new Audio('/sounds/new-order.mp3');
@@ -64,7 +105,7 @@ const Kitchen = () => {
 
         if (!active) return;
         const filtered = (data || []).filter((order) => ACTIVE_STATUSES.includes(order.status));
-        setOrders(filtered);
+        setOrders((prev) => mergeOrdersUnique(filtered, prev));
       } catch {
         if (active) setError('Could not load kitchen orders.');
       } finally {
@@ -78,34 +119,63 @@ const Kitchen = () => {
   }, [token]);
 
   useEffect(() => {
+    const onVisibilityChange = () => {
+      isTabVisibleRef.current = !document.hidden;
+      if (isTabVisibleRef.current && pendingHighlightsRef.current.size > 0) {
+        [...pendingHighlightsRef.current].forEach((id) => markHighlighted(id));
+        pendingHighlightsRef.current.clear();
+      }
+    };
+
+    onVisibilityChange();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, []);
+
+  useEffect(() => {
     if (!token) return undefined;
     const socket = createSocket(SOCKET_URL, {
       transports: ['websocket'],
       withCredentials: true
     });
 
-    const markHighlighted = (id) => {
-      setHighlightIds((prev) => (prev.includes(id) ? prev : [id, ...prev]));
-      setTimeout(() => {
-        setHighlightIds((prev) => prev.filter((entry) => entry !== id));
-      }, 3500);
+    const refreshActiveOrders = async () => {
+      try {
+        const data = await apiGet('/orders', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const filtered = (data || []).filter((order) => ACTIVE_STATUSES.includes(order.status));
+        setOrders((prev) => mergeOrdersUnique(filtered, prev));
+      } catch {
+        // do not break socket flow on reconnect fetch failure
+      }
     };
+
+    socket.on('connect', refreshActiveOrders);
+    socket.on('reconnect', refreshActiveOrders);
 
     socket.on('order:new', (order) => {
       if (!ACTIVE_STATUSES.includes(order.status)) return;
-      setOrders((prev) => (prev.some((entry) => entry._id === order._id) ? prev : [order, ...prev]));
-      markHighlighted(order._id);
+      setOrders((prev) => {
+        if (prev.some((entry) => entry._id === order._id)) return prev;
+        return [order, ...prev];
+      });
+      latestOrderIdRef.current = order._id;
+      if (isTabVisibleRef.current) {
+        markHighlighted(order._id);
+        setTimeout(() => scrollToOrder(order._id), 120);
+      } else {
+        pendingHighlightsRef.current.add(order._id);
+      }
+      playSoundSafe();
 
-      if (isSoundEnabled && isAudioUnlocked && audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play().catch(() => {});
+      if (isAutoPrintEnabled) {
+        setTimeout(() => handlePrint(order), 180);
       }
     });
 
     socket.on('order:update', (updatedOrder) => {
       setOrders((prev) => {
-        const exists = prev.some((entry) => entry._id === updatedOrder._id);
-
         if (updatedOrder.status === 'done') {
           return prev.filter((entry) => entry._id !== updatedOrder._id);
         }
@@ -114,17 +184,43 @@ const Kitchen = () => {
           return prev.filter((entry) => entry._id !== updatedOrder._id);
         }
 
-        if (!exists) return [updatedOrder, ...prev];
         return prev.map((entry) => (entry._id === updatedOrder._id ? { ...entry, ...updatedOrder } : entry));
       });
 
-      markHighlighted(updatedOrder._id);
+      if (isTabVisibleRef.current) {
+        markHighlighted(updatedOrder._id);
+      } else {
+        pendingHighlightsRef.current.add(updatedOrder._id);
+      }
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [token, isSoundEnabled, isAudioUnlocked]);
+  }, [token, isSoundEnabled, isAudioUnlocked, isAutoPrintEnabled]);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key.toLowerCase() !== 'p') return;
+      const targetTag = event.target?.tagName?.toLowerCase();
+      const isTyping = targetTag === 'input' || targetTag === 'textarea' || event.target?.isContentEditable;
+      if (isTyping) return;
+
+      const sorted = [...orders].sort((a, b) => {
+        const statusRank = (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99);
+        if (statusRank !== 0) return statusRank;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      const latestId = latestOrderIdRef.current || sorted[0]?._id;
+      if (!latestId) return;
+      const order = sorted.find((entry) => entry._id === latestId) || sorted[0];
+      if (!order) return;
+      handlePrint(order);
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [orders]);
 
   const sortedOrders = useMemo(() => {
     return [...orders].sort((a, b) => {
@@ -161,11 +257,27 @@ const Kitchen = () => {
   };
 
   const handlePrint = (order) => {
+    if (!order?._id) return;
+    if (printedOrderIdsRef.current.has(order._id)) return;
+    printedOrderIdsRef.current.add(order._id);
     setPrintOrder(order);
     setTimeout(() => {
       window.print();
     }, 80);
   };
+
+  useEffect(() => {
+    if (!printOrder) return undefined;
+
+    const clearPrint = () => setPrintOrder(null);
+    window.addEventListener('afterprint', clearPrint);
+
+    const fallback = setTimeout(clearPrint, 1500);
+    return () => {
+      window.removeEventListener('afterprint', clearPrint);
+      clearTimeout(fallback);
+    };
+  }, [printOrder]);
 
   return (
     <main className="min-h-screen bg-[#05090e] px-6 py-6 text-white">
@@ -180,6 +292,13 @@ const Kitchen = () => {
           className="border border-white/20 bg-white/5 px-4 py-2 text-[11px] uppercase tracking-[0.16em] text-white/85 hover:border-gold hover:text-gold"
         >
           Sound {isSoundEnabled ? 'On' : 'Off'}
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsAutoPrintEnabled((prev) => !prev)}
+          className="border border-white/20 bg-white/5 px-4 py-2 text-[11px] uppercase tracking-[0.16em] text-white/85 hover:border-gold hover:text-gold"
+        >
+          Auto Print {isAutoPrintEnabled ? 'On' : 'Off'}
         </button>
       </div>
 
@@ -196,8 +315,12 @@ const Kitchen = () => {
           {sortedOrders.map((order) => (
             <article
               key={order._id}
+              ref={(node) => {
+                if (node) orderRefs.current[order._id] = node;
+                else delete orderRefs.current[order._id];
+              }}
               className={`border p-5 ${STATUS_CARD[order.status] || STATUS_CARD.pending} ${
-                highlightIds.includes(order._id) ? 'ring-2 ring-gold/50' : ''
+                highlightIds.includes(order._id) ? 'ring-2 ring-gold/50 animate-pulse' : ''
               }`}
             >
               <div className="mb-3 flex items-center justify-between">
