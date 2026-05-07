@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ShoppingBag, X, Search } from 'lucide-react';
+import { ShoppingBag, X, Search, Minus, Plus, Trash2 } from 'lucide-react';
 import { io as createSocket } from 'socket.io-client';
 import SiteHeader from '../layout/SiteHeader';
 import CategoryTabs from '../components/menu/CategoryTabs';
 import MenuGrid from '../components/menu/MenuGrid';
 import CartSidebar from '../components/menu/CartSidebar';
 import OpeningHoursDropdown from '../components/menu/OpeningHoursDropdown';
+import ItemModal from '../components/menu/ItemModal';
 import { useCart } from '../context/CartContext';
 import { useMenuData } from '../hooks/useMenuData';
 import { useRestaurantStatus } from '../hooks/useRestaurantStatus';
@@ -62,6 +63,7 @@ const Menu = () => {
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [isCategoryTransitioning, setIsCategoryTransitioning] = useState(false);
   const [liveMenuItems, setLiveMenuItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [orderMode, setOrderMode] = useState(() => {
     try {
       const raw = localStorage.getItem(ORDER_PREFS_KEY);
@@ -80,7 +82,7 @@ const Menu = () => {
 
   const { items: apiItems, loading, error } = useMenuData();
   const { data: restaurantStatus } = useRestaurantStatus();
-  const { items: cartItems, total, count, addToCart, lastAddedId } = useCart();
+  const { items: cartItems, total, count, addToCart, lastAddedId, updateQuantity, removeFromCart } = useCart();
 
   const normalizedApiItems = useMemo(() => (apiItems || []).map(normalizeApiItem), [apiItems]);
 
@@ -140,10 +142,13 @@ const Menu = () => {
   const filteredItems = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     return effectiveItems.filter((item) => {
-      const inActiveCategory =
-        item.category === activeCategory ||
-        (activeCategory === 'popular' && Array.isArray(item.tags) && item.tags.includes('popular'));
-      if (!inActiveCategory) return false;
+      const shouldUseCategoryFilter = term.length === 0;
+      if (shouldUseCategoryFilter) {
+        const inActiveCategory =
+          item.category === activeCategory ||
+          (activeCategory === 'popular' && Array.isArray(item.tags) && item.tags.includes('popular'));
+        if (!inActiveCategory) return false;
+      }
       if (activeTag !== 'all' && !(item.tags || []).includes(activeTag)) return false;
       if (!term) return true;
       const haystack = `${item.name} ${item.description}`.toLowerCase();
@@ -247,7 +252,7 @@ const Menu = () => {
             <MenuGrid
               items={filteredItems}
               loading={loading && normalizedApiItems.length === 0 && liveMenuItems.length === 0}
-              onAdd={isOpen ? addToCart : () => {}}
+              onAdd={isOpen ? setSelectedItem : () => {}}
               lastAddedId={lastAddedId}
               restaurantOpen={isOpen}
             />
@@ -265,6 +270,8 @@ const Menu = () => {
           pickupEtaText={pickupEtaText}
           deliveryEtaText={deliveryEtaText}
           restaurantOpen={isOpen}
+          updateQuantity={updateQuantity}
+          removeFromCart={removeFromCart}
         />
       </section>
 
@@ -283,6 +290,13 @@ const Menu = () => {
           isMobileCartOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
         onClick={() => setIsMobileCartOpen(false)}
+      />
+
+      <ItemModal 
+        item={selectedItem} 
+        isOpen={!!selectedItem} 
+        onClose={() => setSelectedItem(null)} 
+        onAdd={addToCart} 
       />
 
       <aside
@@ -347,15 +361,44 @@ const Menu = () => {
           {cartItems.length === 0 ? (
             <p className="text-sm text-white/55">Din varukorg är tom.</p>
           ) : (
-            cartItems.map((item) => (
-              <div key={item._id} className="flex items-start justify-between gap-2 border-b border-white/10 pb-3">
-                <div>
-                  <p className="text-sm">{item.name}</p>
-                  <p className="text-xs text-white/50">
-                    {item.quantity} x {item.price} kr
-                  </p>
+            cartItems.map((item, i) => (
+              <div key={`${item.id}-${i}`} className="border-b border-white/5 pb-5 last:border-0 last:pb-0">
+                <div className="flex justify-between gap-4">
+                  <div className="flex-1">
+                    <p className="text-[15px] font-medium text-white/90 leading-tight">{item.name}</p>
+                    {item.optionSummary && <p className="mt-1 text-[11px] leading-snug text-gold/60">{item.optionSummary}</p>}
+                    {item.notes && <p className="mt-0.5 text-[11px] leading-snug text-white/40 italic">"{item.notes}"</p>}
+                  </div>
+                  
+                  <div className="flex flex-col items-end gap-2.5">
+                    <p className="text-[15px] font-bold text-gold">{Math.round(item.price * item.quantity)} kr</p>
+                    
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => removeFromCart(item.id)}
+                        className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/30 transition hover:text-red-400"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+
+                      <div className="flex items-center rounded-lg border border-white/10 bg-white/5 p-0.5">
+                        <button 
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="px-2 py-1.5 text-white/50"
+                        >
+                          <Minus size={14} />
+                        </button>
+                        <span className="min-w-[20px] text-center text-xs font-bold text-white">{item.quantity}</span>
+                        <button 
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="px-2 py-1.5 text-white/50"
+                        >
+                          <Plus size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-gold">{Math.round(item.subtotal)} kr</p>
               </div>
             ))
           )}
@@ -369,7 +412,7 @@ const Menu = () => {
           </p>
           {count > 0 && isOpen ? (
             <Link
-              to="/checkout"
+              to="/cart"
               onClick={() => setIsMobileCartOpen(false)}
               className="mt-3 block w-full border border-gold bg-gold px-4 py-3 text-center text-xs uppercase tracking-[0.2em] text-black transition hover:bg-goldSoft"
             >

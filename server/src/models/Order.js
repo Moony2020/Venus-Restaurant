@@ -1,11 +1,14 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 const orderItemSchema = new mongoose.Schema(
   {
     menuItemId: { type: String, default: '' },
     name: { type: String, required: true },
     price: { type: Number, required: true },
-    quantity: { type: Number, required: true, min: 1 }
+    quantity: { type: Number, required: true, min: 1 },
+    notes: { type: String, default: '' },
+    optionSummary: { type: String, default: '' },
+    availabilityAction: { type: String, enum: ['remove', 'cancel', 'call'], default: 'remove' }
   },
   { _id: false }
 );
@@ -15,6 +18,7 @@ const orderSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     customerName: { type: String, required: true },
     email: { type: String, required: true },
+    phone: { type: String, default: '' },
     orderMode: {
       type: String,
       enum: ['pickup', 'delivery'],

@@ -1,4 +1,5 @@
 import Booking from '../models/Booking.js';
+import { sendBookingConfirmation } from '../lib/mailer.js';
 
 export const createBooking = async (req, res) => {
   const {
@@ -21,14 +22,17 @@ export const createBooking = async (req, res) => {
   }
 
   const booking = await Booking.create({
-    date,
-    time,
+    date: String(date).trim(),
+    time: String(time).trim(),
     guests: guestsNumber,
-    name,
-    email,
-    phone,
-    notes
+    name: String(name).trim().slice(0, 100),
+    email: String(email).trim().toLowerCase().slice(0, 200),
+    phone: String(phone).trim().slice(0, 30),
+    notes: String(notes).trim().slice(0, 500)
   });
+
+  // Send confirmation email (non-blocking)
+  sendBookingConfirmation(booking).catch(() => {});
 
   return res.status(201).json(booking);
 };

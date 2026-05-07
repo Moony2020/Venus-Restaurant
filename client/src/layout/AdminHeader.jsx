@@ -1,59 +1,101 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { LayoutDashboard, ShoppingCart, Calendar, Users, Menu, X, ArrowLeft, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, ClipboardList, CalendarDays, LogOut, ChevronLeft, Settings } from 'lucide-react';
+
+const navItems = [
+  { label: 'Beställningar', path: '/admin/orders', icon: ShoppingCart },
+  { label: 'Bokningar', path: '/admin/bookings', icon: Calendar },
+  { label: 'Förfrågningar', path: '/admin/inquiries', icon: Users },
+  { label: 'Översikt', path: '/admin', icon: LayoutDashboard }
+];
 
 const AdminHeader = () => {
+  const location = useLocation();
   const { logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="border-b border-white/5 bg-[#0a0a0b] py-4">
-      <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6">
-        <div className="flex items-center gap-10">
-          <Link to="/" className="flex items-center gap-2 text-gold group">
-            <ChevronLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-            <span className="font-display text-xl tracking-[0.2em]">VENUS</span>
+    <header className="sticky top-0 z-[100] border-b border-white/10 bg-background/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 w-[92vw] max-w-[1800px] items-center justify-between px-4">
+        <div className="flex items-center gap-8">
+          <Link to="/" className="flex items-center gap-2 font-display text-xl tracking-[0.2em] text-gold transition-colors hover:text-white">
+            <ArrowLeft size={16} />
+            VENUS
           </Link>
           
-          <nav className="flex items-center gap-6 text-[10px] uppercase tracking-[0.2em] text-white/40">
-            <Link to="/admin/leads" className="flex items-center gap-2 hover:text-white transition-colors">
-              <Users size={14} />
-              Leads
-            </Link>
-            <Link to="/admin/orders" className="flex items-center gap-2 hover:text-white transition-colors">
-              <ClipboardList size={14} />
-              Orders
-            </Link>
-            <Link to="/admin/bookings" className="flex items-center gap-2 hover:text-white transition-colors">
-              <CalendarDays size={14} />
-              Bookings
-            </Link>
-            <Link to="/admin" className="flex items-center gap-2 hover:text-white transition-colors">
-              <Settings size={14} />
-              Control
-            </Link>
-            <Link to="/admin/overview" className="flex items-center gap-2 hover:text-white transition-colors">
-              <LayoutDashboard size={14} />
-              Stats
-            </Link>
+          <nav className="hidden items-center gap-6 lg:flex">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all hover:text-gold ${
+                    isActive ? 'text-gold' : 'text-white/40'
+                  }`}
+                >
+                  <Icon size={14} />
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
-        <div className="flex items-center gap-6">
-          <span className="text-[9px] uppercase tracking-widest text-white/20 border border-white/10 px-3 py-1">Administrator</span>
+        <div className="flex items-center gap-4">
+          <span className="hidden text-[10px] font-bold uppercase tracking-widest text-white/20 lg:block border-r border-white/10 pr-4">Admin Portal</span>
+          
           <button 
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-red-400/70 hover:text-red-400 transition-colors"
+            onClick={logout} 
+            className="hidden lg:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-red-400/60 transition-colors hover:text-red-400"
           >
             <LogOut size={14} />
-            Sign Out
+            Logga ut
+          </button>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/60 hover:text-gold lg:hidden"
+          >
+            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
+      </div>
+
+      {/* Mobile Menu Dropdown */}
+      <div className={`absolute left-0 top-full w-full border-b border-white/10 bg-background transition-all duration-300 lg:hidden ${
+        isMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-4 pointer-events-none opacity-0'
+      }`}>
+        <nav className="flex flex-col p-4">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsMenuOpen(false)}
+                className={`flex items-center gap-4 py-4 text-[11px] font-bold uppercase tracking-widest border-b border-white/5 last:border-0 ${
+                  isActive ? 'text-gold' : 'text-white/40'
+                }`}
+              >
+                <Icon size={18} />
+                {item.label}
+              </Link>
+            );
+          })}
+          
+          <button 
+            onClick={logout} 
+            className="flex items-center gap-4 py-4 text-[11px] font-bold uppercase tracking-widest text-red-400/60 transition-colors hover:text-red-400 border-t border-white/10 mt-2"
+          >
+            <LogOut size={18} />
+            Logga ut
+          </button>
+        </nav>
       </div>
     </header>
   );

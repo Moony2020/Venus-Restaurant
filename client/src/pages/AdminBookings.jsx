@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import AdminHeader from '../layout/AdminHeader';
 import { useAuth } from '../context/AuthContext';
 import { apiGet, apiPatch } from '../lib/api';
+import { X, MessageSquare, Search } from 'lucide-react';
 
-const STATUS_OPTIONS = ['all', 'new', 'confirmed', 'cancelled'];
 const STATUS_BADGE = {
   new: 'bg-white/10 text-white/70 border-white/20',
   confirmed: 'bg-green-600/20 text-green-300 border-green-500/40',
@@ -28,6 +28,7 @@ const AdminBookings = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedNotes, setSelectedNotes] = useState(null);
 
   const fetchBookings = async () => {
     if (!token) return;
@@ -39,7 +40,7 @@ const AdminBookings = () => {
       });
       setBookings(data || []);
     } catch {
-      setError('Could not load bookings.');
+      setError('Kunde inte ladda bokningar.');
     } finally {
       setLoading(false);
     }
@@ -85,136 +86,157 @@ const AdminBookings = () => {
       );
       setBookings((prev) => prev.map((b) => (b._id === id ? { ...b, status: updated.status } : b)));
     } catch {
-      setError('Failed to update booking status.');
+      setError('Misslyckades att uppdatera bokningsstatus.');
     }
   };
 
   return (
     <main className="min-h-screen bg-background text-white">
       <AdminHeader />
-      <section className="mx-auto max-w-[1600px] px-6 py-12">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      <section className="mx-auto max-w-[1800px] px-6 py-12">
+        <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Admin</p>
-            <h1 className="font-display text-6xl">Bookings Dashboard</h1>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-gold font-bold">Admin Portal</p>
+            <h1 className="font-display text-4xl sm:text-5xl">Bokningar</h1>
           </div>
 
-          <div className="flex flex-wrap gap-4">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search name, email or phone"
-              className="border border-white/10 bg-panel px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-gold focus:outline-none"
-            />
+          <div className="flex flex-wrap gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={14} />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Sök namn, e-post eller tel"
+                className="rounded-lg border border-white/10 bg-panel pl-9 pr-4 py-2.5 text-[11px] text-white focus:border-gold outline-none w-full sm:w-64"
+              />
+            </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none border border-white/10 bg-panel px-6 py-3 pr-12 text-[10px] uppercase tracking-widest text-white/70 focus:border-gold focus:outline-none"
+              className="appearance-none border border-white/10 bg-panel px-4 py-2.5 pr-10 text-[9px] uppercase tracking-widest text-white/70 focus:border-gold outline-none rounded-lg"
             >
-              {STATUS_OPTIONS.map((status) => (
-                <option key={status} value={status} className="bg-[#0a0a0b]">
-                  {status === 'all' ? 'All Statuses' : status}
-                </option>
-              ))}
+              <option value="all" className="bg-[#0a0a0b]">Alla statusar</option>
+              <option value="new" className="bg-[#0a0a0b]">Ny</option>
+              <option value="confirmed" className="bg-[#0a0a0b]">Bekräftad</option>
+              <option value="cancelled" className="bg-[#0a0a0b]">Avbruten</option>
             </select>
           </div>
         </div>
 
-        {error && <div className="mt-5 border border-red-400/30 bg-red-900/20 p-3 text-sm text-red-200">{error}</div>}
+        {error && <div className="mt-5 border border-red-400/30 bg-red-900/20 p-3 text-sm text-red-200 rounded-lg">{error}</div>}
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="border border-white/10 bg-panel p-4">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Total</p>
-            <p className="mt-2 text-3xl text-gold">{stats.total}</p>
+        <div className="mt-8 grid gap-4 grid-cols-2 lg:grid-cols-4 max-[500px]:grid-cols-1">
+          <div className="border border-white/10 bg-panel p-5 rounded-xl">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-white/50">Total</p>
+            <p className="mt-2 text-3xl font-display text-gold">{stats.total}</p>
           </div>
-          <div className="border border-white/10 bg-panel p-4">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">New</p>
-            <p className="mt-2 text-3xl text-white">{stats.new}</p>
+          <div className="border border-white/10 bg-panel p-5 rounded-xl">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-white/50">Nya</p>
+            <p className="mt-2 text-3xl font-display text-white">{stats.new}</p>
           </div>
-          <div className="border border-white/10 bg-panel p-4">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Confirmed</p>
-            <p className="mt-2 text-3xl text-green-300">{stats.confirmed}</p>
+          <div className="border border-white/10 bg-panel p-5 rounded-xl">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-white/50">Bekräftade</p>
+            <p className="mt-2 text-3xl font-display text-green-400">{stats.confirmed}</p>
           </div>
-          <div className="border border-white/10 bg-panel p-4">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Cancelled</p>
-            <p className="mt-2 text-3xl text-red-300">{stats.cancelled}</p>
+          <div className="border border-white/10 bg-panel p-5 rounded-xl">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-white/50">Avbrutna</p>
+            <p className="mt-2 text-3xl font-display text-red-400">{stats.cancelled}</p>
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto border border-white/10">
-          <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] uppercase tracking-[0.18em] text-white/65">
+        <div className="mt-8 overflow-x-auto rounded-xl border border-white/10 bg-panel">
+          <table className="w-full min-w-[1200px] text-left text-sm border-collapse">
+            <thead className="bg-white/5 text-[9px] uppercase tracking-[0.18em] text-white/60 font-bold border-b border-white/10">
               <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Time</th>
-                <th className="px-4 py-3">Guests</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Created</th>
-                <th className="px-4 py-3">Actions</th>
+                <th className="px-6 py-4 whitespace-nowrap">Namn</th>
+                <th className="px-6 py-4 whitespace-nowrap">E-post</th>
+                <th className="px-6 py-4 whitespace-nowrap">Telefon</th>
+                <th className="px-6 py-4 whitespace-nowrap">Datum</th>
+                <th className="px-6 py-4 whitespace-nowrap">Tid</th>
+                <th className="px-6 py-4 whitespace-nowrap text-center">Gäster</th>
+                <th className="px-6 py-4 whitespace-nowrap text-center">Önskemål</th>
+                <th className="px-6 py-4 whitespace-nowrap text-center">Status</th>
+                <th className="px-6 py-4 whitespace-nowrap">Skapad</th>
+                <th className="px-6 py-4 whitespace-nowrap text-right">Åtgärder</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="px-4 py-8 text-white/60" colSpan="9">
-                    Loading bookings...
+                  <td className="px-6 py-20 text-center text-white/40" colSpan="10">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+                      Laddar bokningar...
+                    </div>
                   </td>
                 </tr>
               ) : visibleBookings.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-10 text-white/60" colSpan="9">
-                    No bookings found.
+                  <td className="px-6 py-20 text-center text-white/40" colSpan="10">
+                    Inga bokningar hittades.
                   </td>
                 </tr>
               ) : (
                 visibleBookings.map((booking) => (
-                  <tr key={booking._id} className="border-t border-white/10">
-                    <td className="px-4 py-4">{booking.name}</td>
-                    <td className="px-4 py-4">{booking.email}</td>
-                    <td className="px-4 py-4">{booking.phone}</td>
-                    <td className="px-4 py-4">{booking.date}</td>
-                    <td className="px-4 py-4">{booking.time}</td>
-                    <td className="px-4 py-4">{booking.guests}</td>
-                    <td className="px-4 py-4">
+                  <tr key={booking._id} className="border-t border-white/5 hover:bg-white/[0.02] transition-colors group">
+                    <td className="px-6 py-5 font-medium whitespace-nowrap">{booking.name}</td>
+                    <td className="px-6 py-5 text-white/60 whitespace-nowrap">{booking.email}</td>
+                    <td className="px-6 py-5 text-white/60 whitespace-nowrap font-mono">{booking.phone}</td>
+                    <td className="px-6 py-5 whitespace-nowrap">{booking.date}</td>
+                    <td className="px-6 py-5 whitespace-nowrap font-medium text-gold">{booking.time}</td>
+                    <td className="px-6 py-5 text-center whitespace-nowrap">
+                      <span className="inline-block rounded-full bg-white/5 px-3 py-1 text-xs">{booking.guests}</span>
+                    </td>
+                    <td className="px-6 py-5 text-center whitespace-nowrap">
+                      {booking.notes ? (
+                        <button
+                          onClick={() => setSelectedNotes({ notes: booking.notes, name: booking.name })}
+                          className="flex items-center gap-2 mx-auto rounded-lg border border-gold/20 bg-gold/5 px-3 py-1.5 text-[9px] uppercase tracking-widest text-gold transition hover:bg-gold hover:text-black"
+                        >
+                          <MessageSquare size={12} />
+                          Visa
+                        </button>
+                      ) : (
+                        <span className="text-white/10">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-5 text-center whitespace-nowrap">
                       <span
-                        className={`inline-flex rounded border px-2 py-1 text-[10px] uppercase tracking-[0.14em] ${
+                        className={`inline-flex rounded-full border px-3 py-1 text-[8px] font-bold uppercase tracking-[0.14em] ${
                           STATUS_BADGE[booking.status] || STATUS_BADGE.new
                         }`}
                       >
-                        {booking.status}
+                        {booking.status === 'new' ? 'NY' : booking.status === 'confirmed' ? 'BEKRÄFTAD' : 'AVBRUTEN'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-white/65">{formatDateTime(booking.createdAt)}</td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-wrap gap-2">
+                    <td className="px-6 py-5 text-[10px] text-white/40 whitespace-nowrap">{formatDateTime(booking.createdAt)}</td>
+                    <td className="px-6 py-5 text-right whitespace-nowrap">
+                      <div className="flex justify-end gap-2">
                         {booking.status !== 'confirmed' && (
                           <button
                             type="button"
                             onClick={() => updateStatus(booking._id, 'confirmed')}
-                            className="border border-green-400/40 px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-green-300 hover:bg-green-400 hover:text-black"
+                            className="rounded-lg border border-green-400/30 bg-green-400/5 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-green-400 transition hover:bg-green-400 hover:text-black"
                           >
-                            Confirm
+                            Bekräfta
                           </button>
                         )}
                         {booking.status !== 'cancelled' && (
                           <button
                             type="button"
                             onClick={() => updateStatus(booking._id, 'cancelled')}
-                            className="border border-red-400/40 px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-red-300 hover:bg-red-400 hover:text-black"
+                            className="rounded-lg border border-red-400/30 bg-red-400/5 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-red-400 transition hover:bg-red-400 hover:text-black"
                           >
-                            Cancel
+                            Avbryt
                           </button>
                         )}
                         {booking.status !== 'new' && (
                           <button
                             type="button"
                             onClick={() => updateStatus(booking._id, 'new')}
-                            className="border border-white/20 px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-white/75 hover:border-gold hover:text-gold"
+                            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-white/40 transition hover:border-gold hover:text-gold"
                           >
-                            Reset
+                            Återställ
                           </button>
                         )}
                       </div>
@@ -226,6 +248,32 @@ const AdminBookings = () => {
           </table>
         </div>
       </section>
+
+      {/* Notes Modal */}
+      {selectedNotes && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-xl" onClick={() => setSelectedNotes(null)} />
+          <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-[#0e0e11]/90 shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="flex items-center justify-between border-b border-white/5 p-4 bg-white/[0.02]">
+              <div>
+                <p className="text-[8px] uppercase tracking-widest text-gold font-black">Önskemål</p>
+                <h3 className="mt-0.5 font-display text-lg text-white/90">{selectedNotes.name}</h3>
+              </div>
+              <button 
+                onClick={() => setSelectedNotes(null)} 
+                className="group rounded-full bg-white/5 p-2 text-white/30 transition-all hover:bg-white/10 hover:text-white"
+              >
+                <X size={16} className="transition-transform group-hover:rotate-90" />
+              </button>
+            </div>
+            <div className="p-8 text-center bg-gradient-to-b from-transparent to-white/[0.01]">
+              <p className="text-sm leading-relaxed text-white/70 font-normal">
+                {selectedNotes.notes}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };

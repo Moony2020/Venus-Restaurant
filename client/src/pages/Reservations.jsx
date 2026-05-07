@@ -3,8 +3,19 @@ import { useSearchParams } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
 import { apiPost } from '../lib/api';
 
+const OPENING_HOURS = [
+  { day: 'Måndag', hours: '11:00 - 22:00', index: 1 },
+  { day: 'Tisdag', hours: '11:00 - 22:00', index: 2 },
+  { day: 'Onsdag', hours: '11:00 - 22:00', index: 3 },
+  { day: 'Torsdag', hours: '11:00 - 22:00', index: 4 },
+  { day: 'Fredag', hours: '11:00 - 23:00', index: 5 },
+  { day: 'Lördag', hours: '12:00 - 23:00', index: 6 },
+  { day: 'Söndag', hours: '12:00 - 22:00', index: 0 },
+];
+
 const Reservations = () => {
   const [searchParams] = useSearchParams();
+  const [currentDay, setCurrentDay] = useState(new Date().getDay());
   const [form, setForm] = useState({
     date: '',
     time: '19:00',
@@ -38,6 +49,7 @@ const Reservations = () => {
       await apiPost('/bookings', form);
       setMsg('Bokning bekräftad! Ett e-postmeddelande har skickats.');
       setForm({ date: '', time: '19:00', guests: '2', name: '', email: '', phone: '', notes: '' });
+      setTimeout(() => setMsg(''), 5000);
     } catch {
       setMsg('Ett fel uppstod. Vänligen försök igen eller ring oss.');
     } finally {
@@ -64,32 +76,53 @@ const Reservations = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid sm:grid-cols-[1.2fr_1fr_1fr] gap-10">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest text-white/40">Datum</label>
-                  <input type="date" required value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 pl-2 pr-2 focus:border-gold outline-none" />
-                </div>
+            <form onSubmit={handleSubmit} className="space-y-10">
+              {/* Date on its own line */}
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-widest text-white/40">Datum</label>
+                <input 
+                  type="date" 
+                  required 
+                  value={form.date} 
+                  onChange={e => setForm({...form, date: e.target.value})} 
+                  className="w-full border-b border-white/10 bg-transparent py-4 text-lg text-gold focus:border-gold outline-none" 
+                />
+              </div>
+
+              {/* Time and Guests side by side */}
+              <div className="grid sm:grid-cols-2 gap-10">
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-widest text-white/40">Tid</label>
-                  <select value={form.time} onChange={e => setForm({...form, time: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 pl-2 focus:border-gold outline-none appearance-none">
-                    {['17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'].map(t => <option key={t}>{t}</option>)}
+                  <select 
+                    value={form.time} 
+                    onChange={e => setForm({...form, time: e.target.value})} 
+                    className="w-full border-b border-white/10 bg-transparent py-4 focus:border-gold outline-none appearance-none"
+                  >
+                    {['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'].map(t => <option key={t} className="bg-background">{t}</option>)}
                   </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-widest text-white/40">Gäster</label>
-                  <input type="number" min="1" max="12" required value={form.guests} onChange={e => setForm({...form, guests: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 pl-2 focus:border-gold outline-none" />
+                  <input 
+                    type="number" 
+                    min="1" 
+                    max="12" 
+                    required 
+                    value={form.guests} 
+                    onChange={e => setForm({...form, guests: e.target.value})} 
+                    className="w-full border-b border-white/10 bg-transparent py-4 focus:border-gold outline-none" 
+                  />
                 </div>
               </div>
 
               <div className="space-y-6">
-                <input placeholder="Fullständigt namn" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 pl-2 focus:border-gold outline-none" />
-                <input type="email" placeholder="E-post" required value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 pl-2 focus:border-gold outline-none" />
-                <input type="tel" placeholder="Telefon" required value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 pl-2 focus:border-gold outline-none" />
-                <textarea placeholder="Speciella önskemål (valfritt)" rows="3" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 pl-2 focus:border-gold outline-none" />
+                <input placeholder="Fullständigt namn" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 focus:border-gold outline-none" />
+                <input type="email" placeholder="E-post" required value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 focus:border-gold outline-none" />
+                <input type="tel" placeholder="Telefon" required value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 focus:border-gold outline-none" />
+                <textarea placeholder="Speciella önskemål (valfritt)" rows="3" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 focus:border-gold outline-none" />
               </div>
 
-              <button disabled={isSubmitting} className="w-full rounded-lg bg-gold py-5 text-[11px] font-bold uppercase tracking-[0.3em] text-black transition-all hover:bg-goldSoft">
+              <button disabled={isSubmitting} className="w-full rounded-lg bg-gold py-5 text-[11px] font-bold uppercase tracking-[0.3em] text-black transition-all hover:bg-goldSoft shadow-xl shadow-gold/10">
                 {isSubmitting ? 'Bokar...' : 'Bekräfta bokning'}
               </button>
             </form>
@@ -98,17 +131,20 @@ const Reservations = () => {
           <div className="space-y-12">
             <div className="space-y-4">
               <h3 className="font-display text-2xl text-gold">Öppettider</h3>
-              <p className="text-white/50 text-sm leading-relaxed">
-                Tisdag - Torsdag: 17:00 - 23:00<br />
-                Fredag - Lördag: 16:00 - 01:00<br />
-                Söndag - Måndag: Stängt
-              </p>
+              <div className="space-y-3">
+                {OPENING_HOURS.map((oh) => (
+                  <div key={oh.day} className={`flex gap-3 text-[13px] leading-relaxed transition-all duration-300 ${oh.index === currentDay ? 'text-white font-bold' : 'text-white/40'}`}>
+                    <span className="w-20 shrink-0">{oh.day}:</span>
+                    <span className={oh.index === currentDay ? 'text-gold' : ''}>{oh.hours}</span>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="space-y-4">
               <h3 className="font-display text-2xl text-gold">Adress</h3>
               <p className="text-white/50 text-sm leading-relaxed">
-                Varberga Centrum 2<br />
-                703 52 Örebro<br />
+                Varbergagatan 39A<br />
+                703 51 Örebro<br />
                 Sverige
               </p>
             </div>

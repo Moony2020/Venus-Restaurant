@@ -11,7 +11,7 @@ import fs from 'fs';
 import menuRoutes from './routes/menuRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
-import leadRoutes from './routes/leadRoutes.js';
+import inquiryRoutes from './routes/inquiryRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import restaurantRoutes from './routes/restaurantRoutes.js';
@@ -85,7 +85,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/leads', leadRoutes);
+app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/restaurant', restaurantRoutes);
 

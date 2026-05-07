@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import SiteHeader from '../layout/SiteHeader';
 import { Mail, Clock, Star, ShieldCheck } from 'lucide-react';
+import { apiPost } from '../lib/api';
 
 const Bespoke = () => {
   const [form, setForm] = useState({
@@ -20,9 +21,9 @@ const Bespoke = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setToast('Tack! Vi kontaktar dig inom 24 timmar.');
+    try {
+      await apiPost('/inquiries', form);
+      setToast('Tack! Vi har tagit emot din förfrågan och kontaktar dig inom 24 timmar.');
       setForm({
         fullName: '',
         email: '',
@@ -32,7 +33,11 @@ const Bespoke = () => {
         budgetRange: '',
         message: ''
       });
-    }, 1500);
+    } catch {
+      setToast('Ett fel uppstod. Vänligen kontakta oss via e-post istället.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -122,7 +127,7 @@ const Bespoke = () => {
             </div>
           </div>
           <div className="bg-panel border border-white/10 p-10 sm:p-14">
-            {toast && <p className="mb-6 border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-gold">{toast}</p>}
+            {toast && <p className={`mb-6 border px-4 py-3 text-sm ${toast.includes('Tack') ? 'border-gold/40 bg-gold/10 text-gold' : 'border-red-500/40 bg-red-500/10 text-red-400'}`}>{toast}</p>}
             <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 gap-8">
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40">Fullständigt namn</label>

@@ -170,55 +170,147 @@ const AdminControlPanel = () => {
   };
 
   return (
-    <main className="min-h-screen bg-background text-white">
+    <>
+      <style>{`
+        input[type="time"]::-webkit-calendar-picker-indicator {
+          filter: invert(72%) sepia(35%) saturate(750%) hue-rotate(5deg) brightness(95%) contrast(90%);
+          cursor: pointer;
+        }
+      `}</style>
+      <main className="min-h-screen bg-background text-white pb-20">
       <AdminHeader />
-      <section className="mx-auto max-w-[1600px] px-6 py-8">
-        <h1 className="font-display text-5xl">Restaurant Control Panel</h1>
+      <section className="mx-auto max-w-[1600px] px-6 py-12">
+        <div className="mb-12">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-gold font-bold mb-1">Admin Portal</p>
+          <h1 className="font-display text-4xl sm:text-5xl">Översikt</h1>
+          <p className="text-white/40 text-sm mt-2">Hantera restaurangens status, lagerbehov och menyinställningar.</p>
+        </div>
 
-        <div className="mt-6 grid gap-8 lg:grid-cols-2">
-          <div className="border border-white/10 bg-panel p-5">
-            <h2 className="text-xs uppercase tracking-[0.18em] text-gold">Add Product</h2>
-            <form className="mt-4 grid gap-3" onSubmit={handleCreate}>
-              <input className="border border-white/10 bg-black/30 px-3 py-2" placeholder="Name" value={createForm.name} onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))} required />
-              <textarea className="border border-white/10 bg-black/30 px-3 py-2" placeholder="Description" value={createForm.description} onChange={(e) => setCreateForm((p) => ({ ...p, description: e.target.value }))} required />
-              <input className="border border-white/10 bg-black/30 px-3 py-2" placeholder="Image URL" value={createForm.image} onChange={(e) => setCreateForm((p) => ({ ...p, image: e.target.value }))} required />
-              <div className="grid grid-cols-2 gap-3">
-                <select className="border border-white/10 bg-black/30 px-3 py-2" value={createForm.category} onChange={(e) => setCreateForm((p) => ({ ...p, category: e.target.value }))}>
-                  {CATEGORY_OPTIONS.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-                </select>
-                <input type="number" className="border border-white/10 bg-black/30 px-3 py-2" placeholder="Price" value={createForm.price} onChange={(e) => setCreateForm((p) => ({ ...p, price: e.target.value }))} required />
+        <div className="grid gap-8 lg:grid-cols-2">
+          {/* Add Product Section */}
+          <div className="rounded-2xl border border-white/10 bg-panel/30 p-8 shadow-xl">
+            <h2 className="font-display text-xl text-gold mb-6 uppercase tracking-widest">Lägg till produkt</h2>
+            <form className="grid gap-4" onSubmit={handleCreate}>
+              <div className="space-y-1.5">
+                <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Produktnamn</label>
+                <input 
+                  className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" 
+                  placeholder="t.ex. Margherita" 
+                  value={createForm.name} 
+                  onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))} 
+                  required 
+                />
               </div>
-              <button className="border border-gold bg-gold px-4 py-2 text-black">Add Product</button>
+              <div className="space-y-1.5">
+                <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Beskrivning</label>
+                <textarea 
+                  className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors min-h-[100px]" 
+                  placeholder="Tomatsås, ost..." 
+                  value={createForm.description} 
+                  onChange={(e) => setCreateForm((p) => ({ ...p, description: e.target.value }))} 
+                  required 
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Bild-URL</label>
+                <input 
+                  className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" 
+                  placeholder="/images/menu-pizza.png" 
+                  value={createForm.image} 
+                  onChange={(e) => setCreateForm((p) => ({ ...p, image: e.target.value }))} 
+                  required 
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Kategori</label>
+                  <select 
+                    className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat" 
+                    value={createForm.category} 
+                    onChange={(e) => setCreateForm((p) => ({ ...p, category: e.target.value }))}
+                  >
+                    {CATEGORY_OPTIONS.map((cat) => <option key={cat} value={cat} className="bg-[#0a0a0b]">{cat}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Pris (kr)</label>
+                  <input 
+                    type="number" 
+                    className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" 
+                    placeholder="135" 
+                    value={createForm.price} 
+                    onChange={(e) => setCreateForm((p) => ({ ...p, price: e.target.value }))} 
+                    required 
+                  />
+                </div>
+              </div>
+              <button className="mt-2 w-full rounded-lg bg-gold py-4 text-[10px] font-black uppercase tracking-[0.2em] text-black hover:bg-goldSoft transition-all shadow-xl shadow-gold/10">
+                Spara produkt
+              </button>
             </form>
           </div>
 
-          <div className="border border-white/10 bg-panel p-5">
-            <h2 className="text-xs uppercase tracking-[0.18em] text-gold">Needs List</h2>
-            <form className="mt-4 grid gap-3" onSubmit={addNeed}>
-              <input className="border border-white/10 bg-black/30 px-3 py-2" placeholder="Cheese, Chicken, Cola..." value={needForm.name} onChange={(e) => setNeedForm((p) => ({ ...p, name: e.target.value }))} required />
-              <select className="border border-white/10 bg-black/30 px-3 py-2" value={needForm.status} onChange={(e) => setNeedForm((p) => ({ ...p, status: e.target.value }))}>
-                <option value="ok">OK</option>
-                <option value="need_soon">Need soon</option>
-                <option value="urgent">Urgent</option>
-              </select>
-              <input className="border border-white/10 bg-black/30 px-3 py-2" placeholder="Optional note" value={needForm.note} onChange={(e) => setNeedForm((p) => ({ ...p, note: e.target.value }))} />
-              <button className="border border-gold bg-gold px-4 py-2 text-black">Add Need</button>
+          {/* Needs List Section */}
+          <div className="rounded-2xl border border-white/10 bg-panel/30 p-8 shadow-xl flex flex-col">
+            <h2 className="font-display text-xl text-gold mb-6 uppercase tracking-widest">Inköpslista</h2>
+            <form className="grid gap-4" onSubmit={addNeed}>
+              <div className="space-y-1.5">
+                <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Vara</label>
+                <input 
+                  className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" 
+                  placeholder="Ost, Kyckling, Cola..." 
+                  value={needForm.name} 
+                  onChange={(e) => setNeedForm((p) => ({ ...p, name: e.target.value }))} 
+                  required 
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Status</label>
+                  <select 
+                    className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat" 
+                    value={needForm.status} 
+                    onChange={(e) => setNeedForm((p) => ({ ...p, status: e.target.value }))}
+                  >
+                    <option value="ok" className="bg-[#0a0a0b]">OK</option>
+                    <option value="need_soon" className="bg-[#0a0a0b]">Behövs snart</option>
+                    <option value="urgent" className="bg-[#0a0a0b]">Akut</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Notering</label>
+                  <input 
+                    className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" 
+                    placeholder="Valfri notering" 
+                    value={needForm.note} 
+                    onChange={(e) => setNeedForm((p) => ({ ...p, note: e.target.value }))} 
+                  />
+                </div>
+              </div>
+              <button className="mt-2 w-full rounded-lg bg-gold py-4 text-[10px] font-black uppercase tracking-[0.2em] text-black hover:bg-goldSoft transition-all shadow-xl shadow-gold/10">
+                Lägg till behov
+              </button>
             </form>
-            <div className="mt-4 space-y-2">
+            
+            <div className="mt-8 space-y-3 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
               {needs.map((need) => (
-                <div key={need._id} className="flex items-center justify-between border border-white/10 p-2">
+                <div key={need._id} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4 transition-colors hover:bg-white/[0.04]">
                   <div>
-                    <p>{need.name}</p>
-                    <p className="text-xs text-white/50">{need.note}</p>
+                    <p className="font-medium text-sm">{need.name}</p>
+                    {need.note && <p className="text-[10px] text-white/40 italic mt-1">"{need.note}"</p>}
                   </div>
                   <select
-                    className="border border-white/10 bg-black/30 px-2 py-1 text-xs"
+                    className={`rounded-lg border px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest outline-none transition-all ${
+                      need.status === 'urgent' ? 'border-red-500/40 bg-red-500/10 text-red-400' :
+                      need.status === 'need_soon' ? 'border-yellow-500/40 bg-yellow-500/10 text-yellow-400' :
+                      'border-white/10 bg-white/5 text-white/40'
+                    }`}
                     value={need.status}
                     onChange={(e) => updateNeedStatus(need._id, e.target.value)}
                   >
-                    <option value="ok">OK</option>
-                    <option value="need_soon">Need soon</option>
-                    <option value="urgent">Urgent</option>
+                    <option value="ok" className="bg-[#0a0a0b]">OK</option>
+                    <option value="need_soon" className="bg-[#0a0a0b]">Väntar</option>
+                    <option value="urgent" className="bg-[#0a0a0b]">AKUT</option>
                   </select>
                 </div>
               ))}
@@ -226,47 +318,101 @@ const AdminControlPanel = () => {
           </div>
         </div>
 
-        <div className="mt-8 border border-white/10 bg-panel p-5">
-          <h2 className="text-xs uppercase tracking-[0.18em] text-gold">Opening Hours</h2>
+        {/* Opening Hours Section */}
+        <div className="mt-12 rounded-2xl border border-white/10 bg-panel/30 p-8 shadow-xl">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-display text-xl text-gold uppercase tracking-widest">Öppettider</h2>
+            <button 
+              className="rounded-lg bg-gold px-6 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-black hover:bg-goldSoft transition-all shadow-lg shadow-gold/10" 
+              onClick={saveHours}
+            >
+              Spara schema
+            </button>
+          </div>
+          
           {settings && (
-            <>
-              <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-8">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                 {WEEK_DAYS.map((day) => (
-                  <div key={day} className="border border-white/10 p-3">
-                    <p className="mb-2 capitalize">{day}</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <input type="time" value={settings.week?.[day]?.open || '10:00'} onChange={(e) => updateDay(day, 'open', e.target.value)} className="border border-white/10 bg-black/30 px-2 py-1" />
-                      <input type="time" value={settings.week?.[day]?.close || '23:00'} onChange={(e) => updateDay(day, 'close', e.target.value)} className="border border-white/10 bg-black/30 px-2 py-1" />
+                  <div key={day} className={`rounded-xl border p-4 transition-all ${settings.week?.[day]?.closed ? 'border-red-500/20 bg-red-500/5 opacity-60' : 'border-white/5 bg-white/[0.02]'}`}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gold mb-3">{day === 'monday' ? 'Måndag' : day === 'tuesday' ? 'Tisdag' : day === 'wednesday' ? 'Onsdag' : day === 'thursday' ? 'Torsdag' : day === 'friday' ? 'Fredag' : day === 'saturday' ? 'Lördag' : 'Söndag'}</p>
+                    <div className="space-y-2">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[8px] uppercase tracking-widest text-white/20">Öppnar</span>
+                        <input 
+                          type="time" 
+                          value={settings.week?.[day]?.open || '10:00'} 
+                          onChange={(e) => updateDay(day, 'open', e.target.value)} 
+                          className="w-full bg-transparent border-b border-white/10 py-1 text-xs text-white outline-none focus:border-gold [color-scheme:dark]" 
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[8px] uppercase tracking-widest text-white/20">Stänger</span>
+                        <input 
+                          type="time" 
+                          value={settings.week?.[day]?.close || '22:00'} 
+                          onChange={(e) => updateDay(day, 'close', e.target.value)} 
+                          className="w-full bg-transparent border-b border-white/10 py-1 text-xs text-white outline-none focus:border-gold [color-scheme:dark]" 
+                        />
+                      </div>
                     </div>
-                    <label className="mt-2 flex items-center gap-2 text-xs text-white/70">
-                      <input type="checkbox" checked={Boolean(settings.week?.[day]?.closed)} onChange={(e) => updateDay(day, 'closed', e.target.checked)} />
-                      Closed
+                    <label className="mt-4 flex items-center justify-between gap-2 cursor-pointer group">
+                      <span className="text-[9px] uppercase tracking-widest text-white/40 group-hover:text-red-400 transition-colors">Stängt</span>
+                      <input 
+                        type="checkbox" 
+                        className="accent-gold"
+                        checked={Boolean(settings.week?.[day]?.closed)} 
+                        onChange={(e) => updateDay(day, 'closed', e.target.checked)} 
+                      />
                     </label>
                   </div>
                 ))}
               </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
-                <select className="border border-white/10 bg-black/30 px-3 py-2" value={settings.manualOverride || 'none'} onChange={(e) => setSettings((p) => ({ ...p, manualOverride: e.target.value }))}>
-                  <option value="none">Normal schedule</option>
-                  <option value="force_open">Force open</option>
-                  <option value="force_closed">Force closed</option>
-                </select>
-                <input className="border border-white/10 bg-black/30 px-3 py-2 md:col-span-2" placeholder="Manual message (optional)" value={settings.manualMessage || ''} onChange={(e) => setSettings((p) => ({ ...p, manualMessage: e.target.value }))} />
+
+              <div className="grid gap-6 md:grid-cols-[1fr_2fr] border-t border-white/10 pt-8">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Status Override</label>
+                  <select 
+                    className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat" 
+                    value={settings.manualOverride || 'none'} 
+                    onChange={(e) => setSettings((p) => ({ ...p, manualOverride: e.target.value }))}
+                  >
+                    <option value="none" className="bg-[#0a0a0b]">Följ schema</option>
+                    <option value="force_open" className="bg-[#0a0a0b]">Tvinga ÖPPET</option>
+                    <option value="force_closed" className="bg-[#0a0a0b]">Tvinga STÄNGT</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Manuellt meddelande (valfritt)</label>
+                  <input 
+                    className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" 
+                    placeholder="t.ex. 'Stängt pga renovering'" 
+                    value={settings.manualMessage || ''} 
+                    onChange={(e) => setSettings((p) => ({ ...p, manualMessage: e.target.value }))} 
+                  />
+                </div>
               </div>
-              <button className="mt-3 border border-gold bg-gold px-4 py-2 text-black" onClick={saveHours}>Save Hours</button>
-            </>
+            </div>
           )}
         </div>
 
-        <div className="mt-8 border border-white/10 bg-panel p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xs uppercase tracking-[0.18em] text-gold">Menu Management + Reorder</h2>
-            <select className="border border-white/10 bg-black/30 px-3 py-2" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-              {CATEGORY_OPTIONS.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-            </select>
+        {/* Menu Management Section */}
+        <div className="mt-12 rounded-2xl border border-white/10 bg-panel/30 p-8 shadow-xl">
+          <div className="flex flex-wrap items-center justify-between gap-6 mb-8">
+            <h2 className="font-display text-xl text-gold uppercase tracking-widest">Menyhantering</h2>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Kategori:</span>
+              <select 
+                className="rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-gold outline-none focus:border-gold transition-all appearance-none pr-10 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23c8a44d%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:14px_14px] bg-[right_12px_center] bg-no-repeat" 
+                value={selectedCategory} 
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                {CATEGORY_OPTIONS.map((cat) => <option key={cat} value={cat} className="bg-[#0a0a0b]">{cat}</option>)}
+              </select>
+            </div>
           </div>
 
-          <div className="mt-4 space-y-3">
+          <div className="space-y-4">
             {categoryItems.map((item) => (
               <div
                 key={item._id}
@@ -274,43 +420,76 @@ const AdminControlPanel = () => {
                 onDragStart={() => setDraggingId(item._id)}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => onDropItem(item._id)}
-                className="grid items-center gap-3 border border-white/10 p-3 md:grid-cols-[1fr_120px_120px_220px]"
+                className="grid items-center gap-6 rounded-xl border border-white/5 bg-white/[0.02] p-5 transition-all hover:border-gold/30 hover:bg-white/[0.04] group md:grid-cols-[1fr_100px_140px_180px]"
               >
-                <div>
-                  <p className="font-medium">{item.name}</p>
-                  <p className="text-xs text-white/55">{item.description}</p>
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 shrink-0 rounded-lg bg-white/5 flex items-center justify-center text-white/20 cursor-move">⋮⋮</div>
+                  <div>
+                    <p className="font-medium text-white/90 group-hover:text-gold transition-colors">{item.name}</p>
+                    <p className="text-[10px] text-white/40 line-clamp-1">{item.description}</p>
+                  </div>
                 </div>
-                <p>{item.price} SEK</p>
+                <p className="font-bold text-gold text-sm">{item.price} kr</p>
                 <button
-                  className={`border px-2 py-1 text-xs ${item.available ? 'border-green-400/40 text-green-300' : 'border-red-400/40 text-red-300'}`}
+                  className={`rounded-full border px-4 py-1.5 text-[8px] font-bold uppercase tracking-widest transition-all ${
+                    item.available ? 'border-green-500/40 bg-green-500/10 text-green-400' : 'border-red-500/40 bg-red-500/10 text-red-400'
+                  }`}
                   onClick={() => toggleAvailability(item)}
                 >
-                  {item.available ? 'Available' : 'Unavailable'}
+                  {item.available ? 'Tillgänglig' : 'Ej tillgänglig'}
                 </button>
-                <div className="flex gap-2">
-                  <button className="border border-white/20 px-2 py-1 text-xs" onClick={() => startEdit(item)}>Edit</button>
-                  <button className="border border-red-400/40 px-2 py-1 text-xs text-red-300" onClick={() => removeProduct(item._id)}>Delete</button>
+                <div className="flex justify-end gap-2">
+                  <button 
+                    className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-white/40 hover:border-gold hover:text-gold transition-all" 
+                    onClick={() => startEdit(item)}
+                  >
+                    Redigera
+                  </button>
+                  <button 
+                    className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-red-400/40 hover:bg-red-500 hover:text-white transition-all" 
+                    onClick={() => removeProduct(item._id)}
+                  >
+                    Radera
+                  </button>
                 </div>
               </div>
             ))}
           </div>
 
           {editingId && (
-            <div className="mt-4 border border-gold/30 p-4">
-              <h3 className="text-sm uppercase tracking-[0.14em] text-gold">Edit Product</h3>
-              <div className="mt-3 grid gap-2">
-                <input className="border border-white/10 bg-black/30 px-3 py-2" value={editingForm.name} onChange={(e) => setEditingForm((p) => ({ ...p, name: e.target.value }))} />
-                <textarea className="border border-white/10 bg-black/30 px-3 py-2" value={editingForm.description} onChange={(e) => setEditingForm((p) => ({ ...p, description: e.target.value }))} />
-                <input className="border border-white/10 bg-black/30 px-3 py-2" value={editingForm.image} onChange={(e) => setEditingForm((p) => ({ ...p, image: e.target.value }))} />
-                <div className="grid grid-cols-2 gap-2">
-                  <select className="border border-white/10 bg-black/30 px-3 py-2" value={editingForm.category} onChange={(e) => setEditingForm((p) => ({ ...p, category: e.target.value }))}>
-                    {CATEGORY_OPTIONS.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
-                  <input type="number" className="border border-white/10 bg-black/30 px-3 py-2" value={editingForm.price} onChange={(e) => setEditingForm((p) => ({ ...p, price: e.target.value }))} />
-                </div>
-                <div className="flex gap-2">
-                  <button className="border border-gold bg-gold px-4 py-2 text-black" onClick={saveEdit}>Save</button>
-                  <button className="border border-white/20 px-4 py-2" onClick={() => setEditingId('')}>Cancel</button>
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setEditingId('')} />
+              <div className="relative w-full max-w-xl rounded-2xl border border-gold/30 bg-[#0e0e11] p-8 shadow-2xl animate-in fade-in zoom-in duration-300">
+                <h3 className="font-display text-2xl text-gold mb-6 uppercase tracking-widest">Redigera produkt</h3>
+                <div className="grid gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Namn</label>
+                    <input className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" value={editingForm.name} onChange={(e) => setEditingForm((p) => ({ ...p, name: e.target.value }))} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Beskrivning</label>
+                    <textarea className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors min-h-[80px]" value={editingForm.description} onChange={(e) => setEditingForm((p) => ({ ...p, description: e.target.value }))} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Bild-URL</label>
+                    <input className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" value={editingForm.image} onChange={(e) => setEditingForm((p) => ({ ...p, image: e.target.value }))} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Kategori</label>
+                      <select className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat" value={editingForm.category} onChange={(e) => setEditingForm((p) => ({ ...p, category: e.target.value }))}>
+                        {CATEGORY_OPTIONS.map((cat) => <option key={cat} value={cat} className="bg-[#0a0a0b]">{cat}</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Pris (kr)</label>
+                      <input type="number" className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" value={editingForm.price} onChange={(e) => setEditingForm((p) => ({ ...p, price: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div className="flex gap-4 mt-4">
+                    <button className="flex-1 rounded-lg bg-gold py-4 text-[10px] font-black uppercase tracking-[0.2em] text-black hover:bg-goldSoft transition-all shadow-xl shadow-gold/10" onClick={saveEdit}>Spara ändringar</button>
+                    <button className="flex-1 rounded-lg bg-white/5 border border-white/10 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all" onClick={() => setEditingId('')}>Avbryt</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -318,6 +497,7 @@ const AdminControlPanel = () => {
         </div>
       </section>
     </main>
+    </>
   );
 };
 

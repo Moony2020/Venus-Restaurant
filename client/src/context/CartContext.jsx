@@ -43,16 +43,20 @@ export const CartProvider = ({ children }) => {
   }, [items]);
 
   const addToCart = useCallback((item) => {
-    const normalizedId = item?._id || item?.id;
-    if (!normalizedId) return;
+    // If the item comes with a cartItemId (e.g. from ItemModal with notes), use it.
+    // Otherwise fallback to its normal ID.
+    const cartItemId = item.cartItemId || item._id || item.id;
+    if (!cartItemId) return;
+
+    const qtyToAdd = item.quantityToAdd || 1;
 
     setItems((prev) => {
-      const existing = prev.find((entry) => entry.id === normalizedId);
+      const existing = prev.find((entry) => entry.id === cartItemId);
       if (existing) {
         toast.success(`${item.name} uppdaterad`, TOAST_STYLE);
         return prev.map((entry) =>
-          entry.id === normalizedId
-            ? { ...entry, quantity: entry.quantity + 1 }
+          entry.id === cartItemId
+            ? { ...entry, quantity: entry.quantity + qtyToAdd }
             : entry
         );
       }
@@ -61,18 +65,21 @@ export const CartProvider = ({ children }) => {
       return [
         ...prev,
         {
-          id: normalizedId,
-          _id: normalizedId,
+          id: cartItemId,
+          _id: item._id || item.id, // Keep the original product ID reference
           name: item.name,
           price: Number(item.price) || 0,
-          quantity: 1,
+          quantity: qtyToAdd,
           image: item.image || '',
-          category: item.category || ''
+          category: item.category || '',
+          notes: item.notes || '',
+          availabilityAction: item.availabilityAction || 'remove',
+          optionSummary: item.optionSummary || ''
         }
       ];
     });
 
-    setLastAddedId(normalizedId);
+    setLastAddedId(item._id || item.id);
     setTimeout(() => setLastAddedId(null), 600);
   }, []);
 

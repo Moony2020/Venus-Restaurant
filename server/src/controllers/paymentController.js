@@ -1,6 +1,6 @@
-﻿import Stripe from 'stripe';
+import Stripe from 'stripe';
 import paypal from '@paypal/checkout-server-sdk';
-import Lead from '../models/Lead.js';
+import Inquiry from '../models/Inquiry.js';
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 
@@ -10,10 +10,26 @@ const paypalEnvironment = process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SEC
 
 const paypalClient = paypalEnvironment ? new paypal.core.PayPalHttpClient(paypalEnvironment) : null;
 
+const allowedOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+
+const isAllowedUrl = (url) => {
+  try {
+    const parsed = new URL(url);
+    const origin = new URL(allowedOrigin);
+    return parsed.origin === origin.origin;
+  } catch {
+    return false;
+  }
+};
+
 export const createStripeCheckoutSession = async (req, res) => {
   if (!stripe) return res.status(500).json({ message: 'Stripe is not configured' });
 
   const { items = [], successUrl, cancelUrl } = req.body;
+
+  if (!isAllowedUrl(successUrl) || !isAllowedUrl(cancelUrl)) {
+    return res.status(400).json({ message: 'Invalid redirect URLs' });
+  }
 
   const lineItems = items.map((item) => ({
     quantity: item.quantity,
@@ -52,6 +68,10 @@ export const createPayPalOrder = async (req, res) => {
   if (!paypalClient) return res.status(500).json({ message: 'PayPal is not configured' });
 
   const { items = [], returnUrl, cancelUrl } = req.body;
+
+  if (!isAllowedUrl(returnUrl) || !isAllowedUrl(cancelUrl)) {
+    return res.status(400).json({ message: 'Invalid redirect URLs' });
+  }
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const total = subtotal + 200;
 
@@ -75,14 +95,14 @@ export const createPayPalOrder = async (req, res) => {
 export const createDepositSession = async (req, res) => {
   if (!stripe) return res.status(500).json({ message: 'Stripe is not configured' });
 
-  const { leadId } = req.body;
-  if (!leadId) return res.status(400).json({ message: 'leadId is required' });
+  const { inquiryId } = req.body;
+  if (!inquiryId) return res.status(400).json({ message: 'inquiryId is required' });
 
-  const lead = await Lead.findById(leadId);
-  if (!lead) return res.status(404).json({ message: 'Lead not found' });
+  const inquiry = await Inquiry.findById(inquiryId);
+  if (!inquiry) return res.status(404).json({ message: 'Inquiry not found' });
 
   const isAdmin = req.user?.role === 'admin';
-  const isOwner = lead.user && req.user?._id && lead.user.toString() === req.user._id.toString();
+  const isOwner = inquiry.user && req.user?._id && inquiry.user.toString() === req.user._id.toString();
   if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Forbidden' });
 
   const amountSek = Number(process.env.BESPOKE_DEPOSIT_SEK || 500);
@@ -101,9 +121,9 @@ export const createDepositSession = async (req, res) => {
       }
     ],
     metadata: {
-      leadId: lead._id.toString()
+      inquiryId: inquiry._id.toString()
     },
-    success_url: `${process.env.CLIENT_ORIGIN || 'http://localhost:5173'}/booking-success?leadId=${lead._id}`,
+    success_url: `${process.env.CLIENT_ORIGIN || 'http://localhost:5173'}/booking-success?inquiryId=${inquiry._id}`,
     cancel_url: `${process.env.CLIENT_ORIGIN || 'http://localhost:5173'}/bespoke`
   });
 
@@ -122,10 +142,10 @@ export const stripeWebhook = async (req, res) => {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const leadId = session.metadata?.leadId;
+    const inquiryId = session.metadata?.inquiryId;
 
-    if (leadId) {
-      await Lead.findByIdAndUpdate(leadId, {
+    if (inquiryId) {
+      await Inquiry.findByIdAndUpdate(inquiryId, {
         status: 'booked',
         paymentStatus: 'paid',
         stripeSessionId: session.id

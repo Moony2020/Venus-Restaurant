@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import Order from '../models/Order.js';
 import { getIO } from '../lib/socket.js';
+import { sendOrderConfirmation } from '../lib/mailer.js';
 
 const STATUS_FLOW = {
   pending: ['preparing'],
@@ -24,7 +25,10 @@ export const createOrder = async (req, res) => {
     menuItemId: String(item.menuItemId || item.id || item._id || ''),
     name: item.name,
     price: Number(item.price) || 0,
-    quantity: Math.max(1, Number(item.quantity) || 1)
+    quantity: Math.max(1, Number(item.quantity) || 1),
+    notes: typeof item.notes === 'string' ? item.notes.trim() : '',
+    optionSummary: typeof item.optionSummary === 'string' ? item.optionSummary.trim() : '',
+    availabilityAction: ['remove', 'cancel', 'call'].includes(item.availabilityAction) ? item.availabilityAction : 'remove'
   }));
 
   const computedTotal = sanitizedItems.reduce(
@@ -35,6 +39,7 @@ export const createOrder = async (req, res) => {
   const order = await Order.create({
     customerName: req.body.customerName,
     email: req.body.email,
+    phone: typeof req.body.phone === 'string' ? req.body.phone.trim() : '',
     items: sanitizedItems,
     totalAmount: computedTotal + deliveryFee,
     orderMode,
@@ -47,6 +52,9 @@ export const createOrder = async (req, res) => {
 
   const io = getIO();
   if (io) io.emit('order:new', order);
+
+  // Send confirmation email (non-blocking)
+  sendOrderConfirmation(order).catch(() => {});
 
   res.status(201).json(order);
 };

@@ -39,6 +39,8 @@ const Cart = () => {
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-gold/60 mb-2">{item.category}</p>
                       <h2 className="font-display text-3xl">{item.name}</h2>
+                      {item.optionSummary && <p className="mt-2 text-sm text-gold/60">{item.optionSummary}</p>}
+                      {item.notes && <p className="mt-1 text-sm text-white/40 italic">{item.notes}</p>}
                     </div>
                     <button 
                       onClick={() => removeFromCart(item.id || item._id)}

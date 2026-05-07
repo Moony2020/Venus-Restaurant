@@ -1,6 +1,6 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
-const leadSchema = new mongoose.Schema(
+const inquirySchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     fullName: { type: String, required: true, trim: true },
@@ -22,7 +22,7 @@ const leadSchema = new mongoose.Schema(
     },
     stripeSessionId: { type: String, default: '' }
   },
-  { timestamps: true }
+  { timestamps: true, collection: 'inquiries' }
 );
 
-export default mongoose.model('Lead', leadSchema);
+export default mongoose.model('Inquiry', inquirySchema);

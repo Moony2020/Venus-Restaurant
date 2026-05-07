@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
 import { useCart } from '../context/CartContext';
@@ -46,6 +46,9 @@ const Checkout = () => {
         price: item.price,
         quantity: item.quantity,
         image: item.image,
+        notes: item.notes,
+        availabilityAction: item.availabilityAction,
+        optionSummary: item.optionSummary,
         subtotal: item.subtotal ?? item.price * item.quantity
       })),
     [items]
@@ -75,7 +78,10 @@ const Checkout = () => {
           id: item.id,
           name: item.name,
           price: item.price,
-          quantity: item.quantity
+          quantity: item.quantity,
+          notes: item.notes,
+          availabilityAction: item.availabilityAction,
+          optionSummary: item.optionSummary
         }))
       });
 
@@ -158,6 +164,8 @@ const Checkout = () => {
                 <img src={item.image} alt={item.name} className="h-16 w-16 object-cover xl:h-20 xl:w-20" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-display text-base sm:text-lg lg:text-xl">{item.name}</p>
+                  {item.optionSummary && <p className="truncate text-[11px] leading-snug text-gold/60">{item.optionSummary}</p>}
+                  {item.notes && <p className="truncate text-[11px] leading-snug text-white/40 italic">{item.notes}</p>}
                   <p className="text-[10px] uppercase tracking-[0.12em] text-white/40">{item.quantity} x {item.price} SEK</p>
                 </div>
                 <p className="shrink-0 text-sm font-bold text-gold sm:text-base lg:text-lg">{item.subtotal} SEK</p>

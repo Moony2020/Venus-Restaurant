@@ -3,6 +3,7 @@ import { io as createSocket } from 'socket.io-client';
 import AdminHeader from '../layout/AdminHeader';
 import { useAuth } from '../context/AuthContext';
 import { apiGet, apiPatch } from '../lib/api';
+import { Volume2, VolumeX, Search } from 'lucide-react';
 
 const STATUS_OPTIONS = ['all', 'pending', 'preparing', 'ready', 'done'];
 const STATUS_BADGE = {
@@ -10,6 +11,14 @@ const STATUS_BADGE = {
   preparing: 'bg-yellow-500/20 text-yellow-300 border-yellow-400/40',
   ready: 'bg-blue-500/20 text-blue-300 border-blue-400/40',
   done: 'bg-green-600/20 text-green-300 border-green-500/40'
+};
+
+const STATUS_LABELS = {
+  all: 'Alla statusar',
+  pending: 'Väntande',
+  preparing: 'Tillagas',
+  ready: 'Klar',
+  done: 'Slutförd'
 };
 
 const SOCKET_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : (import.meta.env.PROD ? undefined : 'http://localhost:5000');
@@ -92,7 +101,7 @@ const AdminOrders = () => {
       });
       setOrders(data || []);
     } catch {
-      setError('Could not load orders.');
+      setError('Kunde inte ladda beställningar.');
     } finally {
       setLoading(false);
     }
@@ -173,7 +182,10 @@ const AdminOrders = () => {
   const visibleOrders = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return orders;
-    return orders.filter((order) => String(order.trackingCode || '').toLowerCase().includes(term));
+    return orders.filter((order) => 
+      String(order.trackingCode || '').toLowerCase().includes(term) ||
+      String(order.customerName || '').toLowerCase().includes(term)
+    );
   }, [orders, search]);
 
   const analyticsSummary = useMemo(() => {
@@ -207,123 +219,128 @@ const AdminOrders = () => {
       setOrders((prev) => prev.map((order) => (order._id === id ? { ...order, status: updated.status } : order)));
       setSelectedOrder((prev) => (prev && prev._id === id ? { ...prev, status: updated.status } : prev));
     } catch {
-      setError('Failed to update order status.');
+      setError('Misslyckades att uppdatera orderstatus.');
     }
   };
 
   return (
     <main className="min-h-screen bg-background text-white">
       <AdminHeader />
-      <section className="mx-auto max-w-[1600px] px-6 py-12">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      <section className="mx-auto max-w-[1800px] px-6 py-12">
+        <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Admin</p>
-            <h1 className="font-display text-6xl">Orders Dashboard</h1>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-gold font-bold">Admin Portal</p>
+            <h1 className="font-display text-4xl sm:text-5xl">Beställningar</h1>
           </div>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
               onClick={() => setIsSoundEnabled((prev) => !prev)}
-              className="border border-white/10 bg-panel px-4 py-3 text-[10px] uppercase tracking-[0.16em] text-white/80 hover:border-gold hover:text-gold"
+              className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-[9px] uppercase tracking-[0.16em] transition-all duration-300 ${
+                isSoundEnabled 
+                  ? 'border-gold/30 bg-gold/10 text-gold' 
+                  : 'border-white/10 bg-white/5 text-white/40'
+              }`}
             >
-              Sound {isSoundEnabled ? 'On' : 'Off'}
+              {isSoundEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
+              <span className="hidden sm:inline">Ljud {isSoundEnabled ? 'På' : 'Av'}</span>
             </button>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search tracking code"
-              className="border border-white/10 bg-panel px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-gold focus:outline-none"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={14} />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Sök spårningskod..."
+                className="rounded-lg border border-white/10 bg-panel pl-9 pr-4 py-2.5 text-[11px] text-white focus:border-gold outline-none w-full sm:w-64"
+              />
+            </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none border border-white/10 bg-panel px-6 py-3 pr-12 text-[10px] uppercase tracking-widest text-white/70 focus:border-gold focus:outline-none"
-              style={{
-                backgroundImage:
-                  'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'rgba(200, 164, 77, 0.5)\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 1rem center',
-                backgroundSize: '1.2em'
-              }}
+              className="appearance-none border border-white/10 bg-panel px-4 py-2.5 pr-10 text-[9px] uppercase tracking-widest text-white/70 focus:border-gold outline-none rounded-lg"
             >
               {STATUS_OPTIONS.map((status) => (
                 <option key={status} value={status} className="bg-[#0a0a0b]">
-                  {status === 'all' ? 'All Statuses' : status}
+                  {STATUS_LABELS[status]}
                 </option>
               ))}
             </select>
           </div>
         </div>
 
-        {error && <div className="mt-5 border border-red-400/30 bg-red-900/20 p-3 text-sm text-red-200">{error}</div>}
+        {error && <div className="mt-5 border border-red-400/30 bg-red-900/20 p-3 text-sm text-red-200 rounded-lg">{error}</div>}
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          <div className="border border-white/10 bg-panel p-4">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Today Orders</p>
-            <p className="mt-2 text-3xl text-gold">{analyticsSummary.today.ordersCount || 0}</p>
-            <p className={`mt-1 text-xs ${changeClass(analyticsSummary.ordersChange)}`}>
-              {fmtChange(analyticsSummary.ordersChange)} vs yesterday
+        <div className="mt-8 grid gap-4 grid-cols-2 lg:grid-cols-3 max-[500px]:grid-cols-1">
+          <div className="border border-white/10 bg-panel p-5 rounded-xl">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-white/50">Beställningar idag</p>
+            <p className="mt-2 text-3xl font-display text-gold">{analyticsSummary.today.ordersCount || 0}</p>
+            <p className={`mt-1 text-[10px] font-bold uppercase tracking-widest ${changeClass(analyticsSummary.ordersChange)}`}>
+              {fmtChange(analyticsSummary.ordersChange)} vs igår
             </p>
           </div>
-          <div className="border border-white/10 bg-panel p-4">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Today Revenue</p>
-            <p className="mt-2 text-3xl text-gold">{Math.round(analyticsSummary.today.revenue || 0)} SEK</p>
-            <p className={`mt-1 text-xs ${changeClass(analyticsSummary.revenueChange)}`}>
-              {fmtChange(analyticsSummary.revenueChange)} vs yesterday
+          <div className="border border-white/10 bg-panel p-5 rounded-xl">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-white/50">Omsättning idag</p>
+            <p className="mt-2 text-3xl font-display text-green-400">{Math.round(analyticsSummary.today.revenue || 0)} kr</p>
+            <p className={`mt-1 text-[10px] font-bold uppercase tracking-widest ${changeClass(analyticsSummary.revenueChange)}`}>
+              {fmtChange(analyticsSummary.revenueChange)} vs igår
             </p>
           </div>
-          <div className="border border-white/10 bg-panel p-4">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Last {analyticsDays} Days</p>
-            <p className="mt-2 text-3xl text-gold">{analyticsSummary.totalOrders} orders</p>
-            <p className="mt-1 text-sm text-white/60">{Math.round(analyticsSummary.totalRevenue)} SEK revenue</p>
+          <div className="border border-white/10 bg-panel p-5 rounded-xl relative overflow-hidden max-[1023px]:hidden">
+            <div className="relative z-10">
+              <p className="text-[9px] uppercase tracking-[0.16em] text-white/50">Senaste {analyticsDays} dagarna</p>
+              <p className="mt-2 text-3xl font-display text-white">{analyticsSummary.totalOrders} <span className="text-[10px] font-sans text-white/40 uppercase tracking-widest">best.</span></p>
+              <p className="mt-1 text-xs text-gold font-medium">{Math.round(analyticsSummary.totalRevenue)} kr totalt</p>
+            </div>
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <Volume2 size={80} />
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap gap-2">
           {[7, 14, 30].map((days) => (
             <button
               key={days}
               type="button"
               onClick={() => setAnalyticsDays(days)}
-              className={`border px-3 py-2 text-[10px] uppercase tracking-[0.14em] transition ${
+              className={`rounded-lg border px-4 py-2 text-[9px] font-bold uppercase tracking-widest transition-all duration-300 ${
                 analyticsDays === days
-                  ? 'border-gold bg-gold text-black'
-                  : 'border-white/15 bg-panel text-white/75 hover:border-gold hover:text-gold'
+                  ? 'border-gold bg-gold text-black shadow-lg shadow-gold/10'
+                  : 'border-white/10 bg-panel text-white/50 hover:border-gold/50 hover:text-gold'
               }`}
             >
-              {days} days
+              {days} dagar
             </button>
           ))}
         </div>
 
-        {analyticsLoading ? (
-          <div className="mt-4 border border-white/10 bg-panel p-6 text-sm text-white/60">Loading analytics...</div>
-        ) : analyticsSummary.allZero ? (
-          <div className="mt-4 border border-white/10 bg-panel p-6 text-sm text-white/65">No orders in this period.</div>
-        ) : (
-          <div className="mt-4 border border-white/10 bg-panel p-4">
-            <p className="mb-3 text-[10px] uppercase tracking-[0.16em] text-white/50">Orders per day ({analyticsDays}d)</p>
-            <div className="grid grid-cols-[32px_1fr] gap-3">
-              <div className="flex h-16 flex-col justify-between text-[10px] text-white/45">
+        {!analyticsLoading && !analyticsSummary.allZero && (
+          <div className="mt-6 border border-white/10 bg-panel p-6 rounded-xl overflow-x-auto">
+            <p className="mb-6 text-[9px] uppercase tracking-[0.16em] text-white/50 font-bold">Beställningsvolym ({analyticsDays}d)</p>
+            <div className="grid grid-cols-[40px_1fr] gap-6 min-w-[600px]">
+              <div className="flex h-24 flex-col justify-between text-[9px] text-white/30 font-bold text-right pr-2">
                 <span>{analyticsSummary.maxOrders}</span>
                 <span>{Math.round(analyticsSummary.maxOrders / 2)}</span>
                 <span>0</span>
               </div>
 
-              <div className="grid grid-cols-7 gap-2 md:grid-cols-14">
+              <div className="flex gap-2 items-end">
                 {analytics.map((day) => {
-                  const height = Math.max(8, Math.round(((day.ordersCount || 0) / analyticsSummary.maxOrders) * 56));
+                  const height = Math.max(8, Math.round(((day.ordersCount || 0) / analyticsSummary.maxOrders) * 96));
                   return (
-                    <div key={day.date} className="flex flex-col items-center gap-2">
-                      <div className="flex h-16 w-full items-end justify-center rounded border border-white/10 bg-black/20 p-1">
+                    <div key={day.date} className="flex-1 flex flex-col items-center gap-2 group/bar">
+                      <div className="relative flex h-24 w-full items-end justify-center rounded-t-lg bg-white/[0.02] p-1 transition-colors group-hover/bar:bg-white/[0.05]">
                         <div
-                          className="w-full max-w-[20px] bg-gold/80"
-                          style={{ height }}
-                          title={`${day.date}: ${day.ordersCount} orders / ${Math.round(day.revenue || 0)} SEK`}
+                          className="w-full rounded-t-sm bg-gradient-to-t from-gold/40 to-gold/80 transition-all duration-500 group-hover/bar:to-white"
+                          style={{ height: `${height}px` }}
                         />
+                        {/* Tooltip */}
+                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 scale-0 rounded bg-white px-2 py-1 text-[10px] text-black font-bold transition-transform group-hover/bar:scale-100 whitespace-nowrap z-50">
+                          {day.ordersCount} best. / {Math.round(day.revenue)} kr
+                        </div>
                       </div>
-                      <span className="text-[10px] text-white/45">{day.date.slice(5)}</span>
+                      <span className="text-[8px] text-white/30 font-bold uppercase tracking-widest">{day.date.slice(8, 10)}/{day.date.slice(5, 7)}</span>
                     </div>
                   );
                 })}
@@ -332,76 +349,86 @@ const AdminOrders = () => {
           </div>
         )}
 
-        <div className="mt-6 overflow-x-auto border border-white/10">
-          <table className="w-full min-w-[1080px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] uppercase tracking-[0.18em] text-white/65">
+        <div className="mt-8 overflow-x-auto rounded-xl border border-white/10 bg-panel">
+          <table className="w-full min-w-[1100px] text-left text-sm border-collapse">
+            <thead className="bg-white/5 text-[9px] uppercase tracking-[0.18em] text-white/60 font-bold border-b border-white/10">
               <tr>
-                <th className="px-4 py-3">Tracking Code</th>
-                <th className="px-4 py-3">Customer</th>
-                <th className="px-4 py-3">Items</th>
-                <th className="px-4 py-3">Total</th>
-                <th className="px-4 py-3">Mode</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Created</th>
-                <th className="px-4 py-3">Actions</th>
+                <th className="px-6 py-4 whitespace-nowrap">Spårningskod</th>
+                <th className="px-6 py-4 whitespace-nowrap">Kund</th>
+                <th className="px-6 py-4 whitespace-nowrap text-center">Artiklar</th>
+                <th className="px-6 py-4 whitespace-nowrap">Summa</th>
+                <th className="px-6 py-4 whitespace-nowrap">Typ</th>
+                <th className="px-6 py-4 whitespace-nowrap text-center">Status</th>
+                <th className="px-6 py-4 whitespace-nowrap">Skapad</th>
+                <th className="px-6 py-4 whitespace-nowrap text-right">Åtgärder</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="px-4 py-8 text-white/60" colSpan="8">
-                    Loading orders...
+                  <td className="px-6 py-20 text-center text-white/40" colSpan="8">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+                      Laddar beställningar...
+                    </div>
                   </td>
                 </tr>
               ) : visibleOrders.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-10 text-white/60" colSpan="8">
-                    No orders found.
+                  <td className="px-6 py-20 text-center text-white/40" colSpan="8">
+                    Inga beställningar hittades.
                   </td>
                 </tr>
               ) : (
-                visibleOrders.map((order, index) => {
+                visibleOrders.map((order) => {
                   const nextStatuses = getNextStatuses(order.status);
+                  const isHighlighted = highlightIds.includes(order._id);
                   return (
                     <tr
                       key={order._id}
-                      className={`border-t border-white/10 ${index < 3 ? 'bg-gold/[0.03]' : ''} ${
-                        highlightIds.includes(order._id) ? 'bg-gold/[0.10]' : ''
+                      className={`border-t border-white/5 transition-colors duration-500 hover:bg-white/[0.02] ${
+                        isHighlighted ? 'bg-gold/10' : ''
                       }`}
                     >
-                      <td className="px-4 py-4 font-medium text-gold">{order.trackingCode}</td>
-                      <td className="px-4 py-4">
-                        <p>{order.customerName}</p>
-                        <p className="text-xs text-white/50">{order.email}</p>
+                      <td className="px-6 py-5 font-mono text-gold font-bold whitespace-nowrap text-xs">{order.trackingCode}</td>
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <p className="font-medium text-xs">{order.customerName}</p>
+                        <p className="text-[10px] text-white/40">{order.email}</p>
                       </td>
-                      <td className="px-4 py-4">{order.items?.length || 0}</td>
-                      <td className="px-4 py-4">{Math.round(order.totalAmount || 0)} SEK</td>
-                      <td className="px-4 py-4 text-white/75">{order.orderMode === 'delivery' ? 'Leverans' : 'Hämta själv'}</td>
-                      <td className="px-4 py-4">
-                        <span
-                          className={`inline-flex rounded border px-2 py-1 text-[10px] uppercase tracking-[0.14em] ${STATUS_BADGE[order.status] || STATUS_BADGE.pending}`}
-                        >
-                          {order.status}
+                      <td className="px-6 py-5 text-center whitespace-nowrap">
+                        <span className="inline-block rounded-full bg-white/5 px-3 py-1 text-xs">{order.items?.length || 0}</span>
+                      </td>
+                      <td className="px-6 py-5 font-medium whitespace-nowrap text-gold text-xs">{Math.round(order.totalAmount || 0)} kr</td>
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <span className="text-[9px] uppercase tracking-widest text-white/50 font-bold">
+                          {order.orderMode === 'delivery' ? 'Leverans' : 'Hämtning'}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-white/65">{formatDateTime(order.createdAt)}</td>
-                      <td className="px-4 py-4">
-                        <div className="flex flex-wrap gap-2">
+                      <td className="px-6 py-5 text-center whitespace-nowrap">
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-[8px] font-bold uppercase tracking-[0.14em] ${STATUS_BADGE[order.status] || STATUS_BADGE.pending}`}
+                        >
+                          {STATUS_LABELS[order.status]}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-[10px] text-white/40 whitespace-nowrap font-mono">{formatDateTime(order.createdAt)}</td>
+                      <td className="px-6 py-5 text-right whitespace-nowrap">
+                        <div className="flex justify-end gap-2">
                           <button
                             type="button"
                             onClick={() => setSelectedOrder(order)}
-                            className="border border-white/20 px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-white/75 hover:border-gold hover:text-gold"
+                            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-white/50 transition hover:border-gold/50 hover:text-gold"
                           >
-                            View details
+                            Visa
                           </button>
                           {nextStatuses.map((nextStatus) => (
                             <button
                               key={nextStatus}
                               type="button"
                               onClick={() => updateStatus(order._id, nextStatus)}
-                              className="border border-gold/40 px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-gold hover:bg-gold hover:text-black"
+                              className="rounded-lg border border-gold/30 bg-gold px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-black transition hover:bg-white"
                             >
-                              Mark {nextStatus}
+                              {nextStatus === 'preparing' ? 'Tillaga' : nextStatus === 'ready' ? 'Klar' : 'Slutför'}
                             </button>
                           ))}
                         </div>
@@ -415,58 +442,78 @@ const AdminOrders = () => {
         </div>
       </section>
 
+      {/* Order Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/75 p-4">
-          <div className="w-full max-w-2xl border border-gold/30 bg-panel p-6">
-            <div className="flex items-start justify-between gap-3">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-xl" onClick={() => setSelectedOrder(null)} />
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[#0e0e11]/90 shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="flex items-center justify-between border-b border-white/5 p-6 bg-white/[0.02]">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Order Details</p>
-                <h2 className="mt-1 font-display text-4xl">{selectedOrder.trackingCode}</h2>
-                <p className="mt-2 text-sm text-white/65">
-                  {selectedOrder.customerName} · {selectedOrder.email}
-                </p>
+                <p className="text-[9px] uppercase tracking-widest text-gold font-bold">Order Detaljer</p>
+                <h2 className="mt-1 font-display text-4xl text-white">{selectedOrder.trackingCode}</h2>
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/50">
+                  <span className="font-medium text-white/80">{selectedOrder.customerName}</span>
+                  <span>{selectedOrder.email}</span>
+                  {selectedOrder.phone && <span className="font-mono">{selectedOrder.phone}</span>}
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setSelectedOrder(null)}
-                className="text-sm uppercase tracking-[0.16em] text-white/50 hover:text-white"
+              <button 
+                onClick={() => setSelectedOrder(null)} 
+                className="group rounded-full bg-white/5 p-2 text-white/30 transition-all hover:bg-white/10 hover:text-white"
               >
-                Close
+                <VolumeX size={16} className="hidden" />
+                <span className="text-[9px] uppercase tracking-widest font-bold px-2">Stäng</span>
               </button>
             </div>
 
-            <div className="mt-6 border border-white/10">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-white/5 text-[10px] uppercase tracking-[0.18em] text-white/65">
-                  <tr>
-                    <th className="px-4 py-3">Item</th>
-                    <th className="px-4 py-3">Qty</th>
-                    <th className="px-4 py-3">Price</th>
-                    <th className="px-4 py-3">Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(selectedOrder.items || []).map((item, i) => (
-                    <tr key={`${item.name}-${i}`} className="border-t border-white/10">
-                      <td className="px-4 py-3">{item.name}</td>
-                      <td className="px-4 py-3">{item.quantity}</td>
-                      <td className="px-4 py-3">{item.price} SEK</td>
-                      <td className="px-4 py-3">{Math.round(item.price * item.quantity)} SEK</td>
+            <div className="p-6 max-h-[50vh] overflow-y-auto">
+              <div className="overflow-hidden rounded-xl border border-white/5">
+                <table className="w-full text-left text-sm border-collapse">
+                  <thead className="bg-white/5 text-[9px] uppercase tracking-widest text-white/40 font-bold border-b border-white/5">
+                    <tr>
+                      <th className="px-4 py-3">Produkt</th>
+                      <th className="px-4 py-3 text-center">Antal</th>
+                      <th className="px-4 py-3 text-right">Pris</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {(selectedOrder.items || []).map((item, i) => (
+                      <tr key={`${item.name}-${i}`} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors">
+                        <td className="px-4 py-4">
+                          <p className="font-medium text-white/90 text-xs">{item.name}</p>
+                          {item.optionSummary && (
+                            <p className="mt-1 text-[10px] text-gold/60 italic leading-relaxed">Tillägg: {item.optionSummary}</p>
+                          )}
+                          {item.notes && (
+                            <p className="mt-1 text-[10px] text-white/40 leading-relaxed">Notering: "{item.notes}"</p>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 text-center">
+                          <span className="inline-block rounded-lg bg-white/5 px-2.5 py-1 text-xs font-bold">{item.quantity}</span>
+                        </td>
+                        <td className="px-4 py-4 text-right">
+                          <p className="font-bold text-gold text-xs">{Math.round(item.price * item.quantity)} kr</p>
+                          <p className="text-[9px] text-white/30 font-mono mt-0.5">{item.price} kr/st</p>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
-              <div className="text-sm text-white/60">
-                <p>Created: {formatDateTime(selectedOrder.createdAt)}</p>
-                <p>
-                  Mode: {selectedOrder.orderMode === 'delivery' ? 'Leverans' : 'Hämta själv'}
-                  {selectedOrder.deliveryFee ? ` · Avgift ${selectedOrder.deliveryFee} SEK` : ''}
-                </p>
+            <div className="border-t border-white/5 p-6 bg-white/[0.02]">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] text-white/40 font-bold">
+                  <p className="uppercase tracking-widest">Typ: <span className="text-white/80">{selectedOrder.orderMode === 'delivery' ? 'Leverans' : 'Hämta själv'}</span></p>
+                  <p className="mt-1.5 uppercase tracking-widest">Skapad: <span className="text-white/80 font-mono">{formatDateTime(selectedOrder.createdAt)}</span></p>
+                  {selectedOrder.deliveryFee > 0 && <p className="mt-1.5 uppercase tracking-widest text-gold/60">Leveransavgift: {selectedOrder.deliveryFee} kr</p>}
+                </div>
+                <div className="text-right">
+                  <p className="text-[9px] uppercase tracking-widest text-white/30 font-bold mb-1">Totalsumma</p>
+                  <p className="text-4xl font-display text-gold">{Math.round(selectedOrder.totalAmount || 0)} kr</p>
+                </div>
               </div>
-              <p className="text-lg text-gold">{Math.round(selectedOrder.totalAmount || 0)} SEK</p>
             </div>
           </div>
         </div>
