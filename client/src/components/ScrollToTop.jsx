@@ -26,13 +26,13 @@ const ScrollToTop = () => {
   }, []);
 
   return (
-    <div className={`fixed bottom-8 right-8 z-[150] transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-75 pointer-events-none'}`}>
+    <div className={`fixed bottom-6 right-6 z-[150] transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-75 pointer-events-none'}`}>
       <button
         onClick={scrollToTop}
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-gold/30 bg-black/40 text-gold backdrop-blur-md shadow-2xl transition-all duration-300 hover:bg-gold hover:text-black hover:scale-110 active:scale-95 group"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-gold/30 bg-black/40 text-gold backdrop-blur-md shadow-2xl transition-all duration-300 hover:bg-gold hover:text-black hover:scale-110 active:scale-95 group"
         aria-label="Scroll to top"
       >
-        <ArrowUp size={20} className="transition-transform duration-300 group-hover:-translate-y-1" />
+        <ArrowUp className="h-5 w-5 transition-transform duration-300 group-hover:-translate-y-1" />
       </button>
     </div>
   );

@@ -34,7 +34,7 @@ const HeroSection = () => {
           </p>
         </div>
         
-        <h1 className="mx-auto mb-12 max-w-5xl font-display text-4xl leading-tight text-white sm:text-6xl md:text-8xl lg:text-9xl animate-[fade-in-up_1s_ease-out_0.2s_both]">
+        <h1 className="mx-auto mb-10 max-w-5xl font-display text-3xl leading-tight text-white sm:text-5xl md:text-7xl lg:text-8xl animate-[fade-in-up_1s_ease-out_0.2s_both]">
           Äkta smaker.<br />
           <span className="text-white/90">Äkta upplevelser.</span>
         </h1>

@@ -45,7 +45,7 @@ const OpeningHoursDropdown = ({ week, statusText, isOpen: isCurrentlyOpen }) => 
 
       {/* Dropdown Menu */}
       <div
-        className={`absolute right-0 top-full z-50 mt-2 w-56 origin-top-right overflow-hidden rounded-xl border border-white/10 bg-[#0f141a]/95 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out ${
+        className={`absolute right-0 top-full z-50 mt-2 w-[190px] origin-top-right overflow-hidden rounded-xl border border-white/10 bg-[#0f141a]/95 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out ${
           isOpen 
             ? 'pointer-events-auto scale-100 opacity-100' 
             : 'pointer-events-none scale-95 opacity-0'
@@ -73,8 +73,8 @@ const OpeningHoursDropdown = ({ week, statusText, isOpen: isCurrentlyOpen }) => 
               const isToday = new Date().toLocaleDateString('sv-SE', { weekday: 'long' }).toLowerCase() === dayNames[day.toLowerCase()].toLowerCase();
               
               return (
-                <div key={day} className={`flex items-center justify-between text-[11px] ${isToday ? 'text-white font-medium' : 'text-white/50'}`}>
-                  <span className="capitalize">{dayNames[day.toLowerCase()] || day}</span>
+                <div key={day} className={`flex items-center gap-1 text-[11px] ${isToday ? 'text-white font-medium' : 'text-white/50'}`}>
+                  <span className="w-[62px] shrink-0 capitalize">{dayNames[day.toLowerCase()] || day}</span>
                   <div className="flex items-center gap-2">
                     <div className={`h-1 w-1 rounded-full ${cfg.closed ? 'bg-red-400' : 'bg-green-400'}`} />
                     <span>{cfg.closed ? 'Stängt' : `${cfg.open} - ${cfg.close}`}</span>

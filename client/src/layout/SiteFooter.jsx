@@ -119,23 +119,24 @@ const SiteFooter = () => {
             <div className="space-y-4 text-sm text-white/50">
               <div className="flex items-start gap-3">
                 <Clock size={18} className="mt-0.5 text-gold" />
-                <div className="space-y-1">
-                  <p className="flex justify-between gap-4">
-                    <span>Mån - Tor:</span>
-                    <span className="text-white/80">11:00 - 22:00</span>
-                  </p>
-                  <p className="flex justify-between gap-4">
-                    <span>Fre:</span>
-                    <span className="text-white/80">11:00 - 23:00</span>
-                  </p>
-                  <p className="flex justify-between gap-4">
-                    <span>Lör:</span>
-                    <span className="text-white/80">12:00 - 23:00</span>
-                  </p>
-                  <p className="flex justify-between gap-4">
-                    <span>Sön:</span>
-                    <span className="text-white/80">12:00 - 22:00</span>
-                  </p>
+                <div className="w-full space-y-2">
+                  {[
+                    { label: 'Måndag', range: '11:00 - 22:00', key: 'måndag' },
+                    { label: 'Tisdag', range: '11:00 - 22:00', key: 'tisdag' },
+                    { label: 'Onsdag', range: '11:00 - 22:00', key: 'onsdag' },
+                    { label: 'Torsdag', range: '11:00 - 22:00', key: 'torsdag' },
+                    { label: 'Fredag', range: '11:00 - 23:00', key: 'fredag' },
+                    { label: 'Lördag', range: '12:00 - 23:00', key: 'lördag' },
+                    { label: 'Söndag', range: '12:00 - 22:00', key: 'söndag' }
+                  ].map((day) => {
+                    const isToday = new Date().toLocaleDateString('sv-SE', { weekday: 'long' }).toLowerCase() === day.key;
+                    return (
+                      <div key={day.key} className={`flex gap-1 ${isToday ? 'text-white font-bold' : ''}`}>
+                        <span className="w-[62px] shrink-0">{day.label}:</span>
+                        <span className={isToday ? 'text-gold' : 'text-white/80'}>{day.range}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

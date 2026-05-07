@@ -38,7 +38,7 @@ const Home = () => {
       
       <div className="relative">
         {/* Floating Status Bar Overlay */}
-        <div className="absolute right-6 top-6 z-40 lg:right-12">
+        <div className="absolute right-4 top-4 z-40 scale-90 transform-gpu origin-top-right">
           {restaurantStatus?.week && (
             <OpeningHoursDropdown 
               week={restaurantStatus.week} 
