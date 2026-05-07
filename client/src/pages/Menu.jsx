@@ -13,7 +13,7 @@ import { useRestaurantStatus } from '../hooks/useRestaurantStatus';
 import { MENU_CATEGORIES, MENU_ITEMS, MENU_TAG_FILTERS } from '../lib/menuCatalog';
 
 const ORDER_PREFS_KEY = 'venus_order_prefs';
-const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+const SOCKET_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : (import.meta.env.PROD ? undefined : 'http://localhost:5000');
 
 const LEGACY_CATEGORY_MAP = {
   appetizer: 'starters',

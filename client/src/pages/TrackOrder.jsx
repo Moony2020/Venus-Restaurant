@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
 import { apiGet } from '../lib/api';
 
-const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+const SOCKET_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : (import.meta.env.PROD ? undefined : 'http://localhost:5000');
 const STATUS_STEPS = ['pending', 'preparing', 'ready', 'done'];
 
 const STATUS_TEXT = {

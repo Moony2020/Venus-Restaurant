@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { io as createSocket } from 'socket.io-client';
 import AdminHeader from '../layout/AdminHeader';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +12,7 @@ const STATUS_BADGE = {
   done: 'bg-green-600/20 text-green-300 border-green-500/40'
 };
 
-const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+const SOCKET_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : (import.meta.env.PROD ? undefined : 'http://localhost:5000');
 
 const formatDateTime = (value) => {
   if (!value) return '-';

@@ -1,4 +1,4 @@
-﻿import cors from 'cors';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -6,6 +6,7 @@ import http from 'http';
 import mongoose from 'mongoose';
 import { Server } from 'socket.io';
 import { fileURLToPath } from 'url';
+import path from 'path';
 import menuRoutes from './routes/menuRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
@@ -86,6 +87,17 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/restaurant', restaurantRoutes);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../../client/dist')));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);

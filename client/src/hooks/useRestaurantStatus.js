@@ -1,8 +1,8 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { io as createSocket } from 'socket.io-client';
 import { apiGet } from '../lib/api';
 
-const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+const SOCKET_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : (import.meta.env.PROD ? undefined : 'http://localhost:5000');
 
 export const useRestaurantStatus = () => {
   const [data, setData] = useState(null);

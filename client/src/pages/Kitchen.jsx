@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const ACTIVE_STATUSES = ['pending', 'preparing', 'ready'];
 const STATUS_ORDER = { pending: 0, preparing: 1, ready: 2 };
-const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+const SOCKET_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : (import.meta.env.PROD ? undefined : 'http://localhost:5000');
 
 const STATUS_CARD = {
   pending: 'border-white/20 bg-white/[0.04]',
