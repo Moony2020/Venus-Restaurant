@@ -15,16 +15,16 @@ const timeToMinutes = (hhmm) => {
 const getNowStatus = (settings) => {
   const now = new Date();
   if (settings.manualOverride === 'force_open') {
-    return { isOpen: true, text: 'Oppet nu (manuellt)', closesAt: null };
+    return { isOpen: true, text: 'Öppet nu (manuellt)', closesAt: null };
   }
   if (settings.manualOverride === 'force_closed') {
-    return { isOpen: false, text: settings.manualMessage || 'Stangt just nu', closesAt: null };
+    return { isOpen: false, text: settings.manualMessage || 'Stängt just nu', closesAt: null };
   }
 
   const dayKey = DAY_KEYS[now.getDay()];
   const current = settings.week?.[dayKey];
   if (!current || current.closed) {
-    return { isOpen: false, text: 'Stangt idag', closesAt: null };
+    return { isOpen: false, text: 'Stängt idag', closesAt: null };
   }
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
   const openMinutes = timeToMinutes(current.open);
@@ -32,7 +32,7 @@ const getNowStatus = (settings) => {
   const isOpen = nowMinutes >= openMinutes && nowMinutes < closeMinutes;
   return {
     isOpen,
-    text: isOpen ? `Oppet nu • Stanger kl ${current.close}` : `Stangt • Oppnar kl ${current.open}`,
+    text: isOpen ? `Öppet nu • Stänger kl ${current.close}` : `Stängt • Öppnar kl ${current.open}`,
     closesAt: current.close
   };
 };

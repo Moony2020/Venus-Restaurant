@@ -74,7 +74,7 @@ const SiteHeader = () => {
 
             <Link
               to="/reservations"
-              className="ml-2 hidden border border-gold/40 px-6 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-gold transition-all hover:bg-gold hover:text-black lg:block"
+              className="ml-2 hidden rounded-lg border border-gold/40 px-6 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-gold transition-all hover:bg-gold hover:text-black lg:block"
             >
               Boka bord
             </Link>

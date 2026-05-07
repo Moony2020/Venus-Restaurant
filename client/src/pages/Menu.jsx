@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ShoppingBag, X } from 'lucide-react';
+import { ShoppingBag, X, Search } from 'lucide-react';
 import { io as createSocket } from 'socket.io-client';
 import SiteHeader from '../layout/SiteHeader';
 import CategoryTabs from '../components/menu/CategoryTabs';
@@ -207,18 +207,21 @@ const Menu = () => {
             </h2>
 
             <div className="flex flex-wrap gap-2">
-              <input
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Sök i menyn"
-                className="min-w-[220px] flex-1 border border-white/15 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/45 focus:border-gold focus:outline-none lg:min-w-[360px]"
-              />
+              <div className="relative flex-1 lg:min-w-[360px]">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} strokeWidth={2.5} />
+                <input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Sök i menyn"
+                  className="w-full rounded-lg border border-white/15 bg-white/[0.03] py-3 pl-11 pr-4 text-sm text-white placeholder:text-white/45 focus:border-gold focus:outline-none"
+                />
+              </div>
               {MENU_TAG_FILTERS.map((tag) => (
                 <button
                   key={tag.id}
                   type="button"
                   onClick={() => setActiveTag(tag.id)}
-                  className={`border px-4 py-3 text-[10px] uppercase tracking-[0.16em] transition ${
+                  className={`rounded-lg border px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] transition ${
                     activeTag === tag.id
                       ? 'border-gold bg-gold text-black'
                       : 'border-white/20 bg-white/[0.03] text-white/70 hover:border-gold/50 hover:text-gold'

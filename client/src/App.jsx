@@ -29,6 +29,7 @@ const About = lazy(() => import('./pages/About'));
 const Bespoke = lazy(() => import('./pages/Bespoke'));
 const Reservations = lazy(() => import('./pages/Reservations'));
 import ScrollToTop from './components/ScrollToTop';
+import SiteFooter from './layout/SiteFooter';
 import { Toaster } from 'react-hot-toast';
 
 const App = () => (
@@ -102,6 +103,7 @@ const App = () => (
             }
           />
         </Routes>
+        <SiteFooter />
       </Suspense>
       <Toaster position="bottom-right" reverseOrder={false} />
       <ScrollToTop />

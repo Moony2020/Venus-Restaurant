@@ -61,11 +61,20 @@ const OpeningHoursDropdown = ({ week, statusText, isOpen: isCurrentlyOpen }) => 
         <div className="p-4">
           <div className="space-y-3">
             {Object.entries(week).map(([day, cfg]) => {
-              const isToday = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() === day.toLowerCase();
+              const dayNames = {
+                monday: 'Måndag',
+                tuesday: 'Tisdag',
+                wednesday: 'Onsdag',
+                thursday: 'Torsdag',
+                friday: 'Fredag',
+                saturday: 'Lördag',
+                sunday: 'Söndag'
+              };
+              const isToday = new Date().toLocaleDateString('sv-SE', { weekday: 'long' }).toLowerCase() === dayNames[day.toLowerCase()].toLowerCase();
               
               return (
                 <div key={day} className={`flex items-center justify-between text-[11px] ${isToday ? 'text-white font-medium' : 'text-white/50'}`}>
-                  <span className="capitalize">{day}</span>
+                  <span className="capitalize">{dayNames[day.toLowerCase()] || day}</span>
                   <div className="flex items-center gap-2">
                     <div className={`h-1 w-1 rounded-full ${cfg.closed ? 'bg-red-400' : 'bg-green-400'}`} />
                     <span>{cfg.closed ? 'Stängt' : `${cfg.open} - ${cfg.close}`}</span>

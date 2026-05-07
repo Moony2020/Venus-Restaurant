@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
 import { apiPost } from '../lib/api';
@@ -55,9 +55,9 @@ const Reservations = () => {
         <h1 className="relative z-10 font-display text-5xl sm:text-7xl">Boka Bord</h1>
       </section>
 
-      <section className="mx-auto max-w-4xl px-8 py-20">
+      <section className="relative z-20 mx-auto max-w-4xl px-8 pt-4 pb-20">
         <div className="grid gap-16 lg:grid-cols-[1.5fr_1fr]">
-          <div className="bg-panel border border-white/5 p-8 sm:p-12">
+          <div className="rounded-2xl border border-white/5 bg-panel p-8 sm:p-12">
             {msg && (
               <div className={`mb-8 p-4 text-sm ${msg.includes('bekräftad') ? 'bg-gold/10 text-gold border border-gold/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
                 {msg}
@@ -89,7 +89,7 @@ const Reservations = () => {
                 <textarea placeholder="Speciella önskemål (valfritt)" rows="3" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 pl-2 focus:border-gold outline-none" />
               </div>
 
-              <button disabled={isSubmitting} className="w-full bg-gold py-5 text-[11px] font-bold uppercase tracking-[0.3em] text-black hover:bg-goldSoft transition-all">
+              <button disabled={isSubmitting} className="w-full rounded-lg bg-gold py-5 text-[11px] font-bold uppercase tracking-[0.3em] text-black transition-all hover:bg-goldSoft">
                 {isSubmitting ? 'Bokar...' : 'Bekräfta bokning'}
               </button>
             </form>

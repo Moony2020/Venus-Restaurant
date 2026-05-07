@@ -83,7 +83,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                   key={category.id}
                   type="button"
                   onClick={() => onChange(category.id)}
-                  className={`whitespace-nowrap border px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all duration-300 ease-[cubic-bezier(0.2,0.9,0.25,1)] ${
+                  className={`whitespace-nowrap border px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all duration-300 ease-[cubic-bezier(0.2,0.9,0.25,1)] rounded-lg ${
                     isActive
                       ? 'border-gold bg-gold text-black shadow-[0_0_0_1px_rgba(200,164,77,0.2)]'
                       : 'border-white/20 bg-white/5 text-white/75 hover:border-gold/50 hover:text-gold'

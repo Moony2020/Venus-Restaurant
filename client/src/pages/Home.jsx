@@ -35,8 +35,10 @@ const Home = () => {
   return (
     <main className="min-h-screen bg-background text-white">
       <SiteHeader />
-      <section className="mx-auto w-[92vw] max-w-[2200px] px-6 py-2 text-xs text-white/75 lg:px-8">
-        <div className="flex items-center justify-end">
+      
+      <div className="relative">
+        {/* Floating Status Bar Overlay */}
+        <div className="absolute right-6 top-6 z-40 lg:right-12">
           {restaurantStatus?.week && (
             <OpeningHoursDropdown 
               week={restaurantStatus.week} 
@@ -45,8 +47,10 @@ const Home = () => {
             />
           )}
         </div>
-      </section>
-      <HeroSection />
+
+        <HeroSection />
+      </div>
+
       <div className="reveal"><StorySection /></div>
       <div className="reveal"><GrillSection /></div>
       <div className="reveal"><MenuSection /></div>

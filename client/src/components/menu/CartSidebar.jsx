@@ -16,14 +16,14 @@ const CartSidebar = ({
   const etaText = orderMode === 'delivery' ? deliveryEtaText : pickupEtaText;
 
   return (
-    <aside className="sticky top-[100px] hidden h-fit border border-white/15 bg-white/[0.03] p-4 min-[1200px]:block">
-      <div className="border border-white/10 bg-white/[0.04] p-3">
+    <aside className="sticky top-[100px] hidden h-fit rounded-2xl border border-white/15 bg-white/[0.03] p-4 min-[1200px]:block">
+      <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => deliveryAvailable && onOrderModeChange('delivery')}
             disabled={!deliveryAvailable}
-            className={`border px-3 py-2 text-[11px] uppercase tracking-[0.13em] transition ${
+            className={`rounded-lg border px-3 py-2 text-[11px] uppercase tracking-[0.13em] transition ${
               orderMode === 'delivery'
                 ? 'border-gold bg-gold text-black'
                 : deliveryAvailable
@@ -36,7 +36,7 @@ const CartSidebar = ({
           <button
             type="button"
             onClick={() => onOrderModeChange('pickup')}
-            className={`border px-3 py-2 text-[11px] uppercase tracking-[0.13em] transition ${
+            className={`rounded-lg border px-3 py-2 text-[11px] uppercase tracking-[0.13em] transition ${
               orderMode === 'pickup'
                 ? 'border-gold bg-gold text-black'
                 : 'border-white/20 bg-white/[0.03] text-white/70 hover:border-gold/50 hover:text-gold'
@@ -86,11 +86,11 @@ const CartSidebar = ({
           <span className="text-gold">{finalTotal} kr</span>
         </p>
         {count > 0 && restaurantOpen ? (
-          <Link to="/checkout" className="mt-3 block w-full border border-gold bg-gold px-3 py-3 text-center text-[11px] uppercase tracking-[0.16em] text-black transition hover:bg-goldSoft">
+          <Link to="/checkout" className="mt-3 block w-full rounded-lg border border-gold bg-gold px-3 py-3 text-center text-[11px] uppercase tracking-[0.16em] text-black transition hover:bg-goldSoft">
             Förhandsgranska beställning
           </Link>
         ) : (
-          <span className="mt-3 block w-full cursor-not-allowed border border-white/20 bg-white/10 px-4 py-3 text-center text-xs uppercase tracking-[0.2em] text-white/40">
+          <span className="mt-3 block w-full cursor-not-allowed rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-center text-xs uppercase tracking-[0.2em] text-white/40">
             Förhandsgranska beställning
           </span>
         )}
