@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
-    "build": "npm run build --prefix client",
+    "build": "npm install --include=dev && npm run build --prefix client",
     "start": "npm run start -w server",
     "seed:admin": "node server/scripts/seedAdmin.js"
   },

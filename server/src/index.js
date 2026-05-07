@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import { Server } from 'socket.io';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import fs from 'fs';
 import menuRoutes from './routes/menuRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
@@ -92,10 +93,33 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../client/dist')));
+  // Try to find the dist folder in a few common locations
+  const possiblePaths = [
+    path.join(__dirname, '../../client/dist'),
+    path.join(process.cwd(), '../client/dist'),
+    path.join(process.cwd(), 'client/dist'),
+    path.join(__dirname, '../client/dist')
+  ];
+  
+  let distPath = possiblePaths[0];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      distPath = p;
+      break;
+    }
+  }
+
+  console.log('Serving static files from:', distPath);
+  app.use(express.static(distPath));
+  
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+    const indexPath = path.join(distPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      next();
+    }
   });
 }
 
