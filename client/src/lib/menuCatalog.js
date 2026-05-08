@@ -101,6 +101,7 @@ export const menuData = [
     slug: 'starters',
     items: [
       { id: 'starter_1', name: 'Toast Skagen', description: 'Räkröra på smörstekt toast.', price: 99, image: '/images/menu-starter.png', tags: [] },
+      { id: 'starter_1b', name: 'Tzatziki med bröd', description: 'Krämig tzatziki serverad med varmt bröd.', price: 69, image: '/images/menu-starter.png', tags: ['vegetarian'] },
       { id: 'starter_2', name: 'Vitlöksbröd Special', description: 'Vitlöksbröd med ost och örter.', price: 69, image: '/images/menu-starter.png', tags: ['vegetarian'] },
       { id: 'starter_3', name: 'Mozzarellasticks', description: 'Friterade mozzarellasticks med dip.', price: 79, image: '/images/menu-starter.png', tags: ['vegetarian'] },
       { id: 'starter_4', name: 'Chiliräkor', description: 'Räkor i vitlök, chili och citron.', price: 109, image: '/images/menu-starter.png', tags: ['spicy'] },
@@ -135,7 +136,7 @@ export const menuData = [
     category: 'Pizzor Klass 3',
     slug: 'pizza3',
     items: [
-      { id: 'pizza3_1', name: 'Mamma Mia', description: 'Tomatsås, ost, skinka, räkor och champinjoner.', price: 155, image: '/images/menu-pizza.png', tags: ['popular'], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] },
+      { id: 'pizza3_1', name: 'Mamma Mia', description: 'Tomatsås, ost, skinka, räkor och champinjoner.', price: 155, image: '/images/menu-pizza.png', tags: [], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] },
       { id: 'pizza3_2', name: 'Disco', description: 'Tomatsås, ost, skinka, köttfärs och räkor.', price: 155, image: '/images/menu-pizza.png', tags: [], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] },
       { id: 'pizza3_3', name: 'Vegetariana', description: 'Tomatsås, ost, paprika, lök och kronärtskocka.', price: 152, image: '/images/menu-pizza.png', tags: ['vegetarian'], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] },
       { id: 'pizza3_4', name: 'La Maffia', description: 'Tomatsås, ost, skinka, bacon och ägg.', price: 155, image: '/images/menu-pizza.png', tags: [], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] },
@@ -182,7 +183,7 @@ export const menuData = [
     category: 'Kebabrätter',
     slug: 'kebab',
     items: [
-      { id: 'kebab_1', name: 'Kebabtallrik', description: 'Kebabkött, pommes, sallad och valfri sås.', price: 149, image: '/images/menu-duck.png', tags: ['popular'], customizations: [MEAT_CHOICE, SAUCE_CHOICE, EXTRAS_SECTION] },
+      { id: 'kebab_1', name: 'Kebabtallrik', description: 'Kebabkött, pommes, sallad och valfri sås.', price: 149, image: '/images/menu-duck.png', tags: [], customizations: [MEAT_CHOICE, SAUCE_CHOICE, EXTRAS_SECTION] },
       { id: 'kebab_2', name: 'Kycklingtallrik', description: 'Kycklingkebab med pommes och vitlökssås.', price: 145, image: '/images/menu-duck.png', tags: [], customizations: [SAUCE_CHOICE, EXTRAS_SECTION] },
       { id: 'kebab_3', name: 'Kebabrulle', description: 'Tortillabröd med kebab, sallad och sås.', price: 145, image: '/images/menu-duck.png', tags: [], customizations: [MEAT_CHOICE, SAUCE_CHOICE, EXTRAS_SECTION] },
       { id: 'kebab_4', name: 'Kycklingrulle', description: 'Tortillabröd med kycklingkebab och sås.', price: 145, image: '/images/menu-duck.png', tags: [], customizations: [SAUCE_CHOICE, EXTRAS_SECTION] },
@@ -217,7 +218,7 @@ export const menuData = [
     slug: 'salads',
     items: [
       { id: 'salad_1', name: 'Grekisk Sallad', description: 'Fetaost, oliver, tomat, gurka och rödlök.', price: 119, image: '/images/menu-starter.png', tags: ['vegetarian'], customizations: [EXTRAS_SECTION] },
-      { id: 'salad_2', name: 'Kycklingsallad', description: 'Kyckling, salladsmix, majs och dressing.', price: 125, image: '/images/menu-starter.png', tags: ['popular'], customizations: [EXTRAS_SECTION] },
+      { id: 'salad_2', name: 'Kycklingsallad', description: 'Kyckling, salladsmix, majs och dressing.', price: 125, image: '/images/menu-starter.png', tags: [], customizations: [EXTRAS_SECTION] },
       { id: 'salad_3', name: 'Tonfisksallad', description: 'Tonfisk, ägg, tomat, gurka och lök.', price: 125, image: '/images/menu-starter.png', tags: [], customizations: [EXTRAS_SECTION] },
       { id: 'salad_4', name: 'Räksallad', description: 'Räkor, ägg, salladsmix och citron.', price: 129, image: '/images/menu-starter.png', tags: [], customizations: [EXTRAS_SECTION] },
       { id: 'salad_5', name: 'Halloumisallad', description: 'Grillad halloumi, paprika och balsamico.', price: 129, image: '/images/menu-starter.png', tags: ['vegetarian'], customizations: [EXTRAS_SECTION] }

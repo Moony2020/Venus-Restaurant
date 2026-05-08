@@ -6,12 +6,15 @@ const tagMap = {
   spicy: { label: 'Stark', icon: Flame, className: 'bg-orange-500/15 text-orange-300 border-orange-400/30' }
 };
 
-const MenuCard = ({ item, onAdd, added, restaurantOpen = true }) => {
+const MenuCard = ({ item, onAdd, added, restaurantOpen = true, highlighted = false }) => {
   const disabled = !restaurantOpen || item.available === false;
   return (
     <article 
+      data-menu-item-id={item._id}
       onClick={() => !disabled && onAdd(item)}
-      className={`group relative grid cursor-pointer grid-cols-[1fr_104px] border border-gold/20 bg-white/[0.03] p-4 rounded-2xl backdrop-blur-[2px] transition-all duration-300 sm:grid-cols-[1fr_120px] xl:grid-cols-[1fr_145px] ${disabled ? 'opacity-45' : 'hover:border-gold/50 hover:bg-white/[0.05]'}`}
+      className={`group relative grid cursor-pointer grid-cols-[1fr_104px] border border-gold/20 bg-white/[0.03] p-4 rounded-2xl backdrop-blur-[2px] transition-all duration-300 sm:grid-cols-[1fr_120px] xl:grid-cols-[1fr_145px] ${
+        highlighted ? 'border-gold shadow-[0_0_0_1px_rgba(200,164,77,0.45),0_0_20px_rgba(200,164,77,0.18)]' : ''
+      } ${disabled ? 'opacity-45' : 'hover:border-gold/50 hover:bg-white/[0.05]'}`}
     >
       <div className="pr-3">
         <h3 className="text-[20px] font-display leading-[1.15] text-white break-words sm:text-[22px] transition-colors">{item.name}</h3>
@@ -64,4 +67,3 @@ const MenuCard = ({ item, onAdd, added, restaurantOpen = true }) => {
 };
 
 export default MenuCard;
-

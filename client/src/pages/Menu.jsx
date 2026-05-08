@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ShoppingBag, X, Search, Minus, Plus, Trash2 } from 'lucide-react';
 import { io as createSocket } from 'socket.io-client';
@@ -64,6 +64,7 @@ const Menu = () => {
   const [isCategoryTransitioning, setIsCategoryTransitioning] = useState(false);
   const [liveMenuItems, setLiveMenuItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [highlightedItemId, setHighlightedItemId] = useState('');
   const [orderMode, setOrderMode] = useState(() => {
     try {
       const raw = localStorage.getItem(ORDER_PREFS_KEY);
@@ -119,7 +120,15 @@ const Menu = () => {
     const fromCatalog = MENU_CATEGORIES.map((c) => c.id);
     const fromItems = [...new Set(effectiveItems.map((item) => item.category))];
     const combined = [...new Set([...fromCatalog, ...fromItems])];
-    return MENU_CATEGORIES.filter((c) => combined.includes(c.id));
+    return MENU_CATEGORIES.filter((c) => combined.includes(c.id)).map((category) => {
+      const count = effectiveItems.filter((item) => {
+        if (category.id === 'popular') {
+          return item.category === 'popular' || (Array.isArray(item.tags) && item.tags.includes('popular'));
+        }
+        return item.category === category.id;
+      }).length;
+      return { ...category, count };
+    });
   }, [effectiveItems]);
 
   useEffect(() => {
@@ -155,6 +164,55 @@ const Menu = () => {
       return haystack.includes(term);
     });
   }, [effectiveItems, activeCategory, activeTag, searchTerm]);
+
+  const globalSearchMatches = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (term.length < 2) return [];
+    return effectiveItems.filter((item) => {
+      if (activeTag !== 'all' && !(item.tags || []).includes(activeTag)) return false;
+      const haystack = `${item.name} ${item.description}`.toLowerCase();
+      return haystack.includes(term);
+    });
+  }, [effectiveItems, activeTag, searchTerm]);
+
+  useEffect(() => {
+    const term = searchTerm.trim();
+    if (term.length < 2 || globalSearchMatches.length === 0) {
+      setHighlightedItemId('');
+      return;
+    }
+
+    const firstMatch = globalSearchMatches[0];
+    const targetCategory = firstMatch.category;
+    const categoryExists = categories.some((c) => c.id === targetCategory);
+
+    if (categoryExists && activeCategory !== targetCategory) {
+      setActiveCategory(targetCategory);
+      setSearchParams({ category: targetCategory });
+    }
+
+    setHighlightedItemId(firstMatch._id);
+    // Wait a tick for category transition/layout to settle, then scroll precisely.
+    setTimeout(() => {
+      const card = document.querySelector(`[data-menu-item-id="${firstMatch._id}"]`);
+      if (!card) return;
+
+      const header = document.querySelector('header');
+      const stickyTabs = document.querySelector('[data-category-tabs]');
+      const stickyOffset =
+        (header?.getBoundingClientRect().height || 0) +
+        (stickyTabs?.getBoundingClientRect().height || 0) +
+        20;
+
+      const cardTop = card.getBoundingClientRect().top + window.scrollY;
+      const targetY = Math.max(0, cardTop - stickyOffset);
+
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    }, 320);
+
+    const timer = setTimeout(() => setHighlightedItemId(''), 1500);
+    return () => clearTimeout(timer);
+  }, [searchTerm, globalSearchMatches, categories, activeCategory, setSearchParams]);
 
   const onCategoryChange = (categoryId) => {
     setActiveCategory(categoryId);
@@ -211,30 +269,45 @@ const Menu = () => {
               {activeCategoryLabel}
             </h2>
 
-            <div className="flex flex-wrap gap-2">
-              <div className="relative flex-1 lg:min-w-[360px]">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} strokeWidth={2.5} />
+            {/* Desktop: one row — search + filters side by side */}
+            {/* Mobile: search full-width, filters wrap below */}
+            <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-2">
+              {/* Search bar — full width on mobile, fixed min-width on desktop */}
+              <div className="relative w-full md:flex-1 md:min-w-[260px] md:max-w-[400px]">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} strokeWidth={2.5} />
                 <input
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Sök i menyn"
-                  className="w-full rounded-lg border border-white/15 bg-white/[0.03] py-3 pl-11 pr-4 text-sm text-white placeholder:text-white/45 focus:border-gold focus:outline-none"
+                  placeholder="Sök i menyn..."
+                  className="w-full rounded-xl border border-white/15 bg-white/[0.03] py-3.5 pl-11 pr-10 text-sm text-white placeholder:text-white/30 focus:border-gold/50 focus:outline-none focus:ring-1 focus:ring-gold/20 transition-all"
                 />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-white/30 hover:text-white transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
               </div>
-              {MENU_TAG_FILTERS.map((tag) => (
-                <button
-                  key={tag.id}
-                  type="button"
-                  onClick={() => setActiveTag(tag.id)}
-                  className={`rounded-lg border px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] transition ${
-                    activeTag === tag.id
-                      ? 'border-gold bg-gold text-black'
-                      : 'border-white/20 bg-white/[0.03] text-white/70 hover:border-gold/50 hover:text-gold'
-                  }`}
-                >
-                  {tag.label}
-                </button>
-              ))}
+
+              {/* Filters — wrap below search on mobile, inline on desktop */}
+              <div className="flex flex-wrap gap-2">
+                {MENU_TAG_FILTERS.map((tag) => (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    onClick={() => setActiveTag(tag.id)}
+                    className={`rounded-lg border px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] transition-all duration-200 ${
+                      activeTag === tag.id
+                        ? 'border-gold bg-gold text-black shadow-lg shadow-gold/20'
+                        : 'border-white/20 bg-white/[0.03] text-white/70 hover:border-gold/50 hover:text-gold'
+                    }`}
+                  >
+                    {tag.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -255,6 +328,7 @@ const Menu = () => {
               onAdd={isOpen ? setSelectedItem : () => {}}
               lastAddedId={lastAddedId}
               restaurantOpen={isOpen}
+              highlightedItemId={highlightedItemId}
             />
           </div>
         </div>

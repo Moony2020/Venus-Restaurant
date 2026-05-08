@@ -5,6 +5,7 @@ const SCROLL_STEP = 320;
 
 const CategoryTabs = ({ categories, activeCategory, onChange }) => {
   const scrollRef = useRef(null);
+  const tabRefs = useRef({});
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -33,6 +34,34 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
     };
   }, [categories.length]);
 
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node) return;
+
+    const run = () => {
+      const activeButton = tabRefs.current[activeCategory];
+      if (!activeButton) return;
+
+      const nodeRect = node.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
+      const currentLeft = node.scrollLeft;
+      const deltaToCenter =
+        (buttonRect.left + buttonRect.width / 2) - (nodeRect.left + nodeRect.width / 2);
+      const maxLeft = Math.max(0, node.scrollWidth - node.clientWidth);
+      const targetLeft = Math.min(maxLeft, Math.max(0, currentLeft + deltaToCenter));
+
+      node.scrollTo({ left: targetLeft, behavior: 'smooth' });
+      updateScrollState();
+    };
+
+    const id = requestAnimationFrame(() => {
+      run();
+      setTimeout(run, 80);
+    });
+
+    return () => cancelAnimationFrame(id);
+  }, [activeCategory, categories.length]);
+
   const hasOverflow = useMemo(() => canScrollLeft || canScrollRight, [canScrollLeft, canScrollRight]);
 
   const scrollByStep = (dir) => {
@@ -42,7 +71,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
   };
 
   return (
-    <div className="sticky top-[73px] z-30 border-y border-white/10 bg-[#0a0f14]/95 backdrop-blur">
+    <div data-category-tabs className="sticky top-[73px] z-30 border-y border-white/10 bg-[#0a0f14]/95 backdrop-blur">
       <div className="mx-auto w-[98vw] max-w-[2200px] px-3 py-3 lg:px-8">
         <div className="relative">
           {hasOverflow && (
@@ -81,6 +110,10 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
               return (
                 <button
                   key={category.id}
+                  data-category-tab-id={category.id}
+                  ref={(el) => {
+                    if (el) tabRefs.current[category.id] = el;
+                  }}
                   type="button"
                   onClick={() => onChange(category.id)}
                   className={`whitespace-nowrap border px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all duration-300 ease-[cubic-bezier(0.2,0.9,0.25,1)] rounded-lg ${
@@ -90,6 +123,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                   }`}
                 >
                   {category.label}
+                  {typeof category.count === 'number' ? ` (${category.count})` : ''}
                 </button>
               );
             })}

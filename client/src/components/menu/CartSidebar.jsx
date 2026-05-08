@@ -19,7 +19,7 @@ const CartSidebar = ({
   const etaText = orderMode === 'delivery' ? deliveryEtaText : pickupEtaText;
 
   return (
-    <aside className="sticky top-[100px] hidden h-fit rounded-2xl border border-white/15 bg-white/[0.03] p-4 min-[1200px]:block">
+    <aside className="sticky top-[140px] mt-8 hidden h-fit rounded-2xl border border-white/15 bg-white/[0.03] p-4 pb-7 min-[1200px]:block">
       <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3 shadow-inner">
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -66,9 +66,9 @@ const CartSidebar = ({
         </div>
       </div>
 
-      <div className="mt-6 max-h-[420px] space-y-5 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="mt-6 max-h-[520px] space-y-5 overflow-y-auto pr-2 custom-scrollbar">
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center opacity-20">
+          <div className="flex flex-col items-center justify-center py-10 text-center opacity-20">
             <ShoppingBag size={48} className="mb-4 text-white" strokeWidth={1} />
             <p className="text-sm text-white italic">Din varukorg är tom</p>
           </div>
@@ -130,7 +130,7 @@ const CartSidebar = ({
         )}
       </div>
 
-      <div className="mt-6 border-t border-white/10 pt-5">
+      <div className="mt-14 border-t border-white/10 pt-5">
         {!restaurantOpen && (
           <div className="mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-2 text-center">
             <p className="text-[10px] font-bold uppercase tracking-widest text-red-400">Stängt för beställning</p>

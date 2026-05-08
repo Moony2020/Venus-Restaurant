@@ -1,7 +1,7 @@
 import MenuCard from './MenuCard';
 import MenuSkeletonCard from '../MenuSkeletonCard';
 
-const MenuGrid = ({ items, loading, onAdd, lastAddedId, restaurantOpen }) => {
+const MenuGrid = ({ items, loading, onAdd, lastAddedId, restaurantOpen, highlightedItemId = '' }) => {
   if (loading) {
     return (
       <div className="grid gap-3 md:grid-cols-2 min-[1900px]:grid-cols-3">
@@ -29,6 +29,7 @@ const MenuGrid = ({ items, loading, onAdd, lastAddedId, restaurantOpen }) => {
           onAdd={onAdd}
           added={lastAddedId === item._id}
           restaurantOpen={restaurantOpen}
+          highlighted={highlightedItemId === item._id}
         />
       ))}
     </div>
@@ -36,4 +37,3 @@ const MenuGrid = ({ items, loading, onAdd, lastAddedId, restaurantOpen }) => {
 };
 
 export default MenuGrid;
-
