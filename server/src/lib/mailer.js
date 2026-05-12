@@ -98,3 +98,29 @@ export const sendBookingConfirmation = async (booking) => {
       <p style="margin-top:20px;color:#999">Restaurang Venus</p>`
   });
 };
+
+export const sendPasswordResetEmail = async (user, resetUrl) => {
+  if (!transporter) {
+    return { deliveredToSmtp: false, reason: 'smtp_not_configured' };
+  }
+
+  const info = await transporter.sendMail({
+    from: fromAddress,
+    to: user.email,
+    subject: 'Reset your password',
+    html: `<h2>Hello ${escapeHtml(user.fullName || 'there')},</h2>
+      <p>We received a request to reset your password.</p>
+      <p><a href="${escapeHtml(resetUrl)}">Click here to reset your password</a></p>
+      <p>This link expires in 15 minutes.</p>
+      <p>If you did not request this, you can ignore this email.</p>
+      <p style="margin-top:20px;color:#999">Restaurang Venus</p>`
+  });
+
+  return {
+    deliveredToSmtp: true,
+    messageId: info?.messageId || null,
+    accepted: info?.accepted || [],
+    rejected: info?.rejected || [],
+    response: info?.response || null
+  };
+};

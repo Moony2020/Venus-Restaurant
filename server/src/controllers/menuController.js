@@ -1,5 +1,9 @@
-import MenuItem from '../models/MenuItem.js';
+import MenuItem, { normalizeCategory } from '../models/MenuItem.js';
 import { getIO } from '../lib/socket.js';
+import { clearCacheByPrefix, getCache, setCache } from '../lib/cache.js';
+
+const MENU_CACHE_PREFIX = 'menu:';
+const MENU_CACHE_TTL_MS = 60 * 1000;
 
 const toSlug = (value) =>
   String(value || '')
@@ -18,7 +22,16 @@ const emitMenuUpdated = async () => {
 export const getMenuItems = async (req, res) => {
   const includeUnavailable = req.query.includeUnavailable === 'true' && req.user?.role === 'admin';
   const query = includeUnavailable ? {} : { available: true };
+  const cacheKey = `${MENU_CACHE_PREFIX}${includeUnavailable ? 'all' : 'available'}`;
+  const cached = getCache(cacheKey);
+  if (cached) {
+    res.locals.cacheStatus = 'HIT';
+    return res.json(cached);
+  }
+  res.locals.cacheStatus = 'MISS';
+
   const items = await MenuItem.find(query).sort({ category: 1, position: 1, createdAt: 1 });
+  setCache(cacheKey, items, MENU_CACHE_TTL_MS);
   res.json(items);
 };
 
@@ -28,10 +41,13 @@ export const getLunchOfTheDay = async (_req, res) => {
 };
 
 export const createMenuItem = async (req, res) => {
-  const { name, description, image, category, price, tags } = req.body;
+  let { name, description, image, category, price, tags } = req.body;
   if (!name || !description || !image || !category || Number.isNaN(Number(price))) {
     return res.status(400).json({ message: 'Missing required product fields' });
   }
+
+  // Canonicalize before position check
+  category = normalizeCategory(category);
 
   const countInCategory = await MenuItem.countDocuments({ category });
   const baseSlug = toSlug(name);
@@ -48,6 +64,7 @@ export const createMenuItem = async (req, res) => {
     position: countInCategory
   });
 
+  clearCacheByPrefix(MENU_CACHE_PREFIX);
   await emitMenuUpdated();
   res.status(201).json(item);
 };
@@ -66,6 +83,7 @@ export const updateMenuItem = async (req, res) => {
   if (req.body.name) item.slug = `${toSlug(req.body.name)}-${item._id.toString().slice(-6)}`;
   await item.save();
 
+  clearCacheByPrefix(MENU_CACHE_PREFIX);
   await emitMenuUpdated();
   res.json(item);
 };
@@ -74,6 +92,7 @@ export const deleteMenuItem = async (req, res) => {
   const item = await MenuItem.findById(req.params.id);
   if (!item) return res.status(404).json({ message: 'Product not found' });
   await item.deleteOne();
+  clearCacheByPrefix(MENU_CACHE_PREFIX);
   await emitMenuUpdated();
   res.status(204).send();
 };
@@ -93,6 +112,7 @@ export const reorderCategoryItems = async (req, res) => {
     itemIds.map((id, idx) => MenuItem.updateOne({ _id: id }, { $set: { position: idx } }))
   );
 
+  clearCacheByPrefix(MENU_CACHE_PREFIX);
   await emitMenuUpdated();
   res.json({ ok: true });
 };
@@ -105,7 +125,7 @@ export const setAvailability = async (req, res) => {
     { new: true }
   );
   if (!item) return res.status(404).json({ message: 'Product not found' });
+  clearCacheByPrefix(MENU_CACHE_PREFIX);
   await emitMenuUpdated();
   res.json(item);
 };
-

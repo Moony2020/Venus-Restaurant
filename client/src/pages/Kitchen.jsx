@@ -36,6 +36,7 @@ const Kitchen = () => {
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const pollingRef = useRef(null);
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 30000);
@@ -139,6 +140,18 @@ const Kitchen = () => {
       withCredentials: true
     });
 
+    const stopPolling = () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+
+    const startPolling = () => {
+      if (pollingRef.current) return;
+      pollingRef.current = setInterval(refreshActiveOrders, 12000);
+    };
+
     const refreshActiveOrders = async () => {
       try {
         const data = await apiGet('/orders', {
@@ -152,7 +165,12 @@ const Kitchen = () => {
     };
 
     socket.on('connect', refreshActiveOrders);
-    socket.on('reconnect', refreshActiveOrders);
+    socket.on('connect', stopPolling);
+    socket.on('reconnect', () => {
+      stopPolling();
+      refreshActiveOrders();
+    });
+    socket.on('disconnect', startPolling);
 
     socket.on('order:new', (order) => {
       if (!ACTIVE_STATUSES.includes(order.status)) return;
@@ -195,6 +213,7 @@ const Kitchen = () => {
     });
 
     return () => {
+      stopPolling();
       socket.disconnect();
     };
   }, [token, isSoundEnabled, isAudioUnlocked, isAutoPrintEnabled]);

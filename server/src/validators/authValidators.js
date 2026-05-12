@@ -25,3 +25,22 @@ export const validateChangePassword = (req, res, next) => {
   }
   return next();
 };
+
+export const validateForgotPassword = (req, res, next) => {
+  const { email } = req.body;
+  if (!email || typeof email !== 'string' || !email.includes('@')) {
+    return res.status(400).json({ message: 'valid email is required' });
+  }
+  return next();
+};
+
+export const validateResetPassword = (req, res, next) => {
+  const { token, newPassword } = req.body;
+  if (!token || typeof token !== 'string') {
+    return res.status(400).json({ message: 'token is required' });
+  }
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+    return res.status(400).json({ message: 'newPassword must be at least 6 chars' });
+  }
+  return next();
+};

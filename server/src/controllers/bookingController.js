@@ -1,4 +1,5 @@
 import Booking from '../models/Booking.js';
+import { getIO } from '../lib/socket.js';
 import { sendBookingConfirmation } from '../lib/mailer.js';
 
 export const createBooking = async (req, res) => {
@@ -30,6 +31,9 @@ export const createBooking = async (req, res) => {
     phone: String(phone).trim().slice(0, 30),
     notes: String(notes).trim().slice(0, 500)
   });
+
+  const io = getIO();
+  if (io) io.emit('booking:new', booking);
 
   // Send confirmation email (non-blocking)
   sendBookingConfirmation(booking).catch(() => {});

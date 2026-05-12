@@ -1,9 +1,12 @@
 import NeedItem from '../models/NeedItem.js';
 import Order from '../models/Order.js';
 import RestaurantSettings from '../models/RestaurantSettings.js';
+import { clearCacheByPrefix, getCache, setCache } from '../lib/cache.js';
 import { getIO } from '../lib/socket.js';
 
 const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const SETTINGS_CACHE_PREFIX = 'restaurant-settings:';
+const SETTINGS_CACHE_TTL_MS = 30 * 1000;
 
 const timeToMinutes = (hhmm) => {
   const [h, m] = String(hhmm || '00:00')
@@ -54,17 +57,37 @@ const emitSettingsUpdated = async () => {
 };
 
 export const getPublicRestaurantStatus = async (_req, res) => {
+  const cacheKey = `${SETTINGS_CACHE_PREFIX}status`;
+  const cached = getCache(cacheKey);
+  if (cached) {
+    res.locals.cacheStatus = 'HIT';
+    return res.json(cached);
+  }
+  res.locals.cacheStatus = 'MISS';
+
   const settings = await getSettingsDoc();
-  return res.json({
+  const payload = {
     week: settings.week,
     manualOverride: settings.manualOverride,
     manualMessage: settings.manualMessage,
     nowStatus: getNowStatus(settings)
-  });
+  };
+
+  setCache(cacheKey, payload, SETTINGS_CACHE_TTL_MS);
+  return res.json(payload);
 };
 
 export const getRestaurantSettingsAdmin = async (_req, res) => {
+  const cacheKey = `${SETTINGS_CACHE_PREFIX}admin`;
+  const cached = getCache(cacheKey);
+  if (cached) {
+    res.locals.cacheStatus = 'HIT';
+    return res.json(cached);
+  }
+  res.locals.cacheStatus = 'MISS';
+
   const settings = await getSettingsDoc();
+  setCache(cacheKey, settings, SETTINGS_CACHE_TTL_MS);
   return res.json(settings);
 };
 
@@ -76,6 +99,7 @@ export const updateRestaurantSettingsAdmin = async (req, res) => {
     settings.manualMessage = String(req.body.manualMessage || '');
   }
   await settings.save();
+  clearCacheByPrefix(SETTINGS_CACHE_PREFIX);
   await emitSettingsUpdated();
   return res.json(settings);
 };
@@ -132,4 +156,3 @@ export const getKitchenOrders = async (_req, res) => {
   const orders = await Order.find({ status: { $in: ['pending', 'preparing', 'ready'] } }).sort({ createdAt: -1 });
   return res.json(orders);
 };
-

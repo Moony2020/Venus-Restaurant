@@ -1,8 +1,9 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
 import { apiGet, apiPatch } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 
 const statusStyles = {
   pending: 'border-yellow-400/40 text-yellow-300',
@@ -22,6 +23,9 @@ const Account = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
@@ -170,32 +174,50 @@ const Account = () => {
           {passwordError && <p className="mt-4 border border-red-400/40 bg-red-950/20 px-4 py-2 text-sm text-red-200">{passwordError}</p>}
           {passwordSuccess && <p className="mt-4 border border-green-400/40 bg-green-950/20 px-4 py-2 text-sm text-green-200">{passwordSuccess}</p>}
           <form onSubmit={handlePasswordChange} className="mt-6 grid gap-4 sm:grid-cols-2">
-            <input
-              type="password"
-              placeholder="Current password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full border border-white/20 bg-transparent px-4 py-3"
-              required
-            />
-            <input
-              type="password"
-              placeholder="New password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full border border-white/20 bg-transparent px-4 py-3"
-              required
-              minLength={6}
-            />
-            <input
-              type="password"
-              placeholder="Confirm new password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full border border-white/20 bg-transparent px-4 py-3 sm:col-span-2"
-              required
-              minLength={6}
-            />
+            <div className="relative">
+              <input
+                type={showCurrent ? 'text' : 'password'}
+                placeholder="Current password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full border border-white/20 bg-transparent px-4 py-3 pr-12"
+                required
+              />
+              <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-gold transition-colors">
+                {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <div className="relative">
+              <input
+                type={showNew ? 'text' : 'password'}
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full border border-white/20 bg-transparent px-4 py-3 pr-12"
+                required
+                minLength={6}
+              />
+              <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-gold transition-colors">
+                {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <div className="relative sm:col-span-2">
+              <input
+                type={showConfirm ? 'text' : 'password'}
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full border border-white/20 bg-transparent px-4 py-3 pr-12"
+                required
+                minLength={6}
+              />
+              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-gold transition-colors">
+                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
             <button
               disabled={passwordLoading}
               className="sm:col-span-2 border border-gold bg-gold px-6 py-3 text-xs uppercase tracking-[0.2em] text-black disabled:opacity-70"

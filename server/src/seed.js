@@ -8,7 +8,7 @@ export async function seedMenuIfEmpty() {
     {
       name: 'Miyazaki Wagyu',
       slug: 'miyazaki-wagyu',
-      category: 'popular',
+      category: 'Populärt',
       description: 'A5 Wagyu med tryffelsmor och rostade rodbetor.',
       image: '/images/hero-steak.png',
       price: 1250,
@@ -19,7 +19,7 @@ export async function seedMenuIfEmpty() {
     {
       name: 'Tartufo Pizza',
       slug: 'tartufo-pizza',
-      category: 'pizza-class-4',
+      category: 'Pizzor Klass 4',
       description: 'Svart tryffel, fior di latte, lagrad sojaglasyr, guldflingor.',
       image: '/images/menu-pizza.png',
       price: 650,
@@ -29,7 +29,7 @@ export async function seedMenuIfEmpty() {
     {
       name: 'Cosmic Chocolate',
       slug: 'cosmic-chocolate',
-      category: 'desserts',
+      category: 'Övrigt',
       description: 'Saltkaramell, guldstoft, kakaonib-crunch.',
       image: '/images/menu-dessert.png',
       price: 350,
@@ -39,7 +39,7 @@ export async function seedMenuIfEmpty() {
     {
       name: 'Nightcap',
       slug: 'nightcap',
-      category: 'drinks',
+      category: 'Drycker',
       description: 'Gin, citron, timjan.',
       image: '/images/menu-drink.png',
       price: 145,
@@ -49,7 +49,7 @@ export async function seedMenuIfEmpty() {
     {
       name: 'Pommes Frites',
       slug: 'pommes-frites',
-      category: 'others',
+      category: 'Övrigt',
       description: 'Krispiga pommes, lattsaltade.',
       image: '/images/menu-starter.png',
       price: 69,

@@ -72,6 +72,7 @@ const AdminOrders = () => {
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [analytics, setAnalytics] = useState([]);
   const [analyticsCache, setAnalyticsCache] = useState({});
+  const pollingRef = useRef(null);
 
   useEffect(() => {
     const audio = new Audio('/sounds/new-order.mp3');
@@ -149,6 +150,20 @@ const AdminOrders = () => {
       withCredentials: true
     });
 
+    const stopPolling = () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+
+    const startPolling = () => {
+      if (pollingRef.current) return;
+      pollingRef.current = setInterval(() => {
+        fetchOrders();
+      }, 12000);
+    };
+
     const markHighlighted = (id) => {
       setHighlightIds((prev) => (prev.includes(id) ? prev : [id, ...prev]));
       setTimeout(() => {
@@ -176,7 +191,17 @@ const AdminOrders = () => {
       markHighlighted(updatedOrder._id);
     });
 
-    return () => socket.disconnect();
+    socket.on('connect', stopPolling);
+    socket.on('reconnect', () => {
+      stopPolling();
+      fetchOrders();
+    });
+    socket.on('disconnect', startPolling);
+
+    return () => {
+      stopPolling();
+      socket.disconnect();
+    };
   }, [token, isSoundEnabled, isAudioUnlocked]);
 
   const visibleOrders = useMemo(() => {

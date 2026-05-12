@@ -15,15 +15,26 @@ import inquiryRoutes from './routes/inquiryRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import restaurantRoutes from './routes/restaurantRoutes.js';
+import incidentRoutes from './routes/incidentRoutes.js';
 import { seedMenuIfEmpty } from './seed.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { stripeWebhook } from './controllers/paymentController.js';
 import { setIO } from './lib/socket.js';
+import {
+  getMetrics,
+  recordCacheHit,
+  recordCacheMiss,
+  recordRequest,
+  recordResponseTime,
+  setIncidentHooks
+} from './lib/metrics.js';
+import { handleIncidentResolve, handleIncidentStart } from './lib/incidentService.js';
 
 dotenv.config({ path: fileURLToPath(new URL('../.env', import.meta.url)) });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const shouldLogRequests = process.env.LOG_REQUESTS === 'true' || process.env.NODE_ENV !== 'production';
 
 const validateEnv = () => {
   const required = ['MONGO_URI'];
@@ -77,8 +88,48 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), str
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  const start = Date.now();
+  recordRequest();
+  const originalEnd = res.end.bind(res);
+
+  res.end = function wrappedEnd(...args) {
+    const durationMs = Date.now() - start;
+    const cacheStatus = res.locals.cacheStatus || 'N/A';
+    recordResponseTime(durationMs);
+
+    res.setHeader('X-Response-Time', `${durationMs}ms`);
+    if (cacheStatus !== 'N/A') {
+      res.setHeader('X-Cache', cacheStatus);
+      if (cacheStatus === 'HIT') recordCacheHit();
+      if (cacheStatus === 'MISS') recordCacheMiss();
+    }
+    return originalEnd(...args);
+  };
+
+  res.on('finish', () => {
+    const durationMs = Date.now() - start;
+    const cacheStatus = res.locals.cacheStatus || 'N/A';
+    if (shouldLogRequests) {
+      console.log(
+        `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} ${res.statusCode} ${durationMs}ms (${cacheStatus})`
+      );
+    }
+  });
+
+  next();
+});
+
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, service: 'venus-api' });
+  res.json({
+    status: 'ok',
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    time: new Date().toISOString()
+  });
+});
+
+app.get('/api/metrics', (_req, res) => {
+  res.json(getMetrics());
 });
 
 app.use('/api/auth', authRoutes);
@@ -88,6 +139,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/restaurant', restaurantRoutes);
+app.use('/api/incidents', incidentRoutes);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -130,6 +182,10 @@ async function start() {
   try {
     validateEnv();
     await mongoose.connect(process.env.MONGO_URI);
+    setIncidentHooks({
+      onIncidentStart: handleIncidentStart,
+      onIncidentResolve: handleIncidentResolve
+    });
     await seedMenuIfEmpty();
     console.log('MongoDB connected and menu seeded');
 

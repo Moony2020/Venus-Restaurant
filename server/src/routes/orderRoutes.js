@@ -1,4 +1,5 @@
 ﻿import express from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   createOrder,
   getTrackedOrder,
@@ -19,8 +20,17 @@ import {
 
 const router = express.Router();
 
+const orderWriteLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many order requests, please try again shortly.' }
+});
+
 router.post(
   '/',
+  orderWriteLimiter,
   attachUserIfAny,
   asyncHandler(ensureRestaurantOpenForOrders),
   validateCreateOrder,

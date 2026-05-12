@@ -72,7 +72,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
 
   return (
     <div data-category-tabs className="sticky top-[73px] z-30 border-y border-white/10 bg-[#0a0f14]/95 backdrop-blur">
-      <div className="mx-auto w-[98vw] max-w-[2200px] px-3 py-3 lg:px-8">
+      <div className="mx-auto w-full max-w-[2200px] px-8 py-3 lg:px-16">
         <div className="relative">
           {hasOverflow && (
             <>
@@ -80,7 +80,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                 <button
                   type="button"
                   onClick={() => scrollByStep(-1)}
-                  className="absolute left-1 top-[40%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-[#0a0f14]/95 text-white/85 backdrop-blur transition hover:border-gold hover:text-gold"
+                  className="absolute -left-4 top-[40%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0a0f14]/90 text-white shadow-xl backdrop-blur-md transition-all hover:border-gold hover:text-gold lg:-left-10"
                   aria-label="Scroll categories left"
                 >
                   <ChevronLeft size={16} />
@@ -90,7 +90,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                 <button
                   type="button"
                   onClick={() => scrollByStep(1)}
-                  className="absolute right-1 top-[40%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-[#0a0f14]/95 text-white/85 backdrop-blur transition hover:border-gold hover:text-gold"
+                  className="absolute -right-4 top-[40%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0a0f14]/90 text-white shadow-xl backdrop-blur-md transition-all hover:border-gold hover:text-gold lg:-right-10"
                   aria-label="Scroll categories right"
                 >
                   <ChevronRight size={16} />
@@ -102,7 +102,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
           <div
             ref={scrollRef}
             className={`flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
-              hasOverflow ? 'px-8' : ''
+              hasOverflow ? 'px-12' : ''
             }`}
           >
             {categories.map((category) => {

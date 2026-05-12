@@ -1,9 +1,10 @@
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import PageLoader from './components/PageLoader';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import AdminSystem from './pages/AdminSystem';
 
 const Home = lazy(() => import('./pages/Home'));
 const Menu = lazy(() => import('./pages/Menu'));
@@ -18,6 +19,8 @@ const TrackOrder = lazy(() => import('./pages/TrackOrder'));
 const Account = lazy(() => import('./pages/Account'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const BookingSuccess = lazy(() => import('./pages/BookingSuccess'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
@@ -32,9 +35,12 @@ import ScrollToTop from './components/ScrollToTop';
 import SiteFooter from './layout/SiteFooter';
 import { Toaster } from 'react-hot-toast';
 
-const App = () => (
-  <AuthProvider>
-    <CartProvider>
+const AppContent = () => {
+  const { pathname } = useLocation();
+  const hideFooter = pathname.startsWith('/admin') || pathname.startsWith('/kitchen');
+
+  return (
+    <>
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -54,6 +60,8 @@ const App = () => (
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route
             path="/admin"
             element={
@@ -79,6 +87,14 @@ const App = () => (
             }
           />
           <Route
+            path="/admin/leads"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminInquiries />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/orders"
             element={
               <ProtectedRoute adminOnly>
@@ -95,6 +111,15 @@ const App = () => (
             }
           />
           <Route
+            path="/admin/system"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminSystem />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/kitchen"
             element={
               <ProtectedRoute adminOnly>
@@ -103,10 +128,18 @@ const App = () => (
             }
           />
         </Routes>
-        <SiteFooter />
+        {!hideFooter ? <SiteFooter /> : null}
       </Suspense>
       <Toaster position="bottom-right" reverseOrder={false} />
       <ScrollToTop />
+    </>
+  );
+};
+
+const App = () => (
+  <AuthProvider>
+    <CartProvider>
+      <AppContent />
     </CartProvider>
   </AuthProvider>
 );

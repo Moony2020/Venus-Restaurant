@@ -33,15 +33,46 @@ const LEGACY_CATEGORY_MAP = {
   saser: 'sauces'
 };
 
-const normalizeApiItem = (item) => ({
-  _id: item._id || item.id,
-  category: LEGACY_CATEGORY_MAP[item.category] || item.category || 'popular',
+const normalizeKey = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+const CATEGORY_ID_BY_NORMALIZED_KEY = (() => {
+  const map = new Map();
+  MENU_CATEGORIES.forEach((c) => {
+    map.set(normalizeKey(c.id), c.id);
+    map.set(normalizeKey(c.label), c.id);
+  });
+
+  Object.entries(LEGACY_CATEGORY_MAP).forEach(([legacy, mapped]) => {
+    map.set(normalizeKey(legacy), mapped);
+  });
+
+  return map;
+})();
+
+const resolveCategoryId = (rawCategory) => {
+  const byLegacy = LEGACY_CATEGORY_MAP[rawCategory];
+  if (byLegacy) return byLegacy;
+
+  const normalized = normalizeKey(rawCategory);
+  return CATEGORY_ID_BY_NORMALIZED_KEY.get(normalized) || 'popular';
+};
+
+const normalizeItem = (item) => ({
+  _id: String(item._id || item.id || ''),
+  category: resolveCategoryId(item.category),
   name: item.name || '',
   description: item.description || '',
   price: Number(item.price) || 0,
   image: item.image || '/images/menu-pizza.png',
   tags: Array.isArray(item.tags) ? item.tags : [],
-  available: item.available !== false
+  available: item.available !== false,
+  customizations: item.customizations || []
 });
 
 const isMenuDatasetUsable = (items, categoryIds) => {
@@ -85,7 +116,7 @@ const Menu = () => {
   const { data: restaurantStatus } = useRestaurantStatus();
   const { items: cartItems, total, count, addToCart, lastAddedId, updateQuantity, removeFromCart } = useCart();
 
-  const normalizedApiItems = useMemo(() => (apiItems || []).map(normalizeApiItem), [apiItems]);
+  const normalizedApiItems = useMemo(() => (apiItems || []).map(normalizeItem), [apiItems]);
 
   useEffect(() => {
     setLiveMenuItems(normalizedApiItems);
@@ -99,7 +130,7 @@ const Menu = () => {
     });
 
     socket.on('menu:updated', (items) => {
-      setLiveMenuItems((items || []).map(normalizeApiItem));
+      setLiveMenuItems((items || []).map(normalizeItem));
     });
 
     return () => {
@@ -110,11 +141,25 @@ const Menu = () => {
 
   const catalogItems = useMemo(() => MENU_ITEMS, []);
   const catalogCategoryIds = useMemo(() => MENU_CATEGORIES.map((c) => c.id), []);
+  const mergedApiWithCatalog = useMemo(() => {
+    const apiById = new Map(normalizedApiItems.map((item) => [item._id, item]));
+    const merged = [...normalizedApiItems];
+
+    for (const rawFallback of catalogItems) {
+      const fallbackItem = normalizeItem(rawFallback);
+      if (!apiById.has(fallbackItem._id)) {
+        merged.push(fallbackItem);
+      }
+    }
+
+    return merged;
+  }, [normalizedApiItems, catalogItems]);
+
   const effectiveItems = useMemo(() => {
     if (isMenuDatasetUsable(liveMenuItems, catalogCategoryIds)) return liveMenuItems;
-    if (isMenuDatasetUsable(normalizedApiItems, catalogCategoryIds)) return normalizedApiItems;
+    if (isMenuDatasetUsable(mergedApiWithCatalog, catalogCategoryIds)) return mergedApiWithCatalog;
     return catalogItems;
-  }, [liveMenuItems, normalizedApiItems, catalogItems, catalogCategoryIds]);
+  }, [liveMenuItems, mergedApiWithCatalog, catalogItems, catalogCategoryIds]);
 
   const categories = useMemo(() => {
     const fromCatalog = MENU_CATEGORIES.map((c) => c.id);
@@ -150,7 +195,7 @@ const Menu = () => {
 
   const filteredItems = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    return effectiveItems.filter((item) => {
+    const results = effectiveItems.filter((item) => {
       const shouldUseCategoryFilter = term.length === 0;
       if (shouldUseCategoryFilter) {
         const inActiveCategory =
@@ -163,16 +208,41 @@ const Menu = () => {
       const haystack = `${item.name} ${item.description}`.toLowerCase();
       return haystack.includes(term);
     });
+
+    // Deduplicate by name when searching (items can exist in both Populärt and their real category)
+    if (term.length > 0) {
+      const seen = new Map();
+      for (const item of results) {
+        const key = item.name.toLowerCase();
+        // Prefer the item from its real category over the "popular" copy
+        if (!seen.has(key) || seen.get(key).category === 'popular') {
+          seen.set(key, item);
+        }
+      }
+      return [...seen.values()];
+    }
+
+    return results;
   }, [effectiveItems, activeCategory, activeTag, searchTerm]);
 
   const globalSearchMatches = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (term.length < 2) return [];
-    return effectiveItems.filter((item) => {
+    const matches = effectiveItems.filter((item) => {
       if (activeTag !== 'all' && !(item.tags || []).includes(activeTag)) return false;
       const haystack = `${item.name} ${item.description}`.toLowerCase();
       return haystack.includes(term);
     });
+
+    // Deduplicate — prefer the item from its real category over the "popular" copy
+    const seen = new Map();
+    for (const item of matches) {
+      const key = item.name.toLowerCase();
+      if (!seen.has(key) || seen.get(key).category === 'popular') {
+        seen.set(key, item);
+      }
+    }
+    return [...seen.values()];
   }, [effectiveItems, activeTag, searchTerm]);
 
   useEffect(() => {
@@ -431,45 +501,58 @@ const Menu = () => {
           </div>
         </div>
 
-        <div className="mt-6 max-h-[44vh] space-y-4 overflow-y-auto">
+        <div className="mt-6 max-h-[44vh] space-y-4 overflow-y-auto pr-1 custom-scrollbar">
           {cartItems.length === 0 ? (
-            <p className="text-sm text-white/55">Din varukorg är tom.</p>
+            <div className="flex flex-col items-center justify-center py-10 opacity-20 text-center">
+              <ShoppingBag size={48} className="mb-3" strokeWidth={1} />
+              <p className="text-sm italic">Din varukorg är tom</p>
+            </div>
           ) : (
             cartItems.map((item, i) => (
-              <div key={`${item.id}-${i}`} className="border-b border-white/5 pb-5 last:border-0 last:pb-0">
-                <div className="flex justify-between gap-4">
-                  <div className="flex-1">
-                    <p className="text-[15px] font-medium text-white/90 leading-tight">{item.name}</p>
-                    {item.optionSummary && <p className="mt-1 text-[11px] leading-snug text-gold/60">{item.optionSummary}</p>}
-                    {item.notes && <p className="mt-0.5 text-[11px] leading-snug text-white/40 italic">"{item.notes}"</p>}
+              <div key={`${item.id}-${i}`} className="border-b border-white/5 pb-4 last:border-0 last:pb-0">
+                <div className="flex gap-3">
+                  {/* Thumbnail */}
+                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/5">
+                    <img 
+                      src={item.image || '/images/menu-pizza.png'} 
+                      alt={item.name} 
+                      className="h-full w-full object-cover" 
+                    />
                   </div>
-                  
-                  <div className="flex flex-col items-end gap-2.5">
-                    <p className="text-[15px] font-bold text-gold">{Math.round(item.price * item.quantity)} kr</p>
-                    
-                    <div className="flex items-center gap-3">
-                      <button 
-                        onClick={() => removeFromCart(item.id)}
-                        className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/30 transition hover:text-red-400"
-                      >
-                        <Trash2 size={14} />
-                      </button>
 
+                  {/* Content */}
+                  <div className="flex flex-1 flex-col justify-between">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[14px] font-medium text-white/95 leading-tight">{item.name}</p>
+                      <p className="text-[14px] font-bold text-gold">{Math.round(item.price * item.quantity)} kr</p>
+                    </div>
+                    {item.optionSummary && (
+                      <p className="mt-1 text-[10px] leading-snug text-gold/50 italic">{item.optionSummary}</p>
+                    )}
+                    
+                    <div className="mt-3 flex items-center justify-between">
                       <div className="flex items-center rounded-lg border border-white/10 bg-white/5 p-0.5">
                         <button 
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="px-2 py-1.5 text-white/50"
+                          className="px-2 py-1 text-white/40"
                         >
-                          <Minus size={14} />
+                          <Minus size={12} />
                         </button>
                         <span className="min-w-[20px] text-center text-xs font-bold text-white">{item.quantity}</span>
                         <button 
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="px-2 py-1.5 text-white/50"
+                          className="px-2 py-1 text-white/40"
                         >
-                          <Plus size={14} />
+                          <Plus size={12} />
                         </button>
                       </div>
+
+                      <button 
+                        onClick={() => removeFromCart(item.id)}
+                        className="text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-red-400 transition-colors"
+                      >
+                        Ta bort
+                      </button>
                     </div>
                   </div>
                 </div>

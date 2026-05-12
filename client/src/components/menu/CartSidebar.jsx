@@ -68,59 +68,57 @@ const CartSidebar = ({
 
       <div className="mt-6 max-h-[520px] space-y-5 overflow-y-auto pr-2 custom-scrollbar">
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 text-center opacity-20">
+          <div className="flex flex-col items-center justify-center py-6 text-center opacity-20">
             <ShoppingBag size={48} className="mb-4 text-white" strokeWidth={1} />
             <p className="text-sm text-white italic">Din varukorg är tom</p>
           </div>
         ) : (
           items.map((item, i) => (
             <div key={`${item.id}-${i}`} className="group relative border-b border-white/5 pb-5 last:border-0 last:pb-0">
-              <div className="flex justify-between gap-4">
-                {/* Left: Content */}
-                <div className="flex-1">
-                  <p className="text-[14px] font-medium text-white/95 leading-tight group-hover:text-gold transition-colors">{item.name}</p>
-                  {item.optionSummary && (
-                    <p className="mt-1.5 text-[10px] leading-relaxed text-gold/60 font-medium italic">{item.optionSummary}</p>
-                  )}
-                  {item.notes && (
-                    <p className="mt-1 text-[10px] leading-relaxed text-white/30 border-l border-white/10 pl-2">"{item.notes}"</p>
-                  )}
+              <div className="flex gap-3">
+                {/* Image Thumbnail */}
+                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/5">
+                  <img 
+                    src={item.image || '/images/menu-pizza.png'} 
+                    alt={item.name} 
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                  />
                 </div>
                 
-                {/* Right: Actions and Price */}
-                <div className="flex flex-col items-end gap-3 min-w-[100px]">
-                  {/* Price on top right */}
-                  <div className="text-right">
-                    <p className="text-[15px] font-bold text-gold tracking-tight">{item.price * item.quantity} kr</p>
-                    <p className="text-[9px] uppercase tracking-widest text-white/20">{item.price} kr/st</p>
+                {/* Content */}
+                <div className="flex flex-1 flex-col justify-between">
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[13px] font-medium text-white/95 leading-tight group-hover:text-gold transition-colors">{item.name}</p>
+                      <p className="text-[14px] font-bold text-gold whitespace-nowrap">{item.price * item.quantity} kr</p>
+                    </div>
+                    {item.optionSummary && (
+                      <p className="mt-1 text-[9px] leading-relaxed text-gold/50 font-medium italic">{item.optionSummary}</p>
+                    )}
                   </div>
                   
-                  {/* Actions below price */}
-                  <div className="flex items-center gap-2">
-                    {/* +/- controls on the left of trash */}
+                  <div className="mt-3 flex items-center justify-between">
                     <div className="flex items-center rounded-lg border border-white/10 bg-white/5 p-0.5 shadow-sm">
                       <button 
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="px-2 py-1 text-white/40 transition hover:text-gold hover:bg-white/5 rounded-md"
+                        className="px-1.5 py-0.5 text-white/40 transition hover:text-gold hover:bg-white/5 rounded-md"
                       >
-                        <Minus size={11} />
+                        <Minus size={10} />
                       </button>
-                      <span className="min-w-[22px] text-center text-[11px] font-bold text-white/90">{item.quantity}</span>
+                      <span className="min-w-[18px] text-center text-[10px] font-bold text-white/90">{item.quantity}</span>
                       <button 
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="px-2 py-1 text-white/40 transition hover:text-gold hover:bg-white/5 rounded-md"
+                        className="px-1.5 py-0.5 text-white/40 transition hover:text-gold hover:bg-white/5 rounded-md"
                       >
-                        <Plus size={11} />
+                        <Plus size={10} />
                       </button>
                     </div>
 
-                    {/* Trash icon below price, right of controls */}
                     <button 
                       onClick={() => removeFromCart(item.id)}
-                      className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/20 transition-all hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400 group/trash"
-                      title="Ta bort"
+                      className="text-[10px] font-bold uppercase tracking-widest text-white/20 transition-colors hover:text-red-400"
                     >
-                      <Trash2 size={12} className="group-hover/trash:scale-110 transition-transform" />
+                      Ta bort
                     </button>
                   </div>
                 </div>
@@ -130,7 +128,7 @@ const CartSidebar = ({
         )}
       </div>
 
-      <div className="mt-14 border-t border-white/10 pt-5">
+      <div className="mt-6 border-t border-white/10 pt-5">
         {!restaurantOpen && (
           <div className="mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-2 text-center">
             <p className="text-[10px] font-bold uppercase tracking-widest text-red-400">Stängt för beställning</p>
