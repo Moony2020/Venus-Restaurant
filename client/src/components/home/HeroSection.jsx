@@ -3,26 +3,41 @@ import { useEffect, useState } from 'react';
 
 const HeroSection = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   return (
-    <section className="relative flex h-[100svh] max-h-[800px] sm:max-h-none sm:min-h-screen items-center justify-center overflow-hidden">
+    <section className="relative flex h-[70svh] sm:h-screen max-h-[800px] sm:max-h-none items-center justify-center overflow-hidden">
       {/* Cinematic Parallax Background */}
       <div 
-        className="absolute inset-0 z-0 transition-transform duration-300 ease-out scale-110"
-        style={{ transform: `translateY(${scrollY * 0.3}px) scale(1.05)` }}
+        className="absolute inset-0 z-0 transition-transform duration-300 ease-out"
+        style={{ 
+          transform: `translateY(${scrollY * (windowWidth < 640 ? 0.02 : 0.2)}px) scale(${windowWidth < 640 ? 1 : 1.15})`,
+        }}
       >
-        <img 
-          src="/images/hero-steak.png" 
-          alt="Steak hero" 
-          className="h-full w-full object-cover" 
-          loading="eager" 
-        />
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline 
+          poster="/images/hero-steak.png"
+          className="h-full w-full object-cover object-center"
+        >
+          <source src="/videos/hero-bg.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/30 to-background" />
       </div>
 
