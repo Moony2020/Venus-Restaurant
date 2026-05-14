@@ -98,9 +98,14 @@ app.use((req, res, next) => {
     const cacheStatus = res.locals.cacheStatus || 'N/A';
     recordResponseTime(durationMs);
 
-    res.setHeader('X-Response-Time', `${durationMs}ms`);
+    if (!res.headersSent) {
+      res.setHeader('X-Response-Time', `${durationMs}ms`);
+      if (cacheStatus !== 'N/A') {
+        res.setHeader('X-Cache', cacheStatus);
+      }
+    }
+
     if (cacheStatus !== 'N/A') {
-      res.setHeader('X-Cache', cacheStatus);
       if (cacheStatus === 'HIT') recordCacheHit();
       if (cacheStatus === 'MISS') recordCacheMiss();
     }
