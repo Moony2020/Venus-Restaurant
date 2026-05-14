@@ -1,4 +1,5 @@
 ﻿import express from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   changePassword,
   forgotPassword,
@@ -20,11 +21,19 @@ import {
 
 const router = express.Router();
 
-router.post('/register', validateRegister, asyncHandler(register));
-router.post('/login', validateLogin, asyncHandler(login));
+const authWriteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many authentication attempts. Please try again later.' }
+});
+
+router.post('/register', authWriteLimiter, validateRegister, asyncHandler(register));
+router.post('/login', authWriteLimiter, validateLogin, asyncHandler(login));
 router.post('/logout', asyncHandler(logout));
-router.post('/forgot-password', validateForgotPassword, asyncHandler(forgotPassword));
-router.patch('/reset-password', validateResetPassword, asyncHandler(resetPassword));
+router.post('/forgot-password', authWriteLimiter, validateForgotPassword, asyncHandler(forgotPassword));
+router.patch('/reset-password', authWriteLimiter, validateResetPassword, asyncHandler(resetPassword));
 router.get('/me', verifyToken, asyncHandler(getMe));
 router.patch(
   '/change-password',

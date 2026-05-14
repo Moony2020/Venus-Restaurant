@@ -21,7 +21,7 @@ const Register = () => {
     setLoading(true);
     try {
       const data = await apiPost('/auth/register', { fullName, email, password });
-      setAuth(data?.token || '', data?.user || null);
+      setAuth('', data?.user || null);
       navigate('/account');
     } catch {
       setError('Could not create account');
@@ -69,7 +69,7 @@ const Register = () => {
               placeholder="••••••••" 
               className="w-full border border-white/10 bg-panel/30 px-4 py-4 text-sm focus:border-gold outline-none transition-colors pr-12" 
               required 
-              minLength={6} 
+              minLength={8} 
             />
             <button
               type="button"

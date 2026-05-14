@@ -5,7 +5,7 @@ import { apiGet } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 
 const BookingSuccess = () => {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [params] = useSearchParams();
   const [inquiry, setInquiry] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,15 +16,13 @@ const BookingSuccess = () => {
     let active = true;
 
     async function loadInquiry() {
-      if (!token || !inquiryId) {
+      if (!isAuthenticated || !inquiryId) {
         if (active) setLoading(false);
         return;
       }
 
       try {
-        const data = await apiGet(`/inquiries/${inquiryId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const data = await apiGet(`/inquiries/${inquiryId}`);
         if (active) setInquiry(data);
       } finally {
         if (active) setLoading(false);
@@ -35,7 +33,7 @@ const BookingSuccess = () => {
     return () => {
       active = false;
     };
-  }, [token, inquiryId]);
+  }, [isAuthenticated, inquiryId]);
 
   return (
     <main className="min-h-screen bg-background text-white">

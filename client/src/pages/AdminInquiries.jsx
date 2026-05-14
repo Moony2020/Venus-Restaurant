@@ -15,7 +15,7 @@ const STATUS_BADGE = {
 };
 
 const AdminInquiries = () => {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [inquiries, setInquiries] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
@@ -23,16 +23,14 @@ const AdminInquiries = () => {
   const [error, setError] = useState('');
 
   const fetchInquiries = async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     try {
       setError('');
       const qs = [];
       if (statusFilter !== 'all') qs.push(`status=${statusFilter}`);
       if (paymentFilter !== 'all') qs.push(`payment=${paymentFilter}`);
       const query = qs.length > 0 ? `?${qs.join('&')}` : '';
-      const data = await apiGet(`/inquiries${query}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const data = await apiGet(`/inquiries${query}`);
       setInquiries(data || []);
     } catch {
       setError('Kunde inte ladda förfrågningar.');
@@ -45,7 +43,7 @@ const AdminInquiries = () => {
     setLoading(true);
     fetchInquiries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, statusFilter, paymentFilter]);
+  }, [isAuthenticated, statusFilter, paymentFilter]);
 
   const stats = useMemo(() => {
     return inquiries.reduce(
@@ -64,8 +62,7 @@ const AdminInquiries = () => {
     try {
       const updated = await apiPatch(
         `/inquiries/${id}/status`,
-        { status },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { status }
       );
       setInquiries((prev) => prev.map((l) => (l._id === id ? { ...l, status: updated.status } : l)));
     } catch {

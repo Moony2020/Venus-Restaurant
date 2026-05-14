@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import AdminHeader from '../layout/AdminHeader';
-import { useAuth } from '../context/AuthContext';
 import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api';
 
 const CATEGORY_OPTIONS = [
@@ -34,9 +33,6 @@ const EMPTY_PRODUCT = {
 const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 const AdminControlPanel = () => {
-  const { token } = useAuth();
-  const authHeaders = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
-
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('popular');
   const [createForm, setCreateForm] = useState(EMPTY_PRODUCT);
@@ -49,9 +45,9 @@ const AdminControlPanel = () => {
 
   const loadAll = async () => {
     const [menuData, settingsData, needsData] = await Promise.all([
-      apiGet('/menu?includeUnavailable=true', { headers: authHeaders }),
-      apiGet('/restaurant/settings', { headers: authHeaders }),
-      apiGet('/restaurant/needs', { headers: authHeaders })
+      apiGet('/menu?includeUnavailable=true'),
+      apiGet('/restaurant/settings'),
+      apiGet('/restaurant/needs')
     ]);
     setProducts(menuData || []);
     setSettings(settingsData || null);
@@ -72,11 +68,7 @@ const AdminControlPanel = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    await apiPost(
-      '/menu',
-      { ...createForm, price: Number(createForm.price) || 0 },
-      { headers: authHeaders }
-    );
+    await apiPost('/menu', { ...createForm, price: Number(createForm.price) || 0 });
     setCreateForm({ ...EMPTY_PRODUCT, category: selectedCategory });
     toast.success('Product added');
     await loadAll();
@@ -95,27 +87,19 @@ const AdminControlPanel = () => {
 
   const saveEdit = async () => {
     if (!editingId) return;
-    await apiPatch(
-      `/menu/${editingId}`,
-      { ...editingForm, price: Number(editingForm.price) || 0 },
-      { headers: authHeaders }
-    );
+    await apiPatch(`/menu/${editingId}`, { ...editingForm, price: Number(editingForm.price) || 0 });
     setEditingId('');
     toast.success('Product updated');
     await loadAll();
   };
 
   const toggleAvailability = async (item) => {
-    await apiPatch(
-      `/menu/${item._id}/availability`,
-      { available: !item.available },
-      { headers: authHeaders }
-    );
+    await apiPatch(`/menu/${item._id}/availability`, { available: !item.available });
     await loadAll();
   };
 
   const removeProduct = async (id) => {
-    await apiDelete(`/menu/${id}`, { headers: authHeaders });
+    await apiDelete(`/menu/${id}`);
     toast.success('Product deleted');
     await loadAll();
   };
@@ -130,7 +114,7 @@ const AdminControlPanel = () => {
     ordered.splice(to, 0, moved);
     const itemIds = ordered.map((x) => x._id);
     setDraggingId('');
-    await apiPatch('/menu/reorder', { category: selectedCategory, itemIds }, { headers: authHeaders });
+    await apiPatch('/menu/reorder', { category: selectedCategory, itemIds });
     await loadAll();
   };
 
@@ -145,27 +129,23 @@ const AdminControlPanel = () => {
   };
 
   const saveHours = async () => {
-    await apiPatch(
-      '/restaurant/settings',
-      {
-        week: settings.week,
-        manualOverride: settings.manualOverride,
-        manualMessage: settings.manualMessage
-      },
-      { headers: authHeaders }
-    );
+    await apiPatch('/restaurant/settings', {
+      week: settings.week,
+      manualOverride: settings.manualOverride,
+      manualMessage: settings.manualMessage
+    });
     toast.success('Opening hours updated');
   };
 
   const addNeed = async (e) => {
     e.preventDefault();
-    await apiPost('/restaurant/needs', needForm, { headers: authHeaders });
+    await apiPost('/restaurant/needs', needForm);
     setNeedForm({ name: '', status: 'ok', note: '' });
     await loadAll();
   };
 
   const updateNeedStatus = async (id, status) => {
-    await apiPatch(`/restaurant/needs/${id}`, { status }, { headers: authHeaders });
+    await apiPatch(`/restaurant/needs/${id}`, { status });
     await loadAll();
   };
 
@@ -502,4 +482,3 @@ const AdminControlPanel = () => {
 };
 
 export default AdminControlPanel;
-

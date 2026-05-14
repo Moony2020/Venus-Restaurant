@@ -40,9 +40,7 @@ const validateEnv = () => {
   const required = ['MONGO_URI'];
   const missingRequired = required.filter((key) => !process.env[key]);
 
-  // We allow COOKIE_SECRET as fallback for backwards compatibility.
-  const hasJwtSecret = Boolean(process.env.JWT_SECRET || process.env.COOKIE_SECRET);
-  if (!hasJwtSecret) missingRequired.push('JWT_SECRET (or COOKIE_SECRET fallback)');
+  if (!process.env.JWT_SECRET) missingRequired.push('JWT_SECRET');
 
   if (missingRequired.length) {
     throw new Error(`Missing required env vars: ${missingRequired.join(', ')}`);

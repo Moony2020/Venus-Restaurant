@@ -15,7 +15,7 @@ const statusStyles = {
 
 const Account = () => {
   const navigate = useNavigate();
-  const { token, user, isCheckingAuth, setAuth, logout } = useAuth();
+  const { user, isCheckingAuth, setAuth, logout } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [error, setError] = useState('');
@@ -34,18 +34,18 @@ const Account = () => {
     let active = true;
 
     async function load() {
-      if (!token) {
+      if (!user) {
         navigate('/login');
         return;
       }
 
       try {
         const [me, myOrders] = await Promise.all([
-          apiGet('/auth/me', { headers: { Authorization: `Bearer ${token}` } }),
-          apiGet('/orders/my', { headers: { Authorization: `Bearer ${token}` } })
+          apiGet('/auth/me'),
+          apiGet('/orders/my')
         ]);
         if (!active) return;
-        setAuth(token, me);
+        setAuth('', me);
         setOrders(myOrders);
       } catch {
         if (!active) return;
@@ -62,7 +62,7 @@ const Account = () => {
     return () => {
       active = false;
     };
-  }, [token, isCheckingAuth, navigate, setAuth, logout]);
+  }, [user, isCheckingAuth, navigate, setAuth, logout]);
 
   const handleLogout = async () => {
     await logout();
@@ -83,8 +83,7 @@ const Account = () => {
     try {
       const data = await apiPatch(
         '/auth/change-password',
-        { currentPassword, newPassword },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { currentPassword, newPassword }
       );
       setPasswordSuccess(data?.message || 'Password updated successfully.');
       setCurrentPassword('');
@@ -196,7 +195,7 @@ const Account = () => {
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full border border-white/20 bg-transparent px-4 py-3 pr-12"
                 required
-                minLength={6}
+                minLength={8}
               />
               <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-gold transition-colors">
                 {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -211,7 +210,7 @@ const Account = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full border border-white/20 bg-transparent px-4 py-3 pr-12"
                 required
-                minLength={6}
+                minLength={8}
               />
               <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-gold transition-colors">
                 {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}

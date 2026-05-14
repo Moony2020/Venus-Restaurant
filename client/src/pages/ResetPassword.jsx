@@ -59,7 +59,7 @@ const ResetPassword = () => {
               placeholder="••••••••"
               className="w-full border border-white/10 bg-panel/30 px-4 py-4 text-sm focus:border-gold outline-none transition-colors pr-12"
               required
-              minLength={6}
+              minLength={8}
             />
             <button
               type="button"
@@ -79,7 +79,7 @@ const ResetPassword = () => {
               placeholder="••••••••"
               className="w-full border border-white/10 bg-panel/30 px-4 py-4 text-sm focus:border-gold outline-none transition-colors pr-12"
               required
-              minLength={6}
+              minLength={8}
             />
             <button
               type="button"

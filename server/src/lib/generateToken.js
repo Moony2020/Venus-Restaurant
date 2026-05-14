@@ -1,6 +1,6 @@
 ﻿import jwt from 'jsonwebtoken';
+import { getJwtSecret } from './auth.js';
 
 export const generateToken = (user) => {
-  const secret = process.env.JWT_SECRET || process.env.COOKIE_SECRET;
-  return jwt.sign({ id: user._id, role: user.role }, secret, { expiresIn: '7d' });
+  return jwt.sign({ userId: user._id, role: user.role }, getJwtSecret(), { expiresIn: '24h' });
 };

@@ -20,7 +20,7 @@ const Login = () => {
     setLoading(true);
     try {
       const data = await apiPost('/auth/login', { email, password });
-      setAuth(data?.token || '', data?.user || null);
+      setAuth('', data?.user || null);
       if (data?.user?.role === 'admin') navigate('/admin/leads');
       else navigate('/account');
     } catch {

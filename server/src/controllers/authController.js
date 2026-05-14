@@ -1,6 +1,5 @@
 ﻿import User from '../models/User.js';
 import { clearAuthCookie, setAuthCookie, signAuthToken } from '../lib/auth.js';
-import { generateToken } from '../lib/generateToken.js';
 import crypto from 'crypto';
 import { sendPasswordResetEmail } from '../lib/mailer.js';
 
@@ -13,10 +12,8 @@ export const register = async (req, res) => {
   const user = await User.create({ fullName, email, password });
   const cookieToken = signAuthToken(user._id.toString());
   setAuthCookie(res, cookieToken);
-  const token = generateToken(user);
 
   res.status(201).json({
-    token,
     user: { _id: user._id, fullName: user.fullName, email: user.email, role: user.role }
   });
 };
@@ -31,10 +28,8 @@ export const login = async (req, res) => {
 
   const cookieToken = signAuthToken(user._id.toString());
   setAuthCookie(res, cookieToken);
-  const token = generateToken(user);
 
   return res.json({
-    token,
     user: { _id: user._id, fullName: user.fullName, email: user.email, role: user.role }
   });
 };

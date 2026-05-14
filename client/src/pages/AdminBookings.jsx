@@ -22,7 +22,7 @@ const formatDateTime = (value) => {
 };
 
 const AdminBookings = () => {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -31,13 +31,11 @@ const AdminBookings = () => {
   const [selectedNotes, setSelectedNotes] = useState(null);
 
   const fetchBookings = async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     try {
       setError('');
       const qs = statusFilter === 'all' ? '' : `?status=${statusFilter}`;
-      const data = await apiGet(`/bookings${qs}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const data = await apiGet(`/bookings${qs}`);
       setBookings(data || []);
     } catch {
       setError('Kunde inte ladda bokningar.');
@@ -50,7 +48,7 @@ const AdminBookings = () => {
     setLoading(true);
     fetchBookings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, statusFilter]);
+  }, [isAuthenticated, statusFilter]);
 
   const visibleBookings = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -81,8 +79,7 @@ const AdminBookings = () => {
     try {
       const updated = await apiPatch(
         `/bookings/${id}/status`,
-        { status },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { status }
       );
       setBookings((prev) => prev.map((b) => (b._id === id ? { ...b, status: updated.status } : b)));
     } catch {

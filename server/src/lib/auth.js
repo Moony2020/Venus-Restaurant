@@ -1,17 +1,22 @@
 import jwt from 'jsonwebtoken';
 
 const COOKIE_NAME = 'venus_auth';
-const getJwtSecret = () => process.env.JWT_SECRET || process.env.COOKIE_SECRET;
+const getJwtSecret = () => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is required');
+  }
+  return process.env.JWT_SECRET;
+};
 
 export const signAuthToken = (userId) =>
-  jwt.sign({ userId }, getJwtSecret(), { expiresIn: '7d' });
+  jwt.sign({ userId }, getJwtSecret(), { expiresIn: '24h' });
 
 export const setAuthCookie = (res, token) => {
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 7 * 24 * 60 * 60 * 1000
+    maxAge: 24 * 60 * 60 * 1000
   });
 };
 
@@ -20,3 +25,4 @@ export const clearAuthCookie = (res) => {
 };
 
 export const getAuthCookieName = () => COOKIE_NAME;
+export { getJwtSecret };

@@ -3,32 +3,17 @@ import { apiGet, apiPost } from '../lib/api';
 
 const AuthContext = createContext(null);
 
-const decodeToken = (token) => {
-  try {
-    const payload = token.split('.')[1];
-    return JSON.parse(atob(payload));
-  } catch {
-    return null;
-  }
-};
-
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [token, setToken] = useState('');
   const [user, setUser] = useState(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  const decoded = useMemo(() => (token ? decodeToken(token) : null), [token]);
-  const role = user?.role || decoded?.role || null;
+  const role = user?.role || null;
   const isAdmin = role === 'admin';
-  const isAuthenticated = Boolean(token);
+  const isAuthenticated = Boolean(user);
 
   const applyAuth = useCallback((nextToken, nextUser) => {
-    setToken(nextToken || '');
-    if (nextToken) {
-      localStorage.setItem('token', nextToken);
-    } else {
-      localStorage.removeItem('token');
-    }
+    setToken(nextToken || (nextUser ? 'session' : ''));
     setUser(nextUser || null);
   }, []);
 
@@ -45,21 +30,17 @@ export const AuthProvider = ({ children }) => {
     let active = true;
 
     async function validateSession() {
-      if (!token) {
+      try {
+        const me = await apiGet('/auth/me');
+        if (active) {
+          setUser(me);
+          setToken('session');
+        }
+      } catch {
         if (active) {
           setUser(null);
-          setIsCheckingAuth(false);
+          setToken('');
         }
-        return;
-      }
-
-      try {
-        const me = await apiGet('/auth/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (active) setUser(me);
-      } catch {
-        if (active) applyAuth('', null);
       } finally {
         if (active) setIsCheckingAuth(false);
       }
@@ -71,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       active = false;
     };
-  }, [token, applyAuth]);
+  }, [token]);
 
   const value = useMemo(
     () => ({

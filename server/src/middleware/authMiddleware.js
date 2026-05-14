@@ -1,18 +1,18 @@
 ﻿import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { getJwtSecret } from '../lib/auth.js';
 
 export const verifyToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
     const cookieToken = req.cookies?.venus_auth;
-    const token = bearerToken || cookieToken;
+    const token = cookieToken || bearerToken;
 
     if (!token) return res.status(401).json({ message: 'No token' });
 
-    const secret = process.env.JWT_SECRET || process.env.COOKIE_SECRET;
-    const decoded = jwt.verify(token, secret);
-    const userId = decoded.id || decoded.userId;
+    const decoded = jwt.verify(token, getJwtSecret());
+    const userId = decoded.userId;
 
     req.user = await User.findById(userId).select('-password');
 
