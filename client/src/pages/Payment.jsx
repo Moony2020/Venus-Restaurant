@@ -13,10 +13,12 @@ const Payment = () => {
   const { items, total, clearCart } = useCart();
   const contact = location.state?.contact || {};
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [method, setMethod] = useState('card');
 
   const handlePay = async () => {
     setLoading(true);
+    setErrorMessage('');
     try {
       const successUrl = `${window.location.origin}/order-confirmation`;
       const cancelUrl = `${window.location.origin}/payment`;
@@ -32,6 +34,8 @@ const Payment = () => {
           window.location.href = stripeSession.url;
           return;
         }
+
+        throw new Error('Stripe checkout could not be started. Please try again.');
       }
 
       if (method === 'paypal') {
@@ -44,6 +48,8 @@ const Payment = () => {
           window.location.href = paypalOrder.approveUrl;
           return;
         }
+
+        throw new Error('PayPal checkout could not be started. Please try again.');
       }
 
       const order = await apiPost('/orders', {
@@ -54,6 +60,8 @@ const Payment = () => {
       });
       clearCart();
       navigate('/order-confirmation', { state: { order } });
+    } catch (error) {
+      setErrorMessage(error?.message || 'Payment failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -95,6 +103,7 @@ const Payment = () => {
           <button onClick={handlePay} disabled={loading || !items.length} className="mt-10 w-full border border-gold px-6 py-5 text-xs uppercase tracking-[0.24em] text-gold hover:bg-gold hover:text-black disabled:opacity-50 xl:mt-14">
             {loading ? 'Betalar...' : `Betala nu - ${Math.round(total + 200)} SEK`}
           </button>
+          {errorMessage && <p className="mt-4 text-sm text-rose-300">{errorMessage}</p>}
         </div>
 
         <aside className="h-fit border-l border-gold/70 bg-white/[0.05] p-6 xl:p-8">

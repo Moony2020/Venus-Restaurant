@@ -35,6 +35,7 @@ dotenv.config({ path: fileURLToPath(new URL('../.env', import.meta.url)) });
 const app = express();
 const PORT = process.env.PORT || 5000;
 const shouldLogRequests = process.env.LOG_REQUESTS === 'true' || process.env.NODE_ENV !== 'production';
+const shouldWarnOptionalEnv = process.env.NODE_ENV !== 'production' || process.env.LOG_OPTIONAL_ENV_WARNINGS === 'true';
 
 const validateEnv = () => {
   const required = ['MONGO_URI'];
@@ -61,10 +62,12 @@ const validateEnv = () => {
     }
   ];
 
-  for (const group of optionalGroups) {
-    const missing = group.keys.filter((key) => !process.env[key]);
-    if (missing.length) {
-      console.warn(`[env] Optional ${group.name} config incomplete. Missing: ${missing.join(', ')}`);
+  if (shouldWarnOptionalEnv) {
+    for (const group of optionalGroups) {
+      const missing = group.keys.filter((key) => !process.env[key]);
+      if (missing.length) {
+        console.warn(`[env] Optional ${group.name} config incomplete. Missing: ${missing.join(', ')}`);
+      }
     }
   }
 };
@@ -82,7 +85,9 @@ setIO(io);
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173', credentials: true }));
 app.use(cookieParser());
 
-app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+if (process.env.STRIPE_SECRET_KEY || process.env.STRIPE_WEBHOOK_SECRET) {
+  app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+}
 
 app.use(express.json());
 
@@ -124,6 +129,14 @@ app.use((req, res, next) => {
 });
 
 app.get('/api/health', (_req, res) => {
+  res.json({
+    status: 'ok',
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    time: new Date().toISOString()
+  });
+});
+
+app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',

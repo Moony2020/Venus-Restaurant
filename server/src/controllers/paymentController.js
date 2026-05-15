@@ -4,8 +4,12 @@ import Inquiry from '../models/Inquiry.js';
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 
+const isPayPalLiveMode = process.env.PAYPAL_MODE === 'live' || process.env.NODE_ENV === 'production';
+
 const paypalEnvironment = process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET
-  ? new paypal.core.SandboxEnvironment(process.env.PAYPAL_CLIENT_ID, process.env.PAYPAL_SECRET)
+  ? (isPayPalLiveMode
+      ? new paypal.core.LiveEnvironment(process.env.PAYPAL_CLIENT_ID, process.env.PAYPAL_SECRET)
+      : new paypal.core.SandboxEnvironment(process.env.PAYPAL_CLIENT_ID, process.env.PAYPAL_SECRET))
   : null;
 
 const paypalClient = paypalEnvironment ? new paypal.core.PayPalHttpClient(paypalEnvironment) : null;
@@ -134,6 +138,9 @@ export const stripeWebhook = async (req, res) => {
   let event;
 
   if (process.env.STRIPE_WEBHOOK_SECRET) {
+    if (!stripe) {
+      return res.status(500).json({ message: 'Stripe webhook is misconfigured' });
+    }
     const signature = req.headers['stripe-signature'];
     event = stripe.webhooks.constructEvent(req.body, signature, process.env.STRIPE_WEBHOOK_SECRET);
   } else {
