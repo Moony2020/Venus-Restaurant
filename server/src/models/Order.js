@@ -7,7 +7,14 @@ const orderItemSchema = new mongoose.Schema(
     price: { type: Number, required: true },
     quantity: { type: Number, required: true, min: 1 },
     notes: { type: String, default: '' },
-    optionSummary: { type: String, default: '' },
+    extras: [
+      {
+        label: { type: String },
+        price: { type: Number },
+        groupId: { type: String },
+        optionId: { type: String }
+      }
+    ],
     availabilityAction: { type: String, enum: ['remove', 'cancel', 'call'], default: 'remove' }
   },
   { _id: false }
@@ -24,6 +31,17 @@ const orderSchema = new mongoose.Schema(
       enum: ['pickup', 'delivery'],
       default: 'pickup'
     },
+    paymentMethod: {
+      type: String,
+      enum: ['pay_on_pickup', 'stripe', 'paypal'],
+      default: 'pay_on_pickup'
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['unpaid', 'paid', 'failed', 'refunded'],
+      default: 'unpaid'
+    },
+    stripeSessionId: { type: String, default: '' },
     deliveryFee: { type: Number, default: 0 },
     etaText: { type: String, default: '10-15 min' },
     status: {
@@ -33,6 +51,17 @@ const orderSchema = new mongoose.Schema(
     },
     items: { type: [orderItemSchema], required: true },
     totalAmount: { type: Number, required: true },
+    paymentMethod: {
+      type: String,
+      enum: ['pay_on_pickup', 'stripe', 'paypal'],
+      default: 'pay_on_pickup'
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['unpaid', 'paid', 'refunded'],
+      default: 'unpaid'
+    },
+    stripeSessionId: { type: String, default: null },
     trackingCode: { type: String, required: true, unique: true }
   },
   { timestamps: true }

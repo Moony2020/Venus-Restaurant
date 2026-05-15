@@ -78,33 +78,47 @@ const ItemModal = ({ item, isOpen, onClose, onAdd }) => {
   };
 
   const handleAdd = () => {
-    // Format selected options into a readable string
-    const summaryParts = [];
-    if (item.customizations) {
-      item.customizations.forEach(group => {
-        const selected = selectedOptions[group.id];
-        if (group.type === 'radio') {
-          const opt = group.options.find(o => o.id === selected);
-          if (opt && opt.price > 0) summaryParts.push(opt.label);
-          else if (opt && group.id !== 'meat') summaryParts.push(opt.label);
-        } else if (group.type === 'checkbox' && Array.isArray(selected)) {
-          selected.forEach(id => {
-            const opt = group.options.find(o => o.id === id);
-            if (opt) summaryParts.push(`${opt.label}`);
+    const extrasList = [];
+    Object.entries(selectedOptions).forEach(([groupId, selected]) => {
+      const group = item.customizations.find((g) => g.id === groupId);
+      if (!group) return;
+
+      if (group.type === 'radio') {
+        const opt = group.options.find((o) => o.id === selected);
+        if (opt) {
+          extrasList.push({
+            label: opt.label,
+            price: opt.price || 0,
+            groupId: group.id,
+            optionId: opt.id
           });
         }
-      });
-    }
+      } else if (group.type === 'checkbox' && Array.isArray(selected)) {
+        selected.forEach((id) => {
+          const opt = group.options.find((o) => o.id === id);
+          if (opt) {
+            extrasList.push({
+              label: opt.label,
+              price: opt.price || 0,
+              groupId: group.id,
+              optionId: opt.id
+            });
+          }
+        });
+      }
+    });
 
     const customItem = {
       ...item,
+      id: `${item._id || item.id}-${Date.now()}`,
       cartItemId: `${item._id || item.id}-${Date.now()}`,
-      notes: notes.trim(),
-      availabilityAction,
-      optionSummary: summaryParts.join(', '),
-      selectedOptions,
       quantityToAdd: quantity,
-      price: calculateTotalPrice() / quantity
+      notes,
+      availabilityAction,
+      selectedOptions,
+      extras: extrasList,
+      basePrice: Number(item.price) || 0,
+      price: calculateTotalPrice()
     };
     onAdd(customItem);
     onClose();

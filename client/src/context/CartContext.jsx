@@ -74,7 +74,8 @@ export const CartProvider = ({ children }) => {
           category: item.category || '',
           notes: item.notes || '',
           availabilityAction: item.availabilityAction || 'remove',
-          optionSummary: item.optionSummary || ''
+          extras: item.extras || [],
+          basePrice: item.basePrice || Number(item.price) || 0
         }
       ];
     });
@@ -126,11 +127,45 @@ export const CartProvider = ({ children }) => {
     [items]
   );
 
+  const removeExtra = useCallback((cartItemId, groupId, optionId) => {
+    setItems((prev) => {
+      return prev.map((item) => {
+        if (item.id !== cartItemId) return item;
+
+        // 1. Find the extra to remove
+        const extraToRemove = item.extras?.find(e => e.groupId === groupId && e.optionId === optionId);
+        if (!extraToRemove) return item;
+
+        // 2. Filter the extras list
+        const nextExtras = item.extras.filter(e => !(e.groupId === groupId && e.optionId === optionId));
+
+        // 3. Update selectedOptions
+        const nextSelected = { ...item.selectedOptions };
+        if (Array.isArray(nextSelected[groupId])) {
+          nextSelected[groupId] = nextSelected[groupId].filter(id => id !== optionId);
+        } else if (nextSelected[groupId] === optionId) {
+          delete nextSelected[groupId];
+        }
+
+        // 4. Update the price (subtract the extra's price)
+        const nextPrice = Math.max(item.basePrice || 0, item.price - (extraToRemove.price || 0));
+
+        return { 
+          ...item, 
+          extras: nextExtras,
+          selectedOptions: nextSelected,
+          price: nextPrice
+        };
+      });
+    });
+  }, []);
+
   const value = useMemo(
     () => ({
       items: itemsWithSubtotal,
       addToCart,
       removeFromCart,
+      removeExtra,
       updateQty,
       updateQuantity: updateQty,
       clearCart,
@@ -139,7 +174,7 @@ export const CartProvider = ({ children }) => {
       count,
       lastAddedId
     }),
-    [itemsWithSubtotal, addToCart, removeFromCart, updateQty, clearCart, subtotal, total, count, lastAddedId]
+    [itemsWithSubtotal, addToCart, removeFromCart, removeExtra, updateQty, clearCart, subtotal, total, count, lastAddedId]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

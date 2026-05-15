@@ -1,6 +1,9 @@
 import Stripe from 'stripe';
 import paypal from '@paypal/checkout-server-sdk';
 import Inquiry from '../models/Inquiry.js';
+import Order from '../models/Order.js';
+import { getIO } from '../lib/socket.js';
+import { sendOrderConfirmation } from '../lib/mailer.js';
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 
@@ -29,7 +32,16 @@ const isAllowedUrl = (url) => {
 export const createStripeCheckoutSession = async (req, res) => {
   if (!stripe) return res.status(500).json({ message: 'Stripe is not configured' });
 
-  const { items = [], successUrl, cancelUrl } = req.body;
+  const {
+    items = [],
+    successUrl,
+    cancelUrl,
+    metadata = {},
+    customerEmail,
+    serviceFeeSek = 0,
+    deliveryFeeSek = 0,
+    orderId = ''
+  } = req.body;
 
   if (!isAllowedUrl(successUrl) || !isAllowedUrl(cancelUrl)) {
     return res.status(400).json({ message: 'Invalid redirect URLs' });
@@ -49,18 +61,39 @@ export const createStripeCheckoutSession = async (req, res) => {
     }
   }));
 
-  lineItems.push({
-    quantity: 1,
-    price_data: {
-      currency: 'sek',
-      unit_amount: 20000,
-      product_data: { name: 'Service & Sommelier' }
-    }
-  });
+  const normalizedServiceFeeSek = Math.max(0, Number(serviceFeeSek) || 0);
+  const normalizedDeliveryFeeSek = Math.max(0, Number(deliveryFeeSek) || 0);
+
+  if (normalizedServiceFeeSek > 0) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: 'sek',
+        unit_amount: Math.round(normalizedServiceFeeSek * 100),
+        product_data: { name: 'Serviceavgift' }
+      }
+    });
+  }
+
+  if (normalizedDeliveryFeeSek > 0) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: 'sek',
+        unit_amount: Math.round(normalizedDeliveryFeeSek * 100),
+        product_data: { name: 'Leveransavgift' }
+      }
+    });
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: lineItems,
+    customer_email: typeof customerEmail === 'string' && customerEmail.includes('@') ? customerEmail : undefined,
+    metadata: {
+      ...(metadata && typeof metadata === 'object' ? metadata : {}),
+      orderId: String(orderId || metadata?.orderId || '')
+    },
     success_url: successUrl,
     cancel_url: cancelUrl
   });
@@ -149,7 +182,9 @@ export const stripeWebhook = async (req, res) => {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+    // Handled below
     const inquiryId = session.metadata?.inquiryId;
+    const orderId = session.metadata?.orderId;
 
     if (inquiryId) {
       await Inquiry.findByIdAndUpdate(inquiryId, {
@@ -157,6 +192,19 @@ export const stripeWebhook = async (req, res) => {
         paymentStatus: 'paid',
         stripeSessionId: session.id
       });
+    }
+
+    if (orderId) {
+      const order = await Order.findById(orderId);
+      if (order && order.paymentStatus !== 'paid') {
+        order.paymentStatus = 'paid';
+        order.stripeSessionId = session.id;
+        await order.save();
+
+        const io = getIO();
+        if (io) io.emit('order:new', order);
+        sendOrderConfirmation(order).catch(() => {});
+      }
     }
   }
 

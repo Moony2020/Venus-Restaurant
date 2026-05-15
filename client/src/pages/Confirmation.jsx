@@ -1,17 +1,27 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
 import { apiGet } from '../lib/api';
+import { useCart } from '../context/CartContext';
 
 const Confirmation = () => {
+  const { clearCart } = useCart();
   const location = useLocation();
   const stateOrder = location.state?.order;
-  const success = Boolean(location.state?.success || stateOrder);
-  const trackingFromQuery = new URLSearchParams(location.search).get('tracking');
+  const queryParams = new URLSearchParams(location.search);
+  const isPaid = queryParams.get('paid') === '1';
+  const success = Boolean(location.state?.success || stateOrder || isPaid);
+  const trackingFromQuery = queryParams.get('tracking');
 
   const [order, setOrder] = useState(stateOrder || null);
   const [loading, setLoading] = useState(!stateOrder && Boolean(trackingFromQuery));
   const [loadError, setLoadError] = useState('');
+
+  useEffect(() => {
+    if (success) {
+      clearCart();
+    }
+  }, [success, clearCart]);
 
   useEffect(() => {
     let active = true;
@@ -40,6 +50,7 @@ const Confirmation = () => {
         name: item.name,
         quantity: item.quantity,
         price: item.price,
+        extras: item.extras || [],
         subtotal: (item.price || 0) * (item.quantity || 0)
       })),
     [order]
@@ -90,7 +101,16 @@ const Confirmation = () => {
                 <div key={item.id} className="flex items-center justify-between gap-3 text-sm">
                   <div>
                     <p className="text-white">{item.name}</p>
-                    <p className="text-white/50">{item.quantity} x {item.price} SEK</p>
+                    {item.extras && item.extras.length > 0 && (
+                      <div className="mt-1 space-y-0.5 mb-1.5">
+                        {item.extras.map((extra, idx) => (
+                          <p key={`${extra.optionId}-${idx}`} className="text-[10px] text-gold/70 italic leading-tight">
+                            • {extra.label} <span className="text-gold/50 ml-1">(+{extra.price} kr)</span>
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-white/50 text-[11px]">{item.quantity} x {item.price} SEK</p>
                   </div>
                   <p className="text-gold">{item.subtotal} SEK</p>
                 </div>

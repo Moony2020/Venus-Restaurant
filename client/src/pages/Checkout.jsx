@@ -14,6 +14,7 @@ const Checkout = () => {
   const { items, total, clearCart } = useCart();
   const { data: restaurantStatus } = useRestaurantStatus();
   const [contact, setContact] = useState({ customerName: '', email: '', phone: '', notes: '' });
+  const [paymentMethod, setPaymentMethod] = useState('pay_on_pickup');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [orderPrefs] = useState(() => {
@@ -48,7 +49,7 @@ const Checkout = () => {
         image: item.image,
         notes: item.notes,
         availabilityAction: item.availabilityAction,
-        optionSummary: item.optionSummary,
+        extras: item.extras || [],
         subtotal: item.subtotal ?? item.price * item.quantity
       })),
     [items]
@@ -65,7 +66,7 @@ const Checkout = () => {
     setSubmitError('');
 
     try {
-      const order = await apiPost('/orders', {
+      const orderPayload = {
         customerName: contact.customerName,
         email: contact.email,
         phone: contact.phone,
@@ -74,16 +75,37 @@ const Checkout = () => {
         orderMode: orderPrefs.orderMode,
         deliveryFee: orderPrefs.orderMode === 'delivery' ? orderPrefs.deliveryFee : 0,
         etaText,
+        paymentMethod,
         items: normalizedItems.map((item) => ({
-          id: item.id,
+          menuItemId: item.id,
           name: item.name,
           price: item.price,
           quantity: item.quantity,
           notes: item.notes,
           availabilityAction: item.availabilityAction,
-          optionSummary: item.optionSummary
+          extras: item.extras
         }))
-      });
+      };
+
+      const order = await apiPost('/orders', orderPayload);
+
+      if (paymentMethod === 'stripe') {
+        const stripeSession = await apiPost('/payments/stripe/checkout-session', {
+          items: normalizedItems,
+          successUrl: `${window.location.origin}/confirmation?tracking=${order.trackingCode}&paid=1`,
+          cancelUrl: `${window.location.origin}/checkout`,
+          customerEmail: contact.email,
+          orderId: order._id,
+          deliveryFeeSek: orderPrefs.orderMode === 'delivery' ? orderPrefs.deliveryFee : 0
+        });
+
+        if (stripeSession?.url) {
+          window.location.href = stripeSession.url;
+          return;
+        }
+
+        throw new Error('Stripe checkout could not be started.');
+      }
 
       clearCart();
       navigate(`/confirmation?tracking=${order.trackingCode}`, {
@@ -91,7 +113,8 @@ const Checkout = () => {
         replace: true
       });
     } catch (err) {
-      setSubmitError(err?.message?.includes('403') ? 'Restaurangen är stängd just nu' : 'Något gick fel, försök igen');
+      const message = String(err?.message || '');
+      setSubmitError(message.includes('403') ? 'Restaurangen är stängd just nu' : 'Något gick fel, försök igen');
     } finally {
       setIsSubmitting(false);
     }
@@ -129,6 +152,30 @@ const Checkout = () => {
             </div>
           </div>
 
+          <h2 className="mt-10 flex items-center gap-5 font-display text-3xl sm:text-4xl xl:mt-12 xl:text-5xl">
+            <span>2. Betalning</span>
+            <span className="h-px flex-1 bg-gold/35" />
+          </h2>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('pay_on_pickup')}
+              className={`border px-5 py-4 text-left transition ${paymentMethod === 'pay_on_pickup' ? 'border-gold bg-white/[0.07]' : 'border-gold/25 bg-transparent'}`}
+            >
+              <p className="text-lg">Betala på plats</p>
+              <p className="mt-1 text-xs text-white/65">Kontant, kort eller Swish vid upphämtning</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('stripe')}
+              className={`border px-5 py-4 text-left transition ${paymentMethod === 'stripe' ? 'border-gold bg-white/[0.07]' : 'border-gold/25 bg-transparent'}`}
+            >
+              <p className="text-lg">Betala med kort</p>
+              <p className="mt-1 text-xs text-white/65">Säker betalning via Stripe</p>
+            </button>
+          </div>
+
           {!isOpen && (
             <p className="mt-6 border border-red-400/40 bg-red-950/20 px-4 py-3 text-sm text-red-200">
               Restaurangen är stängd just nu.
@@ -147,7 +194,7 @@ const Checkout = () => {
             disabled={isSubmitting || normalizedItems.length === 0 || !isOpen}
             className="mt-10 w-full border border-gold px-6 py-5 text-xs uppercase tracking-[0.24em] text-gold hover:bg-gold hover:text-black disabled:cursor-not-allowed disabled:opacity-50 xl:mt-12"
           >
-            {isSubmitting ? 'Processing...' : `Place Order - ${finalTotal} SEK`}
+            {isSubmitting ? 'Processing...' : paymentMethod === 'stripe' ? `Fortsätt till Stripe - ${finalTotal} SEK` : `Bekräfta beställning - ${finalTotal} SEK`}
           </button>
         </div>
 
@@ -164,7 +211,15 @@ const Checkout = () => {
                 <img src={item.image} alt={item.name} className="h-16 w-16 object-cover xl:h-20 xl:w-20" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-display text-base sm:text-lg lg:text-xl">{item.name}</p>
-                  {item.optionSummary && <p className="truncate text-[11px] leading-snug text-gold/60">{item.optionSummary}</p>}
+                  {item.extras && item.extras.length > 0 && (
+                    <div className="mt-1.5 space-y-1">
+                      {item.extras.map((extra, idx) => (
+                        <p key={`${extra.optionId}-${idx}`} className="truncate text-[10px] leading-tight text-gold/70 italic">
+                          • {extra.label} <span className="text-gold/50 ml-1">(+{extra.price} kr)</span>
+                        </p>
+                      ))}
+                    </div>
+                  )}
                   {item.notes && <p className="truncate text-[11px] leading-snug text-white/40 italic">{item.notes}</p>}
                   <p className="text-[10px] uppercase tracking-[0.12em] text-white/40">{item.quantity} x {item.price} SEK</p>
                 </div>

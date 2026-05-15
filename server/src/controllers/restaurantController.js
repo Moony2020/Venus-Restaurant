@@ -183,6 +183,12 @@ export const ensureRestaurantOpenForOrders = async (_req, res, next) => {
 };
 
 export const getKitchenOrders = async (_req, res) => {
-  const orders = await Order.find({ status: { $in: ['pending', 'preparing', 'ready'] } }).sort({ createdAt: -1 });
+  const orders = await Order.find({
+    status: { $in: ['pending', 'preparing', 'ready'] },
+    $or: [
+      { paymentMethod: 'pay_on_pickup' },
+      { paymentStatus: 'paid' }
+    ]
+  }).sort({ createdAt: -1 });
   return res.json(orders);
 };

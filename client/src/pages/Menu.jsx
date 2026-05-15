@@ -114,7 +114,7 @@ const Menu = () => {
 
   const { items: apiItems, loading, error } = useMenuData();
   const { data: restaurantStatus } = useRestaurantStatus();
-  const { items: cartItems, total, count, addToCart, lastAddedId, updateQuantity, removeFromCart } = useCart();
+  const { items: cartItems, total, count, addToCart, lastAddedId, updateQuantity, removeFromCart, removeExtra } = useCart();
 
   const normalizedApiItems = useMemo(() => (apiItems || []).map(normalizeItem), [apiItems]);
 
@@ -316,6 +316,15 @@ const Menu = () => {
     [total, orderMode]
   );
 
+  const quantitiesByItemId = useMemo(() => {
+    return cartItems.reduce((acc, item) => {
+      const baseId = String(item._id || item.id || '');
+      if (!baseId) return acc;
+      acc[baseId] = (acc[baseId] || 0) + (Number(item.quantity) || 0);
+      return acc;
+    }, {});
+  }, [cartItems]);
+
   return (
     <main className="min-h-screen bg-background text-white">
       <SiteHeader />
@@ -397,6 +406,7 @@ const Menu = () => {
               loading={loading && normalizedApiItems.length === 0 && liveMenuItems.length === 0}
               onAdd={isOpen ? setSelectedItem : () => {}}
               lastAddedId={lastAddedId}
+              quantitiesByItemId={quantitiesByItemId}
               restaurantOpen={isOpen}
               highlightedItemId={highlightedItemId}
             />
@@ -521,14 +531,33 @@ const Menu = () => {
                   </div>
 
                   {/* Content */}
-                  <div className="flex flex-1 flex-col justify-between">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-[14px] font-medium text-white/95 leading-tight">{item.name}</p>
-                      <p className="text-[14px] font-bold text-gold">{Math.round(item.price * item.quantity)} kr</p>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-[14px] font-medium text-white/95 leading-tight">{item.name}</p>
+                        <p className="text-[14px] font-bold text-gold">{Math.round(item.price * item.quantity)} kr</p>
+                      </div>
+                      
+                      {/* Extras List */}
+                      {item.extras && item.extras.length > 0 && (
+                        <div className="mt-2.5 space-y-2">
+                          {item.extras.map((extra, idx) => (
+                            <div key={`${extra.optionId}-${idx}`} className="flex items-center justify-between">
+                              <div className="flex items-center gap-2.5">
+                                <button 
+                                  onClick={() => removeExtra(item.id, extra.groupId, extra.optionId)}
+                                  className="flex h-4 w-4 items-center justify-center rounded-sm border border-white/10 bg-white/[0.05] text-white/40 hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-400 transition-all shadow-sm"
+                                >
+                                  <X size={8} strokeWidth={3} />
+                                </button>
+                                <span className="text-[10px] text-gold/70 font-medium italic leading-none tracking-tight">{extra.label}</span>
+                              </div>
+                              <span className="text-[10px] text-gold/60 font-bold leading-none tracking-tighter">+ {extra.price} kr</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {item.optionSummary && (
-                      <p className="mt-1 text-[10px] leading-snug text-gold/50 italic">{item.optionSummary}</p>
-                    )}
                     
                     <div className="mt-3 flex items-center justify-between">
                       <div className="flex items-center rounded-lg border border-white/10 bg-white/5 p-0.5">
@@ -547,11 +576,14 @@ const Menu = () => {
                         </button>
                       </div>
 
-                      <button 
+                      <button
+                        type="button"
+                        aria-label={`Ta bort ${item.name}`}
+                        title="Ta bort"
                         onClick={() => removeFromCart(item.id)}
-                        className="text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-red-400 transition-colors"
+                        className="rounded-md border border-white/10 bg-white/5 p-1.5 text-white/35 transition-colors hover:border-red-400/40 hover:text-red-400"
                       >
-                        Ta bort
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   </div>
@@ -571,7 +603,7 @@ const Menu = () => {
             <Link
               to="/cart"
               onClick={() => setIsMobileCartOpen(false)}
-              className="mt-3 block w-full border border-gold bg-gold px-4 py-3 text-center text-xs uppercase tracking-[0.2em] text-black transition hover:bg-goldSoft"
+              className="mt-3 block w-full border border-gold bg-gold px-4 py-3 text-center text-xs uppercase tracking-[0.2em] text-black transition hover:bg-[#d4b56a]"
             >
               Förhandsgranska beställning
             </Link>

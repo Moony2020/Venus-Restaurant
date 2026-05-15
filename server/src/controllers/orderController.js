@@ -13,6 +13,9 @@ const STATUS_FLOW = {
 export const createOrder = async (req, res) => {
   const trackingCode = crypto.randomBytes(4).toString('hex').toUpperCase();
   const orderMode = req.body.orderMode === 'delivery' ? 'delivery' : 'pickup';
+  const paymentMethod = ['pay_on_pickup', 'stripe', 'paypal'].includes(req.body.paymentMethod)
+    ? req.body.paymentMethod
+    : 'pay_on_pickup';
   const deliveryFee = orderMode === 'delivery' ? Math.max(0, Number(req.body.deliveryFee) || 0) : 0;
   const etaText =
     typeof req.body.etaText === 'string' && req.body.etaText.trim()
@@ -27,7 +30,12 @@ export const createOrder = async (req, res) => {
     price: Number(item.price) || 0,
     quantity: Math.max(1, Number(item.quantity) || 1),
     notes: typeof item.notes === 'string' ? item.notes.trim() : '',
-    optionSummary: typeof item.optionSummary === 'string' ? item.optionSummary.trim() : '',
+    extras: Array.isArray(item.extras) ? item.extras.map(e => ({
+      label: String(e.label || ''),
+      price: Number(e.price) || 0,
+      groupId: String(e.groupId || ''),
+      optionId: String(e.optionId || '')
+    })) : [],
     availabilityAction: ['remove', 'cancel', 'call'].includes(item.availabilityAction) ? item.availabilityAction : 'remove'
   }));
 
@@ -45,16 +53,20 @@ export const createOrder = async (req, res) => {
     orderMode,
     deliveryFee,
     etaText,
+    paymentMethod,
+    paymentStatus: paymentMethod === 'pay_on_pickup' ? 'paid' : 'unpaid',
     user: req.user?._id || null,
     trackingCode,
     status: 'pending'
   });
 
-  const io = getIO();
-  if (io) io.emit('order:new', order);
-
-  // Send confirmation email (non-blocking)
-  sendOrderConfirmation(order).catch(() => {});
+  // Only notify kitchen and customer immediately if it's a "Pay on Pickup" order.
+  // For online payments, the Stripe/PayPal webhook will handle this after payment is confirmed.
+  if (order.paymentMethod === 'pay_on_pickup') {
+    const io = getIO();
+    if (io) io.emit('order:new', order);
+    sendOrderConfirmation(order).catch(() => {});
+  }
 
   res.status(201).json(order);
 };

@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
 import { useCart } from '../context/CartContext';
-import { Trash2, Minus, Plus } from 'lucide-react';
+import { Trash2, Minus, Plus, X } from 'lucide-react';
 
 const Cart = () => {
-  const { items, total, removeFromCart, updateQty } = useCart();
+  const { items, total, removeFromCart, updateQty, removeExtra } = useCart();
 
   if (items.length === 0) {
     return (
@@ -39,8 +39,26 @@ const Cart = () => {
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-gold/60 mb-2">{item.category}</p>
                       <h2 className="font-display text-3xl">{item.name}</h2>
-                      {item.optionSummary && <p className="mt-2 text-sm text-gold/60">{item.optionSummary}</p>}
-                      {item.notes && <p className="mt-1 text-sm text-white/40 italic">{item.notes}</p>}
+                      {item.extras && item.extras.length > 0 && (
+                        <div className="mt-4 space-y-3 pl-1">
+                          {item.extras.map((extra, idx) => (
+                            <div key={`${extra.optionId}-${idx}`} className="flex items-center justify-between group/extra max-w-sm">
+                              <div className="flex items-center gap-3">
+                                <button 
+                                  onClick={() => removeExtra(item.id || item._id, extra.groupId, extra.optionId)}
+                                  className="flex h-5 w-5 items-center justify-center rounded-md border border-white/10 bg-white/[0.05] text-white/40 hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-400 transition-all shadow-sm"
+                                  title={`Ta bort ${extra.label}`}
+                                >
+                                  <X size={10} strokeWidth={3} />
+                                </button>
+                                <span className="text-xs text-gold/70 font-medium italic leading-none tracking-tight">{extra.label}</span>
+                              </div>
+                              <span className="text-xs text-gold/60 font-bold leading-none">+ {extra.price} KR</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {item.notes && <p className="mt-2 text-sm text-white/40 italic">Obs: {item.notes}</p>}
                     </div>
                     <button 
                       onClick={() => removeFromCart(item.id || item._id)}

@@ -366,6 +366,9 @@ const Kitchen = () => {
                 {(order.items || []).map((item, idx) => (
                   <p key={`${item.name}-${idx}`}>
                     {item.quantity}x {item.name}
+                    {item.extras?.map((extra, eIdx) => (
+                      <span key={eIdx} className="block ml-4 text-[10px] text-gold/60 italic">• {extra.label}</span>
+                    ))}
                   </p>
                 ))}
               </div>
@@ -433,6 +436,9 @@ const Kitchen = () => {
             {(printOrder.items || []).map((item, idx) => (
               <div key={`${item.name}-${idx}`} className="print-item">
                 <span>{item.quantity} x {item.name}</span>
+                {item.extras?.map((extra, eIdx) => (
+                  <span key={eIdx} className="block ml-4 text-[10px] italic">• {extra.label}</span>
+                ))}
                 <span>{Math.round(item.price * item.quantity)} SEK</span>
               </div>
             ))}

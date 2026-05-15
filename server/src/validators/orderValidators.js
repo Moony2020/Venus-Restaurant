@@ -1,5 +1,5 @@
 export const validateCreateOrder = (req, res, next) => {
-  const { customerName, email, items, totalAmount, orderMode, deliveryFee, etaText } = req.body;
+  const { customerName, email, items, totalAmount, orderMode, deliveryFee, etaText, paymentMethod } = req.body;
 
   if (!customerName || typeof customerName !== 'string') {
     return res.status(400).json({ message: 'customerName is required' });
@@ -27,6 +27,10 @@ export const validateCreateOrder = (req, res, next) => {
 
   if (etaText != null && typeof etaText !== 'string') {
     return res.status(400).json({ message: 'etaText must be a string' });
+  }
+  
+  if (paymentMethod && !['pay_on_pickup', 'stripe', 'paypal'].includes(paymentMethod)) {
+    return res.status(400).json({ message: 'Invalid paymentMethod' });
   }
 
   return next();

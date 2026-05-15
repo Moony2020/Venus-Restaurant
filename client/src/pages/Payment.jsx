@@ -28,7 +28,8 @@ const Payment = () => {
           items,
           successUrl,
           cancelUrl,
-          customerEmail: contact.email
+          customerEmail: contact.email,
+          serviceFeeSek: 200
         });
         if (stripeSession?.url) {
           window.location.href = stripeSession.url;

@@ -6,8 +6,9 @@ const tagMap = {
   spicy: { label: 'Stark', icon: Flame, className: 'bg-orange-500/15 text-orange-300 border-orange-400/30' }
 };
 
-const MenuCard = ({ item, onAdd, added, restaurantOpen = true, highlighted = false }) => {
+const MenuCard = ({ item, onAdd, added, quantityInCart = 0, restaurantOpen = true, highlighted = false }) => {
   const disabled = !restaurantOpen || item.available === false;
+  const hasQuantity = quantityInCart > 0;
   return (
     <article 
       data-menu-item-id={item._id}
@@ -51,15 +52,15 @@ const MenuCard = ({ item, onAdd, added, restaurantOpen = true, highlighted = fal
           className="h-[104px] w-[104px] rounded-xl object-cover transition-transform duration-500 group-hover:scale-105 sm:h-[116px] sm:w-[116px] xl:h-[145px] xl:w-[145px]"
         />
         <div
-          className={`absolute -bottom-1.5 -right-1.5 flex h-9 w-9 items-center justify-center rounded-full border text-lg shadow-lg transition-all duration-300 ${
+          className={`absolute -bottom-1.5 -right-1.5 flex h-9 w-9 items-center justify-center rounded-full border shadow-lg transition-all duration-300 ${
             disabled
               ? 'cursor-not-allowed border-white/20 bg-[#111827] text-white/40'
-              : added
-                ? 'scale-110 border-gold bg-gold text-black'
+              : hasQuantity
+                ? `border-gold/60 bg-[#1d252a] text-white ${added ? 'scale-110' : ''}`
                 : 'border-white/30 bg-[#111827] text-white group-hover:border-gold group-hover:text-gold'
-          }`}
+          } ${hasQuantity ? 'text-base' : 'text-lg'}`}
         >
-          {added ? '✓' : '+'}
+          {hasQuantity ? quantityInCart : '+'}
         </div>
       </div>
     </article>
