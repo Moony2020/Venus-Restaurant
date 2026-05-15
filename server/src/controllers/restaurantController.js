@@ -7,6 +7,17 @@ import { getIO } from '../lib/socket.js';
 const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const SETTINGS_CACHE_PREFIX = 'restaurant-settings:';
 const SETTINGS_CACHE_TTL_MS = 30 * 1000;
+const RESTAURANT_TIMEZONE = process.env.RESTAURANT_TIMEZONE || 'Europe/Stockholm';
+
+const WEEKDAY_TO_INDEX = {
+  sunday: 0,
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6
+};
 
 const timeToMinutes = (hhmm) => {
   const [h, m] = String(hhmm || '00:00')
@@ -15,8 +26,27 @@ const timeToMinutes = (hhmm) => {
   return h * 60 + m;
 };
 
+const getNowInRestaurantTimezone = () => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: RESTAURANT_TIMEZONE,
+    weekday: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).formatToParts(new Date());
+
+  const weekday = String(parts.find((part) => part.type === 'weekday')?.value || 'sunday').toLowerCase();
+  const hour = Number(parts.find((part) => part.type === 'hour')?.value || 0);
+  const minute = Number(parts.find((part) => part.type === 'minute')?.value || 0);
+
+  return {
+    dayIndex: WEEKDAY_TO_INDEX[weekday] ?? 0,
+    nowMinutes: hour * 60 + minute
+  };
+};
+
 const getNowStatus = (settings) => {
-  const now = new Date();
+  const now = getNowInRestaurantTimezone();
   if (settings.manualOverride === 'force_open') {
     return { isOpen: true, text: 'Öppet nu (manuellt)', closesAt: null };
   }
@@ -24,12 +54,12 @@ const getNowStatus = (settings) => {
     return { isOpen: false, text: settings.manualMessage || 'Stängt just nu', closesAt: null };
   }
 
-  const dayKey = DAY_KEYS[now.getDay()];
+  const dayKey = DAY_KEYS[now.dayIndex];
   const current = settings.week?.[dayKey];
   if (!current || current.closed) {
     return { isOpen: false, text: 'Stängt idag', closesAt: null };
   }
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const nowMinutes = now.nowMinutes;
   const openMinutes = timeToMinutes(current.open);
   const closeMinutes = timeToMinutes(current.close);
   const isOpen = nowMinutes >= openMinutes && nowMinutes < closeMinutes;
