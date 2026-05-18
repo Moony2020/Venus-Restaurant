@@ -41,7 +41,8 @@ const orderSchema = new mongoose.Schema(
       enum: ['unpaid', 'paid', 'failed', 'refunded'],
       default: 'unpaid'
     },
-    stripeSessionId: { type: String, default: '' },
+    stripeSessionId: { type: String, default: null },
+    paypalOrderId: { type: String, default: null },
     deliveryFee: { type: Number, default: 0 },
     etaText: { type: String, default: '10-15 min' },
     status: {
@@ -51,17 +52,6 @@ const orderSchema = new mongoose.Schema(
     },
     items: { type: [orderItemSchema], required: true },
     totalAmount: { type: Number, required: true },
-    paymentMethod: {
-      type: String,
-      enum: ['pay_on_pickup', 'stripe', 'paypal'],
-      default: 'pay_on_pickup'
-    },
-    paymentStatus: {
-      type: String,
-      enum: ['unpaid', 'paid', 'refunded'],
-      default: 'unpaid'
-    },
-    stripeSessionId: { type: String, default: null },
     trackingCode: { type: String, required: true, unique: true }
   },
   { timestamps: true }

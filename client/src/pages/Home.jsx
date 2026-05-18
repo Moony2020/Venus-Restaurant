@@ -44,6 +44,7 @@ const Home = () => {
               week={restaurantStatus.week} 
               statusText={restaurantStatus?.nowStatus?.text}
               isOpen={restaurantStatus?.nowStatus?.isOpen}
+              isRollover={restaurantStatus?.nowStatus?.isRollover}
             />
           )}
         </div>

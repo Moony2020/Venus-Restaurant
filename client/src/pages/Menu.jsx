@@ -340,6 +340,7 @@ const Menu = () => {
                   week={restaurantStatus.week} 
                   statusText={statusText}
                   isOpen={isOpen}
+                  isRollover={restaurantStatus?.nowStatus?.isRollover}
                 />
               )}
             </div>

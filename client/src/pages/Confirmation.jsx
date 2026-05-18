@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
-import { apiGet } from '../lib/api';
+import { apiGet, apiPost } from '../lib/api';
 import { useCart } from '../context/CartContext';
 
 const Confirmation = () => {
@@ -10,7 +10,9 @@ const Confirmation = () => {
   const stateOrder = location.state?.order;
   const queryParams = new URLSearchParams(location.search);
   const isPaid = queryParams.get('paid') === '1';
-  const success = Boolean(location.state?.success || stateOrder || isPaid);
+  const stripeSessionId = queryParams.get('session_id');
+  const paypalToken = queryParams.get('token'); // PayPal Order ID
+  const success = Boolean(location.state?.success || stateOrder || isPaid || paypalToken);
   const trackingFromQuery = queryParams.get('tracking');
 
   const [order, setOrder] = useState(stateOrder || null);
@@ -26,8 +28,40 @@ const Confirmation = () => {
   useEffect(() => {
     let active = true;
     async function loadOrder() {
-      if (!trackingFromQuery || stateOrder) return;
+      if (!trackingFromQuery) return;
+      
       try {
+        // Confirm Stripe payment if returned from Stripe-hosted checkout
+        if (stripeSessionId) {
+          try {
+            await apiGet(`/payments/stripe/confirm-session?session_id=${encodeURIComponent(stripeSessionId)}`);
+          } catch (e) {
+            console.error('Stripe session confirmation failed', e);
+          }
+        }
+
+        // If we have a paypal token, capture it first
+        if (paypalToken) {
+          try {
+            // First load order to get its internal ID
+            const tempOrder = await apiGet(`/orders/${trackingFromQuery}`);
+            if (tempOrder?._id) {
+              await apiPost('/payments/paypal/capture-order', {
+                orderId: tempOrder._id,
+                paypalOrderId: paypalToken
+              });
+            }
+          } catch (e) {
+            console.error('PayPal capture failed', e);
+          }
+        }
+
+        if (stateOrder && !paypalToken) {
+          if (active) setOrder(stateOrder);
+          if (active) setLoading(false);
+          return;
+        }
+
         const data = await apiGet(`/orders/${trackingFromQuery}`);
         if (active) setOrder(data);
       } catch {
@@ -41,18 +75,24 @@ const Confirmation = () => {
     return () => {
       active = false;
     };
-  }, [trackingFromQuery, stateOrder]);
+  }, [trackingFromQuery, stateOrder, paypalToken, stripeSessionId]);
 
   const mappedItems = useMemo(
     () =>
-      (order?.items || []).map((item) => ({
-        id: item.menuItemId || item.id || item._id || item.name,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        extras: item.extras || [],
-        subtotal: (item.price || 0) * (item.quantity || 0)
-      })),
+      (order?.items || []).map((item) => {
+        const extras = item.extras || [];
+        const extrasTotal = extras.reduce((sum, e) => sum + (e.price || 0), 0);
+        const basePrice = (item.price || 0) - extrasTotal;
+        return {
+          id: item.menuItemId || item.id || item._id || item.name,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          basePrice: Math.max(0, basePrice),
+          extras,
+          subtotal: (item.price || 0) * (item.quantity || 0)
+        };
+      }),
     [order]
   );
 
@@ -110,7 +150,7 @@ const Confirmation = () => {
                         ))}
                       </div>
                     )}
-                    <p className="text-white/50 text-[11px]">{item.quantity} x {item.price} SEK</p>
+                    <p className="text-white/50 text-[11px]">{item.quantity} × {item.basePrice} SEK</p>
                   </div>
                   <p className="text-gold">{item.subtotal} SEK</p>
                 </div>

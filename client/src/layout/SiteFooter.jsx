@@ -1,6 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { useRestaurantStatus } from '../hooks/useRestaurantStatus';
+
+const DAY_LABELS = {
+  monday: 'Måndag',
+  tuesday: 'Tisdag',
+  wednesday: 'Onsdag',
+  thursday: 'Torsdag',
+  friday: 'Fredag',
+  saturday: 'Lördag',
+  sunday: 'Söndag'
+};
+
+const WEEK_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 const InstagramIcon = ({ size = 18 }) => (
   <svg
@@ -35,6 +48,7 @@ const FacebookIcon = ({ size = 18 }) => (
 );
 
 const SiteFooter = () => {
+  const { data: restaurantData } = useRestaurantStatus();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -120,20 +134,19 @@ const SiteFooter = () => {
               <div className="flex items-start gap-3">
                 <Clock size={18} className="mt-0.5 text-gold" />
                 <div className="w-full space-y-2">
-                  {[
-                    { label: 'Måndag', range: '11:00 - 22:00', key: 'måndag' },
-                    { label: 'Tisdag', range: '11:00 - 22:00', key: 'tisdag' },
-                    { label: 'Onsdag', range: '11:00 - 22:00', key: 'onsdag' },
-                    { label: 'Torsdag', range: '11:00 - 22:00', key: 'torsdag' },
-                    { label: 'Fredag', range: '11:00 - 23:00', key: 'fredag' },
-                    { label: 'Lördag', range: '12:00 - 23:00', key: 'lördag' },
-                    { label: 'Söndag', range: '12:00 - 22:00', key: 'söndag' }
-                  ].map((day) => {
-                    const isToday = new Date().toLocaleDateString('sv-SE', { weekday: 'long' }).toLowerCase() === day.key;
+                  {WEEK_ORDER.map((key) => {
+                    const oh = restaurantData?.week?.[key];
+                    const label = DAY_LABELS[key];
+                    const isToday = new Date().toLocaleDateString('en-US', { weekday: 'long', timeZone: 'Europe/Stockholm' }).toLowerCase() === key;
+                    
                     return (
-                      <div key={day.key} className={`flex gap-1 ${isToday ? 'text-white font-bold' : ''}`}>
-                        <span className="w-[62px] shrink-0">{day.label}:</span>
-                        <span className={isToday ? 'text-gold' : 'text-white/80'}>{day.range}</span>
+                      <div key={key} className={`flex gap-1 ${isToday ? 'text-white font-bold' : ''}`}>
+                        <span className="w-[62px] shrink-0">{label}:</span>
+                        {oh?.closed ? (
+                          <span className="text-red-500/50 uppercase text-[10px] tracking-tighter">Stängt</span>
+                        ) : (
+                          <span className={isToday ? 'text-gold' : 'text-white/80'}>{oh?.open} - {oh?.close}</span>
+                        )}
                       </div>
                     );
                   })}

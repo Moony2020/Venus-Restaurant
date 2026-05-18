@@ -3,17 +3,22 @@ import { useSearchParams } from 'react-router-dom';
 import SiteHeader from '../layout/SiteHeader';
 import { apiPost } from '../lib/api';
 
-const OPENING_HOURS = [
-  { day: 'Måndag', hours: '11:00 - 22:00', index: 1 },
-  { day: 'Tisdag', hours: '11:00 - 22:00', index: 2 },
-  { day: 'Onsdag', hours: '11:00 - 22:00', index: 3 },
-  { day: 'Torsdag', hours: '11:00 - 22:00', index: 4 },
-  { day: 'Fredag', hours: '11:00 - 23:00', index: 5 },
-  { day: 'Lördag', hours: '12:00 - 23:00', index: 6 },
-  { day: 'Söndag', hours: '12:00 - 22:00', index: 0 },
-];
+import { useRestaurantStatus } from '../hooks/useRestaurantStatus';
+
+const DAY_MAP = {
+  monday: 'Måndag',
+  tuesday: 'Tisdag',
+  wednesday: 'Onsdag',
+  thursday: 'Torsdag',
+  friday: 'Fredag',
+  saturday: 'Lördag',
+  sunday: 'Söndag'
+};
+
+const WEEK_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 const Reservations = () => {
+  const { data: restaurantData } = useRestaurantStatus();
   const [searchParams] = useSearchParams();
   const [currentDay, setCurrentDay] = useState(new Date().getDay());
   const [form, setForm] = useState({
@@ -98,7 +103,7 @@ const Reservations = () => {
                     onChange={e => setForm({...form, time: e.target.value})} 
                     className="w-full border-b border-white/10 bg-transparent py-4 focus:border-gold outline-none appearance-none"
                   >
-                    {['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'].map(t => <option key={t} className="bg-background">{t}</option>)}
+                    {['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30'].map(t => <option key={t} className="bg-background">{t}</option>)}
                   </select>
                 </div>
                 <div className="space-y-2">
@@ -130,14 +135,48 @@ const Reservations = () => {
 
           <div className="space-y-12">
             <div className="space-y-4">
-              <h3 className="font-display text-2xl text-gold">Öppettider</h3>
-              <div className="space-y-3">
-                {OPENING_HOURS.map((oh) => (
-                  <div key={oh.day} className={`flex gap-3 text-[13px] leading-relaxed transition-all duration-300 ${oh.index === currentDay ? 'text-white font-bold' : 'text-white/40'}`}>
-                    <span className="w-20 shrink-0">{oh.day}:</span>
-                    <span className={oh.index === currentDay ? 'text-gold' : ''}>{oh.hours}</span>
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-2xl text-gold">Öppettider</h3>
+                {restaurantData?.nowStatus && (
+                  <div className={`flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-all duration-500 ${
+                    restaurantData.nowStatus.isOpen 
+                      ? 'border-green-500/30 bg-green-500/10 text-green-400' 
+                      : 'border-red-500/30 bg-red-500/10 text-red-400'
+                  }`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${restaurantData.nowStatus.isOpen ? 'animate-pulse bg-green-400' : 'bg-red-400'}`} />
+                    {restaurantData.nowStatus.isOpen ? 'Öppet nu' : 'Stängt'}
                   </div>
-                ))}
+                )}
+              </div>
+              
+              <div className="space-y-3">
+                {WEEK_KEYS.map((key) => {
+                  const oh = restaurantData?.week?.[key];
+                  const dayName = DAY_MAP[key];
+                  
+                  // Logic to highlight the "active" day
+                  // If we are open from yesterday, highlight yesterday
+                  const status = restaurantData?.nowStatus;
+                  const isRolloverActive = status?.text?.includes('från igår') && status?.isOpen;
+                  
+                  const todayKey = WEEK_KEYS[(new Date().getDay() + 6) % 7]; // Convert 0-6 (Sun-Sat) to Monday-start index
+                  const yesterdayKey = WEEK_KEYS[(new Date().getDay() + 5) % 7];
+                  
+                  const isHighlighted = isRolloverActive 
+                    ? key === yesterdayKey 
+                    : key === todayKey;
+
+                  return (
+                    <div key={key} className={`flex gap-3 text-[13px] leading-relaxed transition-all duration-300 ${isHighlighted ? 'text-white font-bold' : 'text-white/40'}`}>
+                      <span className="w-20 shrink-0">{dayName}:</span>
+                      {oh?.closed ? (
+                        <span className="text-red-500/60 uppercase tracking-tighter">Stängt</span>
+                      ) : (
+                        <span className={isHighlighted ? 'text-gold' : ''}>{oh?.open} - {oh?.close}</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <div className="space-y-4">

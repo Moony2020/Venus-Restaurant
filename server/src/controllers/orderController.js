@@ -54,7 +54,7 @@ export const createOrder = async (req, res) => {
     deliveryFee,
     etaText,
     paymentMethod,
-    paymentStatus: paymentMethod === 'pay_on_pickup' ? 'paid' : 'unpaid',
+    paymentStatus: 'unpaid',
     user: req.user?._id || null,
     trackingCode,
     status: 'pending'
@@ -127,7 +127,11 @@ export const getOrderAnalytics = async (req, res) => {
           d: { $dayOfMonth: '$createdAt' }
         },
         ordersCount: { $sum: 1 },
-        revenue: { $sum: '$totalAmount' }
+        revenue: {
+          $sum: {
+            $cond: [{ $eq: ['$paymentStatus', 'paid'] }, '$totalAmount', 0]
+          }
+        }
       }
     }
   ]);
@@ -182,6 +186,30 @@ export const updateOrderStatus = async (req, res) => {
   }
 
   order.status = status;
+  await order.save();
+
+  const io = getIO();
+  if (io) io.emit('order:update', order);
+
+  return res.json(order);
+};
+
+export const updateOrderPayment = async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+
+  const nextPaymentStatus = String(req.body.paymentStatus || '').trim();
+  if (!['paid', 'unpaid', 'failed', 'refunded'].includes(nextPaymentStatus)) {
+    return res.status(400).json({ message: 'Invalid paymentStatus' });
+  }
+
+  const nextPaymentMethod = req.body.paymentMethod ? String(req.body.paymentMethod) : order.paymentMethod;
+  if (!['pay_on_pickup', 'stripe', 'paypal'].includes(nextPaymentMethod)) {
+    return res.status(400).json({ message: 'Invalid paymentMethod' });
+  }
+
+  order.paymentStatus = nextPaymentStatus;
+  order.paymentMethod = nextPaymentMethod;
   await order.save();
 
   const io = getIO();

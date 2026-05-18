@@ -21,6 +21,26 @@ const STATUS_LABELS = {
   done: 'Slutförd'
 };
 
+const PAYMENT_METHOD_LABELS = {
+  pay_on_pickup: 'På plats',
+  stripe: 'Kort (Stripe)',
+  paypal: 'PayPal'
+};
+
+const PAYMENT_STATUS_BADGE = {
+  paid: 'border-green-500/40 bg-green-600/15 text-green-300',
+  unpaid: 'border-yellow-500/35 bg-yellow-600/15 text-yellow-200',
+  failed: 'border-red-500/35 bg-red-600/15 text-red-300',
+  refunded: 'border-sky-500/35 bg-sky-600/15 text-sky-300'
+};
+
+const PAYMENT_STATUS_LABELS = {
+  paid: 'Betald',
+  unpaid: 'Obetald',
+  failed: 'Misslyckad',
+  refunded: 'Återbetald'
+};
+
 const SOCKET_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : (import.meta.env.PROD ? undefined : 'http://localhost:5000');
 
 const formatDateTime = (value) => {
@@ -56,15 +76,13 @@ const changeClass = (value) => (value >= 0 ? 'text-green-400' : 'text-red-400');
 
 const AdminOrders = () => {
   const { token } = useAuth();
-  const audioRef = useRef(null);
 
   const [orders, setOrders] = useState([]);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [highlightIds, setHighlightIds] = useState([]);
-  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -73,20 +91,44 @@ const AdminOrders = () => {
   const [analytics, setAnalytics] = useState([]);
   const [analyticsCache, setAnalyticsCache] = useState({});
   const pollingRef = useRef(null);
+  const audioContextRef = useRef(null);
+
+  const playNotificationTone = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!audioContextRef.current) audioContextRef.current = new AudioCtx();
+      const ctx = audioContextRef.current;
+
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 880;
+      gainNode.gain.value = 0.0001;
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      const now = ctx.currentTime;
+      gainNode.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+      oscillator.start(now);
+      oscillator.stop(now + 0.28);
+    } catch {
+      // ignore audio errors
+    }
+  };
+
+  const showBrowserNotification = (order) => {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    // eslint-disable-next-line no-new
+    new Notification('Ny beställning', {
+      body: `${order.customerName || 'Kund'} • ${Math.round(order.totalAmount || 0)} kr • ${order.trackingCode || ''}`
+    });
+  };
 
   useEffect(() => {
-    const audio = new Audio('/sounds/new-order.mp3');
-    audio.preload = 'auto';
-    audio.volume = 0.35;
-    audioRef.current = audio;
-
-    const unlockAudio = () => setIsAudioUnlocked(true);
-    window.addEventListener('pointerdown', unlockAudio, { once: true });
-
-    return () => {
-      window.removeEventListener('pointerdown', unlockAudio);
-      audioRef.current = null;
-    };
+    // Initial load logic if needed
   }, []);
 
   const fetchOrders = async () => {
@@ -108,10 +150,10 @@ const AdminOrders = () => {
     }
   };
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (force = false) => {
     if (!token) return;
 
-    if (analyticsCache[analyticsDays]) {
+    if (!force && analyticsCache[analyticsDays]) {
       setAnalytics(analyticsCache[analyticsDays]);
       return;
     }
@@ -177,10 +219,10 @@ const AdminOrders = () => {
         return [order, ...prev];
       });
       markHighlighted(order._id);
-
-      if (isSoundEnabled && isAudioUnlocked && audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play().catch(() => {});
+      fetchAnalytics(true);
+      if (isSoundEnabled) {
+        playNotificationTone();
+        showBrowserNotification(order);
       }
     });
 
@@ -189,6 +231,7 @@ const AdminOrders = () => {
         prev.map((order) => (order._id === updatedOrder._id ? { ...order, ...updatedOrder } : order))
       );
       markHighlighted(updatedOrder._id);
+      fetchAnalytics(true);
     });
 
     socket.on('connect', stopPolling);
@@ -202,7 +245,7 @@ const AdminOrders = () => {
       stopPolling();
       socket.disconnect();
     };
-  }, [token, isSoundEnabled, isAudioUnlocked]);
+  }, [token, isSoundEnabled]);
 
   const visibleOrders = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -248,6 +291,22 @@ const AdminOrders = () => {
     }
   };
 
+  const updatePayment = async (id, paymentStatus, paymentMethod) => {
+    try {
+      const updated = await apiPatch(
+        `/orders/${id}/payment`,
+        { paymentStatus, paymentMethod },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setOrders((prev) => prev.map((order) => (order._id === id ? { ...order, ...updated } : order)));
+      setSelectedOrder((prev) => (prev && prev._id === id ? { ...prev, ...updated } : prev));
+      fetchAnalytics(true);
+    } catch {
+      setError('Misslyckades att uppdatera betalstatus.');
+    }
+  };
+
   return (
     <main className="min-h-screen bg-background text-white">
       <AdminHeader />
@@ -261,7 +320,13 @@ const AdminOrders = () => {
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              onClick={() => setIsSoundEnabled((prev) => !prev)}
+              onClick={() => {
+                const next = !isSoundEnabled;
+                setIsSoundEnabled(next);
+                if (next && 'Notification' in window && Notification.permission === 'default') {
+                  Notification.requestPermission().catch(() => {});
+                }
+              }}
               className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-[9px] uppercase tracking-[0.16em] transition-all duration-300 ${
                 isSoundEnabled 
                   ? 'border-gold/30 bg-gold/10 text-gold' 
@@ -383,6 +448,7 @@ const AdminOrders = () => {
                 <th className="px-6 py-4 whitespace-nowrap text-center">Artiklar</th>
                 <th className="px-6 py-4 whitespace-nowrap">Summa</th>
                 <th className="px-6 py-4 whitespace-nowrap">Typ</th>
+                <th className="px-6 py-4 whitespace-nowrap">Betalning</th>
                 <th className="px-6 py-4 whitespace-nowrap text-center">Status</th>
                 <th className="px-6 py-4 whitespace-nowrap">Skapad</th>
                 <th className="px-6 py-4 whitespace-nowrap text-right">Åtgärder</th>
@@ -391,7 +457,7 @@ const AdminOrders = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="px-6 py-20 text-center text-white/40" colSpan="8">
+                  <td className="px-6 py-20 text-center text-white/40" colSpan="9">
                     <div className="flex flex-col items-center gap-3">
                       <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
                       Laddar beställningar...
@@ -400,7 +466,7 @@ const AdminOrders = () => {
                 </tr>
               ) : visibleOrders.length === 0 ? (
                 <tr>
-                  <td className="px-6 py-20 text-center text-white/40" colSpan="8">
+                  <td className="px-6 py-20 text-center text-white/40" colSpan="9">
                     Inga beställningar hittades.
                   </td>
                 </tr>
@@ -429,6 +495,16 @@ const AdminOrders = () => {
                           {order.orderMode === 'delivery' ? 'Leverans' : 'Hämtning'}
                         </span>
                       </td>
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <div className="flex flex-col gap-1.5">
+                          <span className="text-[9px] uppercase tracking-widest text-white/50 font-bold">
+                            {PAYMENT_METHOD_LABELS[order.paymentMethod] || 'Ej satt'}
+                          </span>
+                          <span className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.14em] ${PAYMENT_STATUS_BADGE[order.paymentStatus] || PAYMENT_STATUS_BADGE.unpaid}`}>
+                            {PAYMENT_STATUS_LABELS[order.paymentStatus] || PAYMENT_STATUS_LABELS.unpaid}
+                          </span>
+                        </div>
+                      </td>
                       <td className="px-6 py-5 text-center whitespace-nowrap">
                         <span
                           className={`inline-flex rounded-full border px-3 py-1 text-[8px] font-bold uppercase tracking-[0.14em] ${STATUS_BADGE[order.status] || STATUS_BADGE.pending}`}
@@ -456,6 +532,15 @@ const AdminOrders = () => {
                               {nextStatus === 'preparing' ? 'Tillaga' : nextStatus === 'ready' ? 'Klar' : 'Slutför'}
                             </button>
                           ))}
+                          {order.paymentStatus !== 'paid' && (
+                            <button
+                              type="button"
+                              onClick={() => updatePayment(order._id, 'paid', order.paymentMethod || 'pay_on_pickup')}
+                              className="rounded-lg border border-green-500/35 bg-green-600/15 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-green-300 transition hover:bg-green-600/25"
+                            >
+                              Markera betald
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -502,26 +587,41 @@ const AdminOrders = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {(selectedOrder.items || []).map((item, i) => (
-                      <tr key={`${item.name}-${i}`} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors">
-                        <td className="px-4 py-4">
-                          <p className="font-medium text-white/90 text-xs">{item.name}</p>
-                          {item.optionSummary && (
-                            <p className="mt-1 text-[10px] text-gold/60 italic leading-relaxed">Tillägg: {item.optionSummary}</p>
-                          )}
-                          {item.notes && (
-                            <p className="mt-1 text-[10px] text-white/40 leading-relaxed">Notering: "{item.notes}"</p>
-                          )}
-                        </td>
-                        <td className="px-4 py-4 text-center">
-                          <span className="inline-block rounded-lg bg-white/5 px-2.5 py-1 text-xs font-bold">{item.quantity}</span>
-                        </td>
-                        <td className="px-4 py-4 text-right">
-                          <p className="font-bold text-gold text-xs">{Math.round(item.price * item.quantity)} kr</p>
-                          <p className="text-[9px] text-white/30 font-mono mt-0.5">{item.price} kr/st</p>
-                        </td>
-                      </tr>
-                    ))}
+                    {(selectedOrder.items || []).map((item, i) => {
+                      const extras = item.extras || [];
+                      const extrasTotal = extras.reduce((sum, e) => sum + (e.price || 0), 0);
+                      const basePrice = Math.max(0, (item.price || 0) - extrasTotal);
+                      
+                      return (
+                        <tr key={`${item.name}-${i}`} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors">
+                          <td className="px-4 py-4">
+                            <p className="font-medium text-white/90 text-xs">
+                              {item.name}
+                              <span className="ml-2 text-white/30 text-[10px]">({basePrice} kr)</span>
+                            </p>
+                            {extras.length > 0 && (
+                              <div className="mt-1 space-y-0.5">
+                                {extras.map((extra, eIdx) => (
+                                  <p key={`${extra.optionId}-${eIdx}`} className="text-[10px] text-gold/60 italic leading-relaxed">
+                                    • {extra.label} {extra.price > 0 && <span className="text-gold/40">(+{extra.price} kr)</span>}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                            {item.notes && (
+                              <p className="mt-1 text-[10px] text-white/40 leading-relaxed">Notering: "{item.notes}"</p>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <span className="inline-block rounded-lg bg-white/5 px-2.5 py-1 text-xs font-bold">{item.quantity}</span>
+                          </td>
+                          <td className="px-4 py-4 text-right">
+                            <p className="font-bold text-gold text-xs">{Math.round(item.price * item.quantity)} kr</p>
+                            <p className="text-[9px] text-white/30 font-mono mt-0.5">{basePrice} kr bas + tillägg</p>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -531,12 +631,23 @@ const AdminOrders = () => {
               <div className="flex items-center justify-between">
                 <div className="text-[10px] text-white/40 font-bold">
                   <p className="uppercase tracking-widest">Typ: <span className="text-white/80">{selectedOrder.orderMode === 'delivery' ? 'Leverans' : 'Hämta själv'}</span></p>
+                  <p className="mt-1.5 uppercase tracking-widest">Betalmetod: <span className="text-white/80">{PAYMENT_METHOD_LABELS[selectedOrder.paymentMethod] || 'Ej satt'}</span></p>
+                  <p className="mt-1.5 uppercase tracking-widest">Betalstatus: <span className="text-white/80">{PAYMENT_STATUS_LABELS[selectedOrder.paymentStatus] || PAYMENT_STATUS_LABELS.unpaid}</span></p>
                   <p className="mt-1.5 uppercase tracking-widest">Skapad: <span className="text-white/80 font-mono">{formatDateTime(selectedOrder.createdAt)}</span></p>
                   {selectedOrder.deliveryFee > 0 && <p className="mt-1.5 uppercase tracking-widest text-gold/60">Leveransavgift: {selectedOrder.deliveryFee} kr</p>}
                 </div>
                 <div className="text-right">
                   <p className="text-[9px] uppercase tracking-widest text-white/30 font-bold mb-1">Totalsumma</p>
                   <p className="text-4xl font-display text-gold">{Math.round(selectedOrder.totalAmount || 0)} kr</p>
+                  {selectedOrder.paymentStatus !== 'paid' && (
+                    <button
+                      type="button"
+                      onClick={() => updatePayment(selectedOrder._id, 'paid', selectedOrder.paymentMethod || 'pay_on_pickup')}
+                      className="mt-3 rounded-lg border border-green-500/35 bg-green-600/15 px-3 py-2 text-[9px] font-black uppercase tracking-widest text-green-300 transition hover:bg-green-600/25"
+                    >
+                      Markera som betald
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

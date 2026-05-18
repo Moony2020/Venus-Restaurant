@@ -16,8 +16,8 @@ const restaurantSettingsSchema = new mongoose.Schema(
       tuesday: { type: daySchema, default: () => ({ open: '11:00', close: '22:00' }) },
       wednesday: { type: daySchema, default: () => ({ open: '11:00', close: '22:00' }) },
       thursday: { type: daySchema, default: () => ({ open: '11:00', close: '22:00' }) },
-      friday: { type: daySchema, default: () => ({ open: '11:00', close: '23:00' }) },
-      saturday: { type: daySchema, default: () => ({ open: '12:00', close: '23:00' }) },
+      friday: { type: daySchema, default: () => ({ open: '11:00', close: '24:00' }) },
+      saturday: { type: daySchema, default: () => ({ open: '12:00', close: '01:00' }) },
       sunday: { type: daySchema, default: () => ({ open: '12:00', close: '22:00' }) }
     },
     manualOverride: {

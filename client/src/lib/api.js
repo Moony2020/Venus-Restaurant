@@ -1,6 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
 
 const MAX_RETRIES = 2;
+const RETRYABLE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -25,6 +26,8 @@ const parseErrorMessage = async (res) => {
 };
 
 const request = async (path, config = {}, attempt = 0) => {
+  const method = String(config.method || 'GET').toUpperCase();
+  const canRetry = RETRYABLE_METHODS.has(method);
   try {
     const res = await fetch(`${API_BASE}${path}`, {
       credentials: 'include',
@@ -34,7 +37,7 @@ const request = async (path, config = {}, attempt = 0) => {
     if (!res.ok) {
       const backendMessage = await parseErrorMessage(res);
 
-      if (attempt < MAX_RETRIES && shouldRetryStatus(res.status)) {
+      if (canRetry && attempt < MAX_RETRIES && shouldRetryStatus(res.status)) {
         const backoffMs = attempt === 0 ? 500 : 1500;
         await sleep(backoffMs);
         return request(path, config, attempt + 1);
@@ -49,7 +52,7 @@ const request = async (path, config = {}, attempt = 0) => {
     return res.json();
   } catch (error) {
     const isNetworkError = !Object.prototype.hasOwnProperty.call(error, 'status');
-    if (attempt < MAX_RETRIES && isNetworkError) {
+    if (canRetry && attempt < MAX_RETRIES && isNetworkError) {
       const backoffMs = attempt === 0 ? 500 : 1500;
       await sleep(backoffMs);
       return request(path, config, attempt + 1);

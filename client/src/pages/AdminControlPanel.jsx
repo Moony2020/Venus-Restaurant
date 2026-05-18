@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Activity } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import AdminHeader from '../layout/AdminHeader';
 import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api';
@@ -32,6 +33,49 @@ const EMPTY_PRODUCT = {
 
 const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
+const DEFAULT_HOURS = {
+  monday: { open: '11:00', close: '22:00', closed: false },
+  tuesday: { open: '11:00', close: '22:00', closed: false },
+  wednesday: { open: '11:00', close: '22:00', closed: false },
+  thursday: { open: '11:00', close: '22:00', closed: false },
+  friday: { open: '11:00', close: '24:00', closed: false },
+  saturday: { open: '12:00', close: '24:00', closed: false },
+  sunday: { open: '12:00', close: '22:00', closed: false }
+};
+
+const getTodayKeyInStockholm = () => {
+  const weekday = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Stockholm',
+    weekday: 'long'
+  }).format(new Date()).toLowerCase();
+
+  return WEEK_DAYS.includes(weekday) ? weekday : null;
+};
+
+const timeToMinutes = (value) => {
+  const normalized = String(value || '').trim();
+  const match = normalized.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return null;
+  let hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+  if (hours < 0 || hours > 24 || minutes < 0 || minutes > 59) return null;
+  if (hours === 24 && minutes > 0) hours = 0;
+  return hours * 60 + minutes;
+};
+
+const normalizeTimeInput = (value) => {
+  const raw = String(value || '').trim().replace('.', ':');
+  const match = raw.match(/^(\d{1,2}):(\d{1,2})$/);
+  if (!match) return value;
+  const h = Number(match[1]);
+  const m = Number(match[2]);
+  if (Number.isNaN(h) || Number.isNaN(m)) return value;
+  if (h < 0 || h > 24 || m < 0 || m > 59) return value;
+  if (h === 24 && m !== 0) return value;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+
 const AdminControlPanel = () => {
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('popular');
@@ -44,10 +88,11 @@ const AdminControlPanel = () => {
   const [draggingId, setDraggingId] = useState('');
 
   const loadAll = async () => {
+    const now = Date.now();
     const [menuData, settingsData, needsData] = await Promise.all([
-      apiGet('/menu?includeUnavailable=true'),
-      apiGet('/restaurant/settings'),
-      apiGet('/restaurant/needs')
+      apiGet(`/menu?includeUnavailable=true&t=${now}`),
+      apiGet(`/restaurant/settings?t=${now}`),
+      apiGet(`/restaurant/needs?t=${now}`)
     ]);
     setProducts(menuData || []);
     setSettings(settingsData || null);
@@ -119,22 +164,123 @@ const AdminControlPanel = () => {
   };
 
   const updateDay = (day, key, value) => {
-    setSettings((prev) => ({
-      ...prev,
-      week: {
-        ...prev.week,
-        [day]: { ...prev.week[day], [key]: value }
+    setSettings((prev) => {
+      const newDaySettings = { ...prev.week[day], [key]: value };
+
+      // If user edits hours, that day should follow hours (not full-day closed)
+      if (key === 'open' || key === 'close') {
+        newDaySettings.closed = false;
       }
-    }));
+      
+      // If unchecking 'closed', reset this specific day to default hours
+      if (key === 'closed' && value === false) {
+        newDaySettings.open = DEFAULT_HOURS[day].open;
+        newDaySettings.close = DEFAULT_HOURS[day].close;
+      }
+      
+      return {
+        ...prev,
+        week: {
+          ...prev.week,
+          [day]: newDaySettings
+        }
+      };
+    });
   };
 
-  const saveHours = async () => {
-    await apiPatch('/restaurant/settings', {
-      week: settings.week,
-      manualOverride: settings.manualOverride,
-      manualMessage: settings.manualMessage
-    });
-    toast.success('Opening hours updated');
+  const currentStatus = useMemo(() => {
+    if (!settings) return { isOpen: false, text: 'Laddar...' };
+    
+    // 1. Check manual overrides first
+    if (settings.manualOverride === 'force_open') return { isOpen: true, text: 'Tvingad ÖPPEN' };
+    if (settings.manualOverride === 'force_closed') return { isOpen: false, text: 'Tvingad STÄNGD' };
+
+    // 2. Setup current time in Stockholm
+    const nowStockholm = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Europe/Stockholm',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23'
+    }).format(new Date());
+    const nowMinutes = timeToMinutes(nowStockholm);
+
+    const checkDay = (dayKey, isYesterday = false) => {
+      const daySettings = settings.week?.[dayKey];
+      if (!daySettings || daySettings.closed) return null;
+
+      const openMin = timeToMinutes(daySettings.open);
+      let closeMin = timeToMinutes(daySettings.close);
+      if (daySettings.close === '00:00' || daySettings.close === '24:00' || closeMin === 0) closeMin = 1440;
+
+      const isRollover = closeMin < openMin;
+
+      if (isYesterday) {
+        return isRollover && nowMinutes < closeMin;
+      } else {
+        if (isRollover) return nowMinutes >= openMin || nowMinutes < closeMin;
+        return nowMinutes >= openMin && nowMinutes < closeMin;
+      }
+    };
+
+    const todayKey = getTodayKeyInStockholm();
+    const todayIdx = WEEK_DAYS.indexOf(todayKey);
+    const yesterdayKey = WEEK_DAYS[(todayIdx - 1 + 7) % 7];
+
+    // Check yesterday's rollover first
+    if (checkDay(yesterdayKey, true)) {
+      const sched = settings.week?.[yesterdayKey];
+      return { isOpen: true, text: `Öppet nu (från igår) • Stänger kl ${sched.close}` };
+    }
+
+    // Check today's schedule
+    if (checkDay(todayKey)) {
+      const sched = settings.week?.[todayKey];
+      return { isOpen: true, text: `Öppet nu • Stänger kl ${sched.close}` };
+    }
+
+    return { 
+      isOpen: false, 
+      text: 'Schema: STÄNGT just nu' 
+    };
+  }, [settings]);
+
+  const saveHours = async (newOverride = undefined) => {
+    try {
+      let manualOverride = newOverride !== undefined ? newOverride : settings.manualOverride;
+      let weekPayload = JSON.parse(JSON.stringify(settings.week));
+
+      // "Return to Schedule" logic: Reset everything to defaults
+      if (newOverride === 'none') {
+        weekPayload = JSON.parse(JSON.stringify(DEFAULT_HOURS));
+        manualOverride = 'none';
+      }
+
+      // Safety: if a day is NOT checked as closed, make sure closed=false is explicit
+      // If a day IS checked as closed, ensure closed=true
+      for (const day of WEEK_DAYS) {
+        if (weekPayload[day]) {
+          weekPayload[day].closed = Boolean(weekPayload[day].closed);
+        }
+      }
+      
+      const payload = {
+        week: weekPayload,
+        manualOverride,
+        manualMessage: settings.manualMessage
+      };
+
+      const updated = await apiPatch('/restaurant/settings', payload);
+      setSettings(updated || settings);
+      
+      if (newOverride !== undefined) {
+        toast.success(newOverride === 'none' ? 'Återställt till normalt schema' : 'Status uppdaterad', { icon: '⚡' });
+      } else {
+        toast.success('Inställningar sparade');
+      }
+    } catch (err) {
+      console.error('Save error:', err);
+      toast.error('Kunde inte spara inställningarna');
+    }
   };
 
   const addNeed = async (e) => {
@@ -160,11 +306,87 @@ const AdminControlPanel = () => {
       <main className="min-h-screen bg-background text-white pb-20">
       <AdminHeader />
       <section className="mx-auto max-w-[1600px] px-6 py-12">
-        <div className="mb-12">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-gold font-bold mb-1">Admin Portal</p>
-          <h1 className="font-display text-4xl sm:text-5xl">Översikt</h1>
-          <p className="text-white/40 text-sm mt-2">Hantera restaurangens status, lagerbehov och menyinställningar.</p>
+        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-gold font-bold mb-1">Admin Portal</p>
+            <h1 className="font-display text-4xl sm:text-5xl">Översikt</h1>
+            <p className="text-white/40 text-sm mt-2">Hantera restaurangens status, lagerbehov och menyinställningar.</p>
+          </div>
+
+          {settings && (
+            <div className="flex items-center gap-4 bg-panel/40 border border-white/10 rounded-2xl p-4 pr-6 backdrop-blur-md shadow-2xl">
+              <div className={`h-3 w-3 rounded-full shadow-[0_0_12px] ${currentStatus.isOpen ? 'bg-green-500 shadow-green-500/50' : 'bg-red-500 shadow-red-500/50'} animate-pulse`} />
+              <div>
+                <p className="text-[8px] uppercase tracking-widest text-white/30 mb-0.5">Live Status</p>
+                <p className={`text-[11px] font-black uppercase tracking-widest ${currentStatus.isOpen ? 'text-green-400' : 'text-red-400'}`}>
+                  {currentStatus.isOpen ? 'ÖPPET' : 'STÄNGT'}
+                </p>
+              </div>
+              <div className="h-8 w-px bg-white/10 mx-2" />
+              <div>
+                <p className="text-[8px] uppercase tracking-widest text-white/30 mb-0.5">Operativ Mode</p>
+                <p className="text-[11px] font-bold text-white/80">{currentStatus.text}</p>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Quick Controls Section */}
+        {settings && (
+          <div className="mb-12 rounded-2xl border border-white/10 bg-panel/30 p-8 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+              <Activity size={120} />
+            </div>
+            <div className="relative z-10">
+              <h2 className="font-display text-xl text-gold mb-6 uppercase tracking-widest">Restaurangens Drift</h2>
+              <div className="grid gap-8 lg:grid-cols-[1fr_2fr]">
+                <div className="space-y-4">
+                  <p className="text-xs text-white/50 leading-relaxed">Använd snabbknapparna för att omedelbart ändra restaurangens status oavsett schema.</p>
+                  <div className="flex flex-wrap gap-3">
+                    <button 
+                      onClick={() => saveHours('force_closed')}
+                      className={`px-6 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${settings.manualOverride === 'force_closed' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white'}`}
+                    >
+                      Stäng Omedelbart
+                    </button>
+                    <button 
+                      onClick={() => saveHours('force_open')}
+                      className={`px-6 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${settings.manualOverride === 'force_open' ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500 hover:text-white'}`}
+                    >
+                      Tvinga Öppet
+                    </button>
+                    <button 
+                      onClick={() => saveHours('none')}
+                      className={`px-6 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${settings.manualOverride === 'none' ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'bg-white/5 border border-white/10 text-white/40 hover:border-gold hover:text-gold'}`}
+                    >
+                      Återgå till schema
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                   <div className="space-y-1.5">
+                    <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Manuellt meddelande till kunder</label>
+                    <div className="flex gap-3">
+                      <input 
+                        className="flex-1 rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" 
+                        placeholder="t.ex. 'Stängt pga renovering' eller 'Oväntad personalbrist'" 
+                        value={settings.manualMessage || ''} 
+                        onChange={(e) => setSettings((p) => ({ ...p, manualMessage: e.target.value }))} 
+                      />
+                      <button 
+                        onClick={() => saveHours()}
+                        className="px-6 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-white/60 hover:border-gold hover:text-gold transition-all"
+                      >
+                        Spara meddelande
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Add Product Section */}
@@ -303,8 +525,11 @@ const AdminControlPanel = () => {
           <div className="flex items-center justify-between mb-8">
             <h2 className="font-display text-xl text-gold uppercase tracking-widest">Öppettider</h2>
             <button 
-              className="rounded-lg bg-gold px-6 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-black hover:bg-goldSoft transition-all shadow-lg shadow-gold/10" 
-              onClick={saveHours}
+              className={`rounded-lg px-6 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-black transition-all shadow-lg ${
+                !settings ? 'bg-white/10 text-white/20 cursor-not-allowed' : 'bg-gold hover:bg-goldSoft shadow-gold/10'
+              }`} 
+              onClick={() => saveHours()}
+              disabled={!settings}
             >
               Spara schema
             </button>
@@ -320,24 +545,30 @@ const AdminControlPanel = () => {
                       <div className="flex flex-col gap-1">
                         <span className="text-[8px] uppercase tracking-widest text-white/20">Öppnar</span>
                         <input 
-                          type="time" 
-                          value={settings.week?.[day]?.open || '10:00'} 
+                          type="text" 
+                          value={settings.week?.[day]?.open || '11:00'} 
                           onChange={(e) => updateDay(day, 'open', e.target.value)} 
-                          className="w-full bg-transparent border-b border-white/10 py-1 text-xs text-white outline-none focus:border-gold [color-scheme:dark]" 
+                          onBlur={(e) => updateDay(day, 'open', normalizeTimeInput(e.target.value))}
+                          disabled={Boolean(settings.week?.[day]?.closed)}
+                          className={`w-full bg-transparent border-b border-white/10 py-1 text-xs outline-none focus:border-gold placeholder:text-white/10 ${settings.week?.[day]?.closed ? 'text-white/20 cursor-not-allowed' : 'text-white'}`}
+                          placeholder="11:00"
                         />
                       </div>
                       <div className="flex flex-col gap-1">
                         <span className="text-[8px] uppercase tracking-widest text-white/20">Stänger</span>
                         <input 
-                          type="time" 
+                          type="text" 
                           value={settings.week?.[day]?.close || '22:00'} 
                           onChange={(e) => updateDay(day, 'close', e.target.value)} 
-                          className="w-full bg-transparent border-b border-white/10 py-1 text-xs text-white outline-none focus:border-gold [color-scheme:dark]" 
+                          onBlur={(e) => updateDay(day, 'close', normalizeTimeInput(e.target.value))}
+                          disabled={Boolean(settings.week?.[day]?.closed)}
+                          className={`w-full bg-transparent border-b border-white/10 py-1 text-xs outline-none focus:border-gold placeholder:text-white/10 ${settings.week?.[day]?.closed ? 'text-white/20 cursor-not-allowed' : 'text-white'}`}
+                          placeholder="22:00"
                         />
                       </div>
                     </div>
                     <label className="mt-4 flex items-center justify-between gap-2 cursor-pointer group">
-                      <span className="text-[9px] uppercase tracking-widest text-white/40 group-hover:text-red-400 transition-colors">Stängt</span>
+                      <span className="text-[9px] uppercase tracking-widest text-white/40 group-hover:text-red-400 transition-colors">Stängt hela dagen</span>
                       <input 
                         type="checkbox" 
                         className="accent-gold"

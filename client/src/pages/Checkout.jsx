@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowRight, BadgeDollarSign, CreditCard, Lock, RotateCw, ShieldCheck, User } from 'lucide-react';
 import SiteHeader from '../layout/SiteHeader';
 import { useCart } from '../context/CartContext';
 import { apiPost } from '../lib/api';
@@ -62,6 +63,16 @@ const Checkout = () => {
   const onPlaceOrder = async () => {
     if (isSubmitting || normalizedItems.length === 0 || !isOpen) return;
 
+    if (!String(contact.customerName || '').trim()) {
+      setSubmitError('Vänligen fyll i namn.');
+      return;
+    }
+
+    if (!String(contact.email || '').includes('@')) {
+      setSubmitError('Vänligen ange en giltig e-postadress.');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError('');
 
@@ -107,6 +118,23 @@ const Checkout = () => {
         throw new Error('Stripe checkout could not be started.');
       }
 
+      if (paymentMethod === 'paypal') {
+        const paypalOrder = await apiPost('/payments/paypal/create-order', {
+          items: normalizedItems,
+          returnUrl: `${window.location.origin}/confirmation?tracking=${order.trackingCode}&paid=1`,
+          cancelUrl: `${window.location.origin}/checkout`,
+          serviceFeeSek: 0,
+          deliveryFeeSek: orderPrefs.orderMode === 'delivery' ? orderPrefs.deliveryFee : 0
+        });
+
+        if (paypalOrder?.approveUrl) {
+          window.location.href = paypalOrder.approveUrl;
+          return;
+        }
+
+        throw new Error('PayPal checkout could not be started.');
+      }
+
       clearCart();
       navigate(`/confirmation?tracking=${order.trackingCode}`, {
         state: { order, success: true },
@@ -114,7 +142,11 @@ const Checkout = () => {
       });
     } catch (err) {
       const message = String(err?.message || '');
-      setSubmitError(message.includes('403') ? 'Restaurangen är stängd just nu' : 'Något gick fel, försök igen');
+      if (err.status === 403 || message.toLowerCase().includes('permission')) {
+        setSubmitError('Restaurangen är stängd just nu');
+      } else {
+        setSubmitError(message || 'Något gick fel, försök igen');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -156,24 +188,94 @@ const Checkout = () => {
             <span>2. Betalning</span>
             <span className="h-px flex-1 bg-gold/35" />
           </h2>
-
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('pay_on_pickup')}
-              className={`border px-5 py-4 text-left transition ${paymentMethod === 'pay_on_pickup' ? 'border-gold bg-white/[0.07]' : 'border-gold/25 bg-transparent'}`}
-            >
-              <p className="text-lg">Betala på plats</p>
-              <p className="mt-1 text-xs text-white/65">Kontant, kort eller Swish vid upphämtning</p>
-            </button>
+          <p className="mt-2 text-white/60">Välj din föredragna betalningsmetod</p>
+          <div className="mt-6 space-y-4">
             <button
               type="button"
               onClick={() => setPaymentMethod('stripe')}
-              className={`border px-5 py-4 text-left transition ${paymentMethod === 'stripe' ? 'border-gold bg-white/[0.07]' : 'border-gold/25 bg-transparent'}`}
+              className={`w-full rounded-2xl border p-4 text-left transition sm:rounded-3xl sm:p-6 ${paymentMethod === 'stripe' ? 'border-gold bg-gradient-to-b from-[#1d1810] to-[#0e1218] shadow-[0_0_28px_rgba(200,164,77,0.22)]' : 'border-white/15 bg-[#0f1726] hover:border-gold/45'}`}
             >
-              <p className="text-lg">Betala med kort</p>
-              <p className="mt-1 text-xs text-white/65">Säker betalning via Stripe</p>
+              <div className="flex items-start justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#17233a] text-gold sm:h-16 sm:w-16 sm:rounded-2xl"><CreditCard size={24} className="sm:h-[30px] sm:w-[30px]" /></div>
+                  <div>
+                    <p className="text-2xl font-display text-gold sm:text-3xl">Betala med kort</p>
+                    <p className="mt-1 text-sm text-white/70 sm:text-lg">Visa / Mastercard • Säker betalning med <span className="text-gold">Stripe</span></p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="hidden rounded-full border border-gold/35 bg-gold/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-gold md:inline-flex">Rekommenderad</span>
+                  <span className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm sm:h-10 sm:w-10 sm:text-base ${paymentMethod === 'stripe' ? 'border-gold bg-gold text-black' : 'border-white/35 text-transparent'}`}>✓</span>
+                </div>
+              </div>
+
+              {paymentMethod === 'stripe' && (
+                <div className="mt-5 space-y-4">
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/[0.03] px-3 py-3 sm:px-4 sm:py-4">
+                    <div>
+                      <p className="text-xs font-semibold text-white sm:text-sm">Kortuppgifter fylls i hos Stripe</p>
+                      <p className="mt-1 text-xs text-white/60">När du klickar på knappen nedan skickas du till säker Stripe-checkout.</p>
+                    </div>
+                    <span className="inline-flex items-center gap-2 text-xs font-bold text-white sm:text-sm"><span className="rounded bg-white px-2 py-1 text-[#1a4fb8]">VISA</span><span className="h-5 w-5 rounded-full bg-[#f79e1b] sm:h-6 sm:w-6" /></span>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-white/70">
+                    <span className="inline-flex items-center gap-2"><ShieldCheck size={16} className="text-gold" /> Säkert och krypterat med 256-bit SSL</span>
+                    <span className="inline-flex items-center gap-2"><Lock size={16} /> Powered by <span className="text-[#7f6bff] font-bold">stripe</span></span>
+                  </div>
+                </div>
+              )}
             </button>
+
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('paypal')}
+              className={`w-full rounded-2xl border p-4 text-left transition sm:rounded-3xl sm:p-6 ${paymentMethod === 'paypal' ? 'border-gold bg-gradient-to-b from-[#1d1810] to-[#0f1724]' : 'border-white/15 bg-[#0f1726] hover:border-gold/45'}`}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#0f4ea8] text-white sm:h-16 sm:w-16 sm:rounded-2xl"><span className="text-3xl font-black italic sm:text-4xl">P</span></div>
+                  <div>
+                    <p className="text-2xl font-display sm:text-3xl">PayPal</p>
+                    <p className="mt-1 text-sm text-white/70 sm:text-lg">Snabbt och säkert</p>
+                  </div>
+                </div>
+                <span className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm sm:h-10 sm:w-10 sm:text-base ${paymentMethod === 'paypal' ? 'border-gold bg-gold text-black' : 'border-white/35 text-transparent'}`}>✓</span>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-white/10 pt-4 text-sm text-white/70 sm:gap-8">
+                <span className="inline-flex items-center gap-2"><BadgeDollarSign size={16} className="text-gold" /> Snabb checkout</span>
+                <span className="inline-flex items-center gap-2"><ShieldCheck size={16} className="text-gold" /> Säkert köp</span>
+                <span className="inline-flex items-center gap-2"><RotateCw size={16} className="text-gold" /> Du vidarebefordras till PayPal</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('pay_on_pickup')}
+              className={`w-full rounded-2xl border p-4 text-left transition sm:rounded-3xl sm:p-6 ${paymentMethod === 'pay_on_pickup' ? 'border-gold bg-gradient-to-b from-[#1d1810] to-[#0f1724]' : 'border-white/15 bg-[#0f1726] hover:border-gold/45'}`}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#17233a] text-gold sm:h-16 sm:w-16 sm:rounded-2xl"><BadgeDollarSign size={24} className="sm:h-[30px] sm:w-[30px]" /></div>
+                  <div>
+                    <p className="text-2xl font-display sm:text-3xl">Betala på plats</p>
+                    <p className="mt-1 text-sm text-white/70 sm:text-lg">Kontant / Swish • Betala när maten levereras</p>
+                  </div>
+                </div>
+                <span className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm sm:h-10 sm:w-10 sm:text-base ${paymentMethod === 'pay_on_pickup' ? 'border-gold bg-gold text-black' : 'border-white/35 text-transparent'}`}>✓</span>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-white/10 pt-4 text-sm text-white/70 sm:gap-8">
+                <span className="inline-flex items-center gap-2"><BadgeDollarSign size={16} className="text-gold" /> Inga extra avgifter</span>
+                <span className="inline-flex items-center gap-2"><User size={16} className="text-gold" /> Betala vid leverans</span>
+                <span className="inline-flex items-center gap-2"><ShieldCheck size={16} className="text-gold" /> Enkelt och tryggt</span>
+              </div>
+            </button>
+          </div>
+
+          <div className="mt-5 grid gap-3 rounded-2xl border border-white/10 bg-[#0f141d] p-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-center"><ShieldCheck size={20} className="mx-auto text-gold" /><p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-white/85">SSL-kryptering</p><p className="mt-1 text-xs text-white/55">Säker betalning</p></div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-center"><p className="mt-2 text-4xl font-black text-[#7f6bff]">stripe</p><p className="mt-1 text-xs text-white/55">Betalningar hanteras av Stripe</p></div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-center"><RotateCw size={20} className="mx-auto text-gold" /><p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-white/85">14 dagars öppet köp</p><p className="mt-1 text-xs text-white/55">Enkel retur & återbetalning</p></div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-center"><ShieldCheck size={20} className="mx-auto text-gold" /><p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-white/85">Premium support</p><p className="mt-1 text-xs text-white/55">Snabb hjälp när du behöver</p></div>
           </div>
 
           {!isOpen && (
@@ -192,9 +294,10 @@ const Checkout = () => {
             type="button"
             onClick={onPlaceOrder}
             disabled={isSubmitting || normalizedItems.length === 0 || !isOpen}
-            className="mt-10 w-full border border-gold px-6 py-5 text-xs uppercase tracking-[0.24em] text-gold hover:bg-gold hover:text-black disabled:cursor-not-allowed disabled:opacity-50 xl:mt-12"
+            className="mt-8 flex w-full items-center justify-between rounded-2xl border border-gold bg-gold px-4 py-4 text-xs font-black uppercase tracking-[0.16em] text-black shadow-[0_10px_30px_rgba(200,164,77,0.25)] hover:bg-goldSoft disabled:cursor-not-allowed disabled:opacity-50 sm:px-8 sm:py-5 sm:text-sm sm:tracking-[0.2em]"
           >
-            {isSubmitting ? 'Processing...' : paymentMethod === 'stripe' ? `Fortsätt till Stripe - ${finalTotal} SEK` : `Bekräfta beställning - ${finalTotal} SEK`}
+            <span className="inline-flex items-center gap-2"><Lock size={16} className="sm:h-[17px] sm:w-[17px]" /> {isSubmitting ? 'Processing...' : `Bekräfta beställning - ${finalTotal} SEK`}</span>
+            <ArrowRight size={22} />
           </button>
         </div>
 

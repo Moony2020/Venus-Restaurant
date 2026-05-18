@@ -50,7 +50,10 @@ const AdminHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(loadNotifications);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isRinging, setIsRinging] = useState(false);
+  const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const notifRef = useRef(null);
+  const audioRef = useRef(null);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -95,15 +98,32 @@ const AdminHeader = () => {
   }, [navigate]);
 
   // Close dropdown on outside click
+  // Audio initialization and unlock
   useEffect(() => {
+    const audio = new Audio('/sounds/new-order.mp3');
+    audio.loop = true;
+    audio.volume = 0.5;
+    audioRef.current = audio;
+
     const handler = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setIsNotifOpen(false);
       }
+      if (!isAudioUnlocked) {
+        setIsAudioUnlocked(true);
+        // Unlock audio context
+        audio.play().then(() => audio.pause()).catch(() => {});
+      }
     };
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+    };
+  }, [isAudioUnlocked]);
 
   // Socket.IO listener for real-time notifications
   useEffect(() => {
@@ -123,6 +143,13 @@ const AdminHeader = () => {
         read: false,
         refId: order._id
       });
+
+      // Start looping sound
+      if (isAudioUnlocked && audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(e => console.error('Play error:', e));
+        setIsRinging(true);
+      }
     });
 
     socket.on('booking:new', (booking) => {
@@ -193,20 +220,41 @@ const AdminHeader = () => {
         <div className="ml-3 flex shrink-0 items-center gap-2 sm:gap-3 lg:gap-4">
           {/* Notification Bell */}
           <div ref={notifRef} className="relative">
-            <button
-              onClick={() => {
-                setIsNotifOpen(!isNotifOpen);
-                if (!isNotifOpen && unreadCount > 0) markAllRead();
-              }}
-              className="relative rounded-lg border border-white/10 bg-white/5 p-2.5 text-white/60 transition-all hover:border-gold/30 hover:text-gold"
-            >
-              <Bell size={18} />
-              {unreadCount > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gold px-1 text-[10px] font-black text-black shadow-lg shadow-gold/30 animate-bounce">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
+            <div className="flex items-center gap-2">
+              {isRinging && (
+                <button
+                  onClick={() => {
+                    setIsRinging(false);
+                    if (audioRef.current) {
+                      audioRef.current.pause();
+                      audioRef.current.currentTime = 0;
+                    }
+                  }}
+                  className="flex items-center gap-2 bg-red-500 px-3 py-2 rounded-lg text-white font-black text-[9px] uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.5)]"
+                >
+                  <span className="animate-spin text-xs">🔔</span>
+                  Stoppa Ljud
+                </button>
               )}
-            </button>
+              <button
+                onClick={() => {
+                  setIsNotifOpen(!isNotifOpen);
+                  if (!isNotifOpen && unreadCount > 0) markAllRead();
+                }}
+                className={`relative rounded-lg border p-2.5 transition-all ${
+                  isRinging 
+                    ? 'border-red-500 bg-red-500/20 text-red-500' 
+                    : 'border-white/10 bg-white/5 text-white/60 hover:border-gold/30 hover:text-gold'
+                }`}
+              >
+                <Bell size={18} className={isRinging ? 'animate-bounce' : ''} />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gold px-1 text-[10px] font-black text-black shadow-lg shadow-gold/30">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            </div>
 
             {/* Dropdown */}
             <div

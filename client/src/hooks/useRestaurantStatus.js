@@ -12,7 +12,7 @@ export const useRestaurantStatus = () => {
     let active = true;
     const load = async () => {
       try {
-        const result = await apiGet('/restaurant/status');
+        const result = await apiGet(`/restaurant/status?t=${Date.now()}`);
         if (!active) return;
         setData(result);
       } finally {
@@ -28,12 +28,12 @@ export const useRestaurantStatus = () => {
     });
     socket.on('restaurant:updated', (payload) => {
       if (!active) return;
-      setData({
-        week: payload?.settings?.week || data?.week,
+      setData((prev) => ({
+        week: payload?.settings?.week || prev?.week,
         manualOverride: payload?.settings?.manualOverride || 'none',
         manualMessage: payload?.settings?.manualMessage || '',
-        nowStatus: payload?.nowStatus || data?.nowStatus
-      });
+        nowStatus: payload?.nowStatus || prev?.nowStatus
+      }));
     });
 
     return () => {

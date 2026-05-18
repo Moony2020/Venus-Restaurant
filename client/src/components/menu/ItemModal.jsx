@@ -58,7 +58,7 @@ const ItemModal = ({ item, isOpen, onClose, onAdd }) => {
     setSelectedOptions(prev => ({ ...prev, [groupId]: optionId }));
   };
 
-  const calculateTotalPrice = () => {
+  const calculateUnitPrice = () => {
     let base = item.price;
     if (item.customizations) {
       item.customizations.forEach(group => {
@@ -74,7 +74,7 @@ const ItemModal = ({ item, isOpen, onClose, onAdd }) => {
         }
       });
     }
-    return base * quantity;
+    return base;
   };
 
   const handleAdd = () => {
@@ -108,17 +108,19 @@ const ItemModal = ({ item, isOpen, onClose, onAdd }) => {
       }
     });
 
+    const uniqueCartItemId = `${item._id || item.id}-${Date.now()}`;
+
     const customItem = {
       ...item,
-      id: `${item._id || item.id}-${Date.now()}`,
-      cartItemId: `${item._id || item.id}-${Date.now()}`,
+      id: uniqueCartItemId,
+      cartItemId: uniqueCartItemId,
       quantityToAdd: quantity,
       notes,
       availabilityAction,
       selectedOptions,
       extras: extrasList,
       basePrice: Number(item.price) || 0,
-      price: calculateTotalPrice()
+      price: calculateUnitPrice()
     };
     onAdd(customItem);
     onClose();
@@ -128,7 +130,7 @@ const ItemModal = ({ item, isOpen, onClose, onAdd }) => {
     group => group.required && (!selectedOptions[group.id] || (Array.isArray(selectedOptions[group.id]) && selectedOptions[group.id].length === 0))
   );
 
-  const totalPrice = calculateTotalPrice();
+  const totalPrice = calculateUnitPrice() * quantity;
 
   return (
     <>
@@ -338,6 +340,11 @@ const ItemModal = ({ item, isOpen, onClose, onAdd }) => {
 
         {/* Action Bar */}
         <div className="border-t border-white/5 bg-[#0d141b]/80 p-6 backdrop-blur-2xl sm:px-8">
+          <div className="mb-3 text-xs text-white/55">
+            <span>Per pizza med dina val: {calculateUnitPrice()} kr</span>
+            <span className="mx-2 text-white/30">•</span>
+            <span>Totalt ({quantity} st): {totalPrice} kr</span>
+          </div>
           <div className="flex items-center gap-5">
             <div className="flex items-center rounded-2xl border border-white/10 bg-white/5 p-1 px-2">
               <button 

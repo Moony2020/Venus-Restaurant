@@ -21,13 +21,33 @@ const TOAST_STYLE = {
   },
 };
 
+const normalizeCartItem = (item) => {
+  const extras = Array.isArray(item?.extras) ? item.extras : [];
+  const extrasTotal = extras.reduce((sum, extra) => sum + (Number(extra?.price) || 0), 0);
+  const basePrice = Math.max(0, Number(item?.basePrice) || 0);
+  const fallbackPrice = Number(item?.price) || 0;
+
+  let unitPrice = fallbackPrice;
+  if (basePrice > 0) {
+    unitPrice = basePrice + extrasTotal;
+  }
+
+  return {
+    ...item,
+    extras,
+    basePrice: basePrice > 0 ? basePrice : Math.max(0, unitPrice - extrasTotal),
+    price: unitPrice,
+    quantity: Math.max(1, Number(item?.quantity) || 1)
+  };
+};
+
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState(() => {
     try {
       const raw = localStorage.getItem(CART_STORAGE_KEY);
       if (!raw) return [];
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
+      return Array.isArray(parsed) ? parsed.map(normalizeCartItem) : [];
     } catch {
       return [];
     }

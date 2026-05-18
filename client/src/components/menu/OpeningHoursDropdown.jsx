@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Clock } from 'lucide-react';
 
-const OpeningHoursDropdown = ({ week, statusText, isOpen: isCurrentlyOpen }) => {
+const OpeningHoursDropdown = ({ week, statusText, isOpen: isCurrentlyOpen, isRollover }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -70,10 +70,17 @@ const OpeningHoursDropdown = ({ week, statusText, isOpen: isCurrentlyOpen }) => 
                 saturday: 'Lördag',
                 sunday: 'Söndag'
               };
-              const isToday = new Date().toLocaleDateString('sv-SE', { weekday: 'long' }).toLowerCase() === dayNames[day.toLowerCase()].toLowerCase();
+              
+              const WEEK_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+              const todayKey = WEEK_KEYS[(new Date().getDay() + 6) % 7];
+              const yesterdayKey = WEEK_KEYS[(new Date().getDay() + 5) % 7];
+              
+              const isHighlighted = isRollover 
+                ? day.toLowerCase() === yesterdayKey 
+                : day.toLowerCase() === todayKey;
               
               return (
-                <div key={day} className={`flex items-center gap-1 text-[11px] ${isToday ? 'text-white font-medium' : 'text-white/50'}`}>
+                <div key={day} className={`flex items-center gap-1 text-[11px] ${isHighlighted ? 'text-white font-medium' : 'text-white/50'}`}>
                   <span className="w-[62px] shrink-0 capitalize">{dayNames[day.toLowerCase()] || day}</span>
                   <div className="flex items-center gap-2">
                     <div className={`h-1 w-1 rounded-full ${cfg.closed ? 'bg-red-400' : 'bg-green-400'}`} />

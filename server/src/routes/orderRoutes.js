@@ -6,6 +6,7 @@ import {
   getOrderByTrackingCode,
   getOrderAnalytics,
   getOrdersAdmin,
+  updateOrderPayment,
   updateOrderStatus
 } from '../controllers/orderController.js';
 import { ensureRestaurantOpenForOrders, getKitchenOrders } from '../controllers/restaurantController.js';
@@ -47,6 +48,12 @@ router.patch(
   requireRole('admin'),
   validateUpdateOrderStatus,
   asyncHandler(updateOrderStatus)
+);
+router.patch(
+  '/:id/payment',
+  verifyToken,
+  requireRole('admin'),
+  asyncHandler(updateOrderPayment)
 );
 router.get('/:trackingCode', asyncHandler(getOrderByTrackingCode));
 

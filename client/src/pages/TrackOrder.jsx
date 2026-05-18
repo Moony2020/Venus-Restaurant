@@ -120,26 +120,24 @@ const TrackOrder = () => {
               </div>
             </div>
 
-            <div className="border border-white/10 bg-panel/20 p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
+            <div className="border border-white/10 bg-panel/20 p-6 sm:p-8 overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-0">
                 {STATUS_STEPS.map((step, index) => {
                   const active = index <= currentStepIndex;
                   return (
-                    <div key={step} className="flex items-center gap-4 w-full sm:w-auto">
+                    <div key={step} className="flex items-center gap-3 sm:flex-1 sm:min-w-0">
                       <div
-                        className={`h-10 w-10 shrink-0 rounded-full border flex items-center justify-center text-xs font-bold transition-all duration-500 ${
+                        className={`h-9 w-9 shrink-0 rounded-full border flex items-center justify-center text-xs font-bold transition-all duration-500 ${
                           active ? 'border-gold bg-gold text-black scale-110 shadow-lg shadow-gold/20' : 'border-white/10 text-white/30'
                         }`}
                       >
                         {index + 1}
                       </div>
-                      <div className="flex flex-col">
-                        <span className={`text-[10px] uppercase tracking-widest ${active ? 'text-gold' : 'text-white/30'}`}>
-                          {STEP_LABELS[step]}
-                        </span>
-                      </div>
+                      <span className={`text-[10px] uppercase tracking-widest whitespace-nowrap ${active ? 'text-gold' : 'text-white/30'}`}>
+                        {STEP_LABELS[step]}
+                      </span>
                       {index < STATUS_STEPS.length - 1 && (
-                        <div className={`hidden sm:block h-px w-8 lg:w-16 ml-4 ${active ? 'bg-gold/50' : 'bg-white/10'}`} />
+                        <div className={`hidden sm:block h-px flex-1 min-w-3 ml-2 ${active ? 'bg-gold/50' : 'bg-white/10'}`} />
                       )}
                     </div>
                   );
@@ -150,15 +148,32 @@ const TrackOrder = () => {
             <div className="border border-white/10 bg-panel/20 p-8 sm:p-12">
               <h2 className="font-display text-3xl mb-8">Beställningsdetaljer</h2>
               <div className="space-y-4">
-                {(order?.items || []).map((item, idx) => (
-                  <div key={`${item.name}-${idx}`} className="flex items-center justify-between border-b border-white/5 pb-4">
-                    <p className="text-white/90">
-                      <span className="text-gold mr-3">{item.quantity}x</span>
-                      {item.name}
-                    </p>
-                    <p className="text-white/70">{Math.round(item.price * item.quantity)} KR</p>
+                {(order?.items || []).map((item, idx) => {
+                  const extras = item.extras || [];
+                  const extrasTotal = extras.reduce((sum, e) => sum + (e.price || 0), 0);
+                  const basePrice = Math.max(0, (item.price || 0) - extrasTotal);
+                  return (
+                  <div key={`${item.name}-${idx}`} className="border-b border-white/5 pb-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-white/90">
+                        <span className="text-gold mr-3">{item.quantity}x</span>
+                        {item.name}
+                        <span className="ml-2 text-white/40 text-sm">({basePrice} kr)</span>
+                      </p>
+                      <p className="text-white/70">{Math.round(item.price * item.quantity)} KR</p>
+                    </div>
+                    {extras.length > 0 && (
+                      <div className="mt-1.5 ml-8 space-y-0.5">
+                        {extras.map((extra, eIdx) => (
+                          <p key={`${extra.optionId}-${eIdx}`} className="text-[11px] text-gold/60 italic leading-tight">
+                            • {extra.label} {extra.price > 0 && <span className="text-gold/40">(+{extra.price} kr)</span>}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="mt-8 flex items-center justify-between pt-6 border-t border-gold/20">
                 <p className="text-white/65 uppercase tracking-widest text-xs">Totalt</p>
