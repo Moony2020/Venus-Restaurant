@@ -33,13 +33,54 @@ const getPayPalClient = () => {
   return _paypalClient;
 };
 
-const getAllowedOrigin = () => process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+const getConfiguredAllowedOrigins = () => {
+  const candidates = [
+    process.env.CLIENT_ORIGIN,
+    process.env.PUBLIC_APP_URL,
+    'http://localhost:5173'
+  ];
 
-const isAllowedUrl = (url) => {
+  return candidates
+    .filter(Boolean)
+    .map((value) => {
+      try {
+        return new URL(value).origin;
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+};
+
+const getRequestOrigin = (req) => {
+  const originHeader = req.headers.origin;
+  if (originHeader) {
+    try {
+      return new URL(originHeader).origin;
+    } catch {
+      return null;
+    }
+  }
+
+  const refererHeader = req.headers.referer;
+  if (refererHeader) {
+    try {
+      return new URL(refererHeader).origin;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+};
+
+const isAllowedUrl = (req, url) => {
   try {
     const parsed = new URL(url);
-    const origin = new URL(getAllowedOrigin());
-    return parsed.origin === origin.origin;
+    const allowedOrigins = new Set(getConfiguredAllowedOrigins());
+    const requestOrigin = getRequestOrigin(req);
+    if (requestOrigin) allowedOrigins.add(requestOrigin);
+    return allowedOrigins.has(parsed.origin);
   } catch {
     return false;
   }
@@ -70,7 +111,7 @@ export const createStripeCheckoutSession = async (req, res) => {
     orderId = ''
   } = req.body;
 
-  if (!isAllowedUrl(successUrl) || !isAllowedUrl(cancelUrl)) {
+  if (!isAllowedUrl(req, successUrl) || !isAllowedUrl(req, cancelUrl)) {
     return res.status(400).json({ message: 'Invalid redirect URLs' });
   }
 
@@ -140,7 +181,7 @@ export const createPayPalOrder = async (req, res) => {
     deliveryFeeSek = 0
   } = req.body;
 
-  if (!isAllowedUrl(returnUrl) || !isAllowedUrl(cancelUrl)) {
+  if (!isAllowedUrl(req, returnUrl) || !isAllowedUrl(req, cancelUrl)) {
     return res.status(400).json({ message: 'Invalid redirect URLs' });
   }
 
