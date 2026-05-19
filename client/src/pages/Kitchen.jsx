@@ -202,6 +202,11 @@ const Kitchen = () => {
           return prev.filter((entry) => entry._id !== updatedOrder._id);
         }
 
+        const existing = prev.find((entry) => entry._id === updatedOrder._id);
+        if (!existing) {
+          return [updatedOrder, ...prev];
+        }
+
         return prev.map((entry) => (entry._id === updatedOrder._id ? { ...entry, ...updatedOrder } : entry));
       });
 

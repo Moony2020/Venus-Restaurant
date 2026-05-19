@@ -89,8 +89,11 @@ const isAllowedUrl = (req, url) => {
 const appendStripeSessionIdPlaceholder = (url) => {
   try {
     const parsed = new URL(url);
-    parsed.searchParams.set('session_id', '{CHECKOUT_SESSION_ID}');
-    return parsed.toString();
+    const base = `${parsed.origin}${parsed.pathname}`;
+    const existingParams = parsed.searchParams.toString();
+    const withParams = existingParams ? `${base}?${existingParams}` : base;
+    const separator = existingParams ? '&' : '?';
+    return `${withParams}${separator}session_id={CHECKOUT_SESSION_ID}`;
   } catch {
     return url;
   }

@@ -19,6 +19,7 @@ const MenuSection = () => (
         <Link
           key={item.title}
           to={`/menu?category=${item.slug}`}
+          onClick={() => window.scrollTo(0, 0)}
           className="group relative mx-auto w-full overflow-hidden border border-white/5 bg-panel transition-all duration-500 hover:border-gold/30 reveal lg:max-w-none"
         >
           <div className="aspect-[16/9] overflow-hidden sm:aspect-[3/4] lg:aspect-[3/4] [@media(min-width:640px)_and_(max-width:786px)]:aspect-[3/4.5]">

@@ -22,8 +22,8 @@ const STEP_LABELS = {
 };
 
 const ETA_TEXT = {
-  pending: 'Beräknad tid: 25-35 min',
-  preparing: 'Beräknad tid: 15-25 min',
+  pending: 'Beräknad tid: 10-15 min',
+  preparing: 'Beräknad tid: 10-15 min',
   ready: 'Beräknad tid: Redo nu',
   done: 'Slutförd'
 };
@@ -116,7 +116,7 @@ const TrackOrder = () => {
               <p className="mt-2 text-3xl text-gold font-display">{order?.trackingCode}</p>
               <div className="mt-6 space-y-1">
                 <p className="text-xl text-white">{STATUS_TEXT[order?.status] || 'Status uppdaterad'}</p>
-                <p className="text-sm text-gold/80">{ETA_TEXT[order?.status] || 'Beräknad tid: 20-30 min'}</p>
+                <p className="text-sm text-gold/80">{ETA_TEXT[order?.status] || 'Beräknad tid: 10-15 min'}</p>
               </div>
             </div>
 

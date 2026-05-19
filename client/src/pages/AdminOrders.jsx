@@ -227,11 +227,21 @@ const AdminOrders = () => {
     });
 
     socket.on('order:update', (updatedOrder) => {
-      setOrders((prev) =>
-        prev.map((order) => (order._id === updatedOrder._id ? { ...order, ...updatedOrder } : order))
-      );
+      let inserted = false;
+      setOrders((prev) => {
+        const exists = prev.some((order) => order._id === updatedOrder._id);
+        if (!exists) {
+          inserted = true;
+          return [updatedOrder, ...prev];
+        }
+        return prev.map((order) => (order._id === updatedOrder._id ? { ...order, ...updatedOrder } : order));
+      });
       markHighlighted(updatedOrder._id);
       fetchAnalytics(true);
+      if (inserted && isSoundEnabled) {
+        playNotificationTone();
+        showBrowserNotification(updatedOrder);
+      }
     });
 
     socket.on('connect', stopPolling);

@@ -96,6 +96,16 @@ export const getOrdersAdmin = async (req, res) => {
   const { status, dateFrom, dateTo } = req.query;
   const query = {};
 
+  // Hide unfinished online checkouts by default.
+  // These rows are created before Stripe/PayPal is completed and should not
+  // appear as real kitchen/admin orders until payment is confirmed.
+  query.$nor = [
+    {
+      paymentMethod: { $in: ['stripe', 'paypal'] },
+      paymentStatus: 'unpaid'
+    }
+  ];
+
   if (status) query.status = status;
   if (dateFrom || dateTo) {
     query.createdAt = {};
@@ -116,7 +126,13 @@ export const getOrderAnalytics = async (req, res) => {
   const rows = await Order.aggregate([
     {
       $match: {
-        createdAt: { $gte: fromDate }
+        createdAt: { $gte: fromDate },
+        $nor: [
+          {
+            paymentMethod: { $in: ['stripe', 'paypal'] },
+            paymentStatus: 'unpaid'
+          }
+        ]
       }
     },
     {

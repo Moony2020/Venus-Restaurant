@@ -295,6 +295,12 @@ const AdminControlPanel = () => {
     await loadAll();
   };
 
+  const removeNeed = async (id) => {
+    await apiDelete(`/restaurant/needs/${id}`);
+    toast.success('Behov borttaget');
+    await loadAll();
+  };
+
   return (
     <>
       <style>{`
@@ -501,19 +507,28 @@ const AdminControlPanel = () => {
                     <p className="font-medium text-sm">{need.name}</p>
                     {need.note && <p className="text-[10px] text-white/40 italic mt-1">"{need.note}"</p>}
                   </div>
-                  <select
-                    className={`rounded-lg border px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest outline-none transition-all ${
-                      need.status === 'urgent' ? 'border-red-500/40 bg-red-500/10 text-red-400' :
-                      need.status === 'need_soon' ? 'border-yellow-500/40 bg-yellow-500/10 text-yellow-400' :
-                      'border-white/10 bg-white/5 text-white/40'
-                    }`}
-                    value={need.status}
-                    onChange={(e) => updateNeedStatus(need._id, e.target.value)}
-                  >
-                    <option value="ok" className="bg-[#0a0a0b]">OK</option>
-                    <option value="need_soon" className="bg-[#0a0a0b]">Väntar</option>
-                    <option value="urgent" className="bg-[#0a0a0b]">AKUT</option>
-                  </select>
+                  <div className="flex items-center gap-2">
+                    <select
+                      className={`rounded-lg border px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest outline-none transition-all ${
+                        need.status === 'urgent' ? 'border-red-500/40 bg-red-500/10 text-red-400' :
+                        need.status === 'need_soon' ? 'border-yellow-500/40 bg-yellow-500/10 text-yellow-400' :
+                        'border-white/10 bg-white/5 text-white/40'
+                      }`}
+                      value={need.status}
+                      onChange={(e) => updateNeedStatus(need._id, e.target.value)}
+                    >
+                      <option value="ok" className="bg-[#0a0a0b]">OK</option>
+                      <option value="need_soon" className="bg-[#0a0a0b]">Väntar</option>
+                      <option value="urgent" className="bg-[#0a0a0b]">AKUT</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => removeNeed(need._id)}
+                      className="rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-red-300 transition-all hover:bg-red-500/20"
+                    >
+                      Ta bort
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

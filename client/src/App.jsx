@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import PageLoader from './components/PageLoader';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -38,6 +38,10 @@ import { Toaster } from 'react-hot-toast';
 const AppContent = () => {
   const { pathname } = useLocation();
   const hideFooter = pathname.startsWith('/admin') || pathname.startsWith('/kitchen');
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [pathname]);
 
   return (
     <>
