@@ -372,7 +372,7 @@ const Menu = () => {
       <section className="mx-auto grid w-full max-w-[2200px] gap-4 px-3 py-5 pb-16 min-[1200px]:grid-cols-[1fr_320px] xl:gap-6 lg:px-8 xl:pb-24">
         <div>
           <div className="mb-4">
-            <div className="mb-2 flex items-center justify-end text-xs">
+            <div className="mb-2 flex items-center justify-center sm:justify-end text-xs">
               {restaurantStatus?.week && (
                 <OpeningHoursDropdown 
                   week={restaurantStatus.week} 

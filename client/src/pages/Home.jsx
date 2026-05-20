@@ -249,17 +249,17 @@ const Home = () => {
       <SiteHeader />
 
       <div className="relative">
-        {/* Floating Status Bar Overlay */}
-        <div className="absolute right-4 top-4 z-40 scale-90 transform-gpu origin-top-right">
-          {restaurantStatus?.week && (
+        {/* Floating Status Bar Overlay - Responsive Banner on Mobile, Elegant Float on Desktop */}
+        {restaurantStatus?.week && (
+          <div className="relative w-full flex justify-center py-3.5 px-6 border-b border-white/5 bg-black/30 scale-100 z-40 sm:absolute sm:right-6 sm:top-6 sm:left-auto sm:w-auto sm:flex-none sm:py-0 sm:px-0 sm:border-none sm:bg-transparent sm:scale-90 sm:transform-gpu sm:origin-top-right lg:right-8 lg:top-8">
             <OpeningHoursDropdown
               week={restaurantStatus.week}
               statusText={restaurantStatus?.nowStatus?.text}
               isOpen={restaurantStatus?.nowStatus?.isOpen}
               isRollover={restaurantStatus?.nowStatus?.isRollover}
             />
-          )}
-        </div>
+          </div>
+        )}
 
         <HeroSection />
       </div>
@@ -373,7 +373,7 @@ const Home = () => {
           <h2 className="font-display text-3xl min-[481px]:text-4xl md:text-5xl lg:text-6xl text-white">
             Huvudrätter & Favoriter
           </h2>
-          <p className="text-white/50 text-[10px] min-[481px]:text-xs sm:text-sm mx-auto mt-3 uppercase tracking-[0.12em] whitespace-nowrap">
+          <p className="text-white/50 text-[10px] min-[481px]:text-xs sm:text-sm mx-auto mt-3 uppercase tracking-[0.12em] sm:whitespace-nowrap whitespace-normal px-4">
             Välj en kategori nedan för att utforska våra lyxiga rätter
           </p>
         </div>

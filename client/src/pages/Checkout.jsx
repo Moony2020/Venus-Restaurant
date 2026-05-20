@@ -307,7 +307,7 @@ const Checkout = () => {
         </div>
 
         <aside className="h-fit border-l border-gold/70 bg-white/[0.05] p-6 xl:p-10">
-          <h2 className="whitespace-nowrap font-display text-3xl sm:text-4xl">Din Beställning</h2>
+          <h2 className="sm:whitespace-nowrap whitespace-normal font-display text-3xl sm:text-4xl">Din Beställning</h2>
           <div className="mt-3 border border-white/10 bg-white/[0.04] p-3 text-sm">
             <p className="text-white/70">Sätt: <span className="text-white">{orderPrefs.orderMode === 'delivery' ? 'Leverans' : 'Hämta själv'}</span></p>
             <p className="text-white/70">Tid: <span className="text-white">{etaText}</span></p>

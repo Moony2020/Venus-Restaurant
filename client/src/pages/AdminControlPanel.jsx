@@ -53,7 +53,7 @@ const getTodayKeyInStockholm = () => {
 };
 
 const timeToMinutes = (value) => {
-  const normalized = String(value || '').trim();
+  const normalized = String(value || '').trim().replace('.', ':');
   const match = normalized.match(/^(\d{1,2}):(\d{2})$/);
   if (!match) return null;
   let hours = Number(match[1]);

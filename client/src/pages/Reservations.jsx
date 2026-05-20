@@ -17,10 +17,56 @@ const DAY_MAP = {
 
 const WEEK_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
+const ALL_TIMES = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30'];
+
+const timeToMinutes = (hhmm) => {
+  const normalized = String(hhmm || '').trim().replace('.', ':');
+  const match = normalized.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return 0;
+  let h = Number(match[1]);
+  const m = Number(match[2]);
+  if (Number.isNaN(h) || Number.isNaN(m)) return 0;
+  if (h < 0 || h > 24 || m < 0 || m > 59) return 0;
+  if (h === 24 && m !== 0) h = 0;
+  return h * 60 + m;
+};
+
+const isTimeWithinHours = (timeStr, openTime, closeTime) => {
+  const timeMin = timeToMinutes(timeStr);
+  const openMin = timeToMinutes(openTime);
+  let closeMin = timeToMinutes(closeTime);
+  
+  if (closeTime === '00:00' || closeTime === '24:00' || closeMin === 0) {
+    closeMin = 1440;
+  }
+  
+  const isRollover = closeMin < openMin;
+  
+  if (isRollover) {
+    return timeMin >= openMin || timeMin < closeMin;
+  } else {
+    return timeMin >= openMin && timeMin < closeMin;
+  }
+};
+
+const getWeekdayFromDateStr = (dateStr) => {
+  if (!dateStr) return null;
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return null;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // 0-indexed
+  const day = parseInt(parts[2], 10);
+  const dateObj = new Date(year, month, day);
+  if (isNaN(dateObj.getTime())) return null;
+  const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  return weekdays[dateObj.getDay()];
+};
+
+import { useMemo } from 'react';
+
 const Reservations = () => {
   const { data: restaurantData } = useRestaurantStatus();
   const [searchParams] = useSearchParams();
-  const [currentDay, setCurrentDay] = useState(new Date().getDay());
   const [form, setForm] = useState({
     date: '',
     time: '19:00',
@@ -32,6 +78,21 @@ const Reservations = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
+
+  const selectedWeekday = useMemo(() => getWeekdayFromDateStr(form.date), [form.date]);
+  const dayConfig = useMemo(() => {
+    if (!selectedWeekday || !restaurantData?.week) return null;
+    return restaurantData.week[selectedWeekday];
+  }, [selectedWeekday, restaurantData]);
+
+  const isDayClosed = useMemo(() => dayConfig ? Boolean(dayConfig.closed) : false, [dayConfig]);
+
+  const filteredTimes = useMemo(() => {
+    if (!restaurantData?.week) return ALL_TIMES;
+    if (!dayConfig) return ALL_TIMES;
+    if (isDayClosed) return [];
+    return ALL_TIMES.filter(t => isTimeWithinHours(t, dayConfig.open, dayConfig.close));
+  }, [restaurantData, dayConfig, isDayClosed]);
 
   useEffect(() => {
     const date = searchParams.get('date') || '';
@@ -45,6 +106,12 @@ const Reservations = () => {
       guests
     }));
   }, [searchParams]);
+
+  useEffect(() => {
+    if (filteredTimes.length > 0 && !filteredTimes.includes(form.time)) {
+      setForm(prev => ({ ...prev, time: filteredTimes[0] }));
+    }
+  }, [filteredTimes, form.time]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -89,9 +156,15 @@ const Reservations = () => {
                   type="date" 
                   required 
                   value={form.date} 
+                  min={new Date().toISOString().split('T')[0]}
                   onChange={e => setForm({...form, date: e.target.value})} 
                   className="w-full border-b border-white/10 bg-transparent py-4 text-lg text-gold focus:border-gold outline-none" 
                 />
+                {isDayClosed && (
+                  <p className="mt-2 text-xs font-semibold text-red-400">
+                    Restaurangen är stängd hela dagen det valda datumet.
+                  </p>
+                )}
               </div>
 
               {/* Time and Guests side by side */}
@@ -101,9 +174,16 @@ const Reservations = () => {
                   <select 
                     value={form.time} 
                     onChange={e => setForm({...form, time: e.target.value})} 
-                    className="w-full border-b border-white/10 bg-transparent py-4 focus:border-gold outline-none appearance-none"
+                    disabled={isDayClosed || filteredTimes.length === 0}
+                    className={`w-full border-b border-white/10 bg-transparent py-4 focus:border-gold outline-none appearance-none ${isDayClosed ? 'text-white/35 cursor-not-allowed' : 'text-white'}`}
                   >
-                    {['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30'].map(t => <option key={t} className="bg-background">{t}</option>)}
+                    {isDayClosed ? (
+                      <option className="bg-background">Stängt hela dagen</option>
+                    ) : filteredTimes.length === 0 ? (
+                      <option className="bg-background">Inga tider tillgängliga</option>
+                    ) : (
+                      filteredTimes.map(t => <option key={t} className="bg-background" value={t}>{t}</option>)
+                    )}
                   </select>
                 </div>
                 <div className="space-y-2">
@@ -129,7 +209,7 @@ const Reservations = () => {
 
               <div className="flex justify-start pt-2">
                 <button 
-                  disabled={isSubmitting} 
+                  disabled={isSubmitting || isDayClosed || filteredTimes.length === 0} 
                   className="w-full sm:w-fit rounded-full bg-gold px-10 py-4 text-[11px] font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:bg-goldSoft hover:scale-105 active:scale-95 shadow-xl shadow-gold/10 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? 'Bokar...' : 'Bekräfta bokning'}
