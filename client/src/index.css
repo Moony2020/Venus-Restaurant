@@ -9,7 +9,7 @@
 
 html {
   scroll-behavior: smooth;
-  min-width: 330px;
+  min-width: 320px;
   overflow-x: hidden;
 }
 
@@ -19,7 +19,7 @@ body {
   background: #070b10;
   color: #f8f5ee;
   overflow-x: hidden;
-  min-width: 330px;
+  min-width: 320px;
 }
 
 input,

@@ -189,11 +189,11 @@ const Checkout = () => {
             <span className="h-px flex-1 bg-gold/35" />
           </h2>
           <p className="mt-2 text-white/60">Välj din föredragna betalningsmetod</p>
-          <div className="mt-6 space-y-4">
+          <div className="mt-6 flex flex-col gap-4">
             <button
               type="button"
               onClick={() => setPaymentMethod('stripe')}
-              className={`w-full rounded-2xl border p-4 text-left transition sm:rounded-3xl sm:p-6 ${paymentMethod === 'stripe' ? 'border-gold bg-gradient-to-b from-[#1d1810] to-[#0e1218] shadow-[0_0_28px_rgba(200,164,77,0.22)]' : 'border-white/15 bg-[#0f1726] hover:border-gold/45'}`}
+              className={`order-2 w-full rounded-2xl border p-4 text-left transition sm:rounded-3xl sm:p-6 ${paymentMethod === 'stripe' ? 'border-gold bg-gradient-to-b from-[#1d1810] to-[#0e1218] shadow-[0_0_28px_rgba(200,164,77,0.22)]' : 'border-white/15 bg-[#0f1726] hover:border-gold/45'}`}
             >
               <div className="flex items-start justify-between gap-3 sm:gap-4">
                 <div className="flex items-center gap-3 sm:gap-4">
@@ -205,7 +205,7 @@ const Checkout = () => {
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className="hidden rounded-full border border-gold/35 bg-gold/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-gold md:inline-flex">Rekommenderad</span>
-                  <span className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm sm:h-10 sm:w-10 sm:text-base ${paymentMethod === 'stripe' ? 'border-gold bg-gold text-black' : 'border-white/35 text-transparent'}`}>✓</span>
+                  <span className={`flex h-8 w-8 shrink-0 aspect-square items-center justify-center rounded-full border text-sm sm:h-10 sm:w-10 sm:text-base ${paymentMethod === 'stripe' ? 'border-gold bg-gold text-black' : 'border-white/35 text-transparent'}`}>✓</span>
                 </div>
               </div>
 
@@ -229,7 +229,7 @@ const Checkout = () => {
             <button
               type="button"
               onClick={() => setPaymentMethod('paypal')}
-              className={`w-full rounded-2xl border p-4 text-left transition sm:rounded-3xl sm:p-6 ${paymentMethod === 'paypal' ? 'border-gold bg-gradient-to-b from-[#1d1810] to-[#0f1724]' : 'border-white/15 bg-[#0f1726] hover:border-gold/45'}`}
+              className={`order-3 w-full rounded-2xl border p-4 text-left transition sm:rounded-3xl sm:p-6 ${paymentMethod === 'paypal' ? 'border-gold bg-gradient-to-b from-[#1d1810] to-[#0f1724]' : 'border-white/15 bg-[#0f1726] hover:border-gold/45'}`}
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
@@ -239,7 +239,7 @@ const Checkout = () => {
                     <p className="mt-1 text-sm text-white/70 sm:text-lg">Snabbt och säkert</p>
                   </div>
                 </div>
-                <span className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm sm:h-10 sm:w-10 sm:text-base ${paymentMethod === 'paypal' ? 'border-gold bg-gold text-black' : 'border-white/35 text-transparent'}`}>✓</span>
+                <span className={`flex h-8 w-8 shrink-0 aspect-square items-center justify-center rounded-full border text-sm sm:h-10 sm:w-10 sm:text-base ${paymentMethod === 'paypal' ? 'border-gold bg-gold text-black' : 'border-white/35 text-transparent'}`}>✓</span>
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-white/10 pt-4 text-sm text-white/70 sm:gap-8">
                 <span className="inline-flex items-center gap-2"><BadgeDollarSign size={16} className="text-gold" /> Snabb checkout</span>
@@ -251,7 +251,7 @@ const Checkout = () => {
             <button
               type="button"
               onClick={() => setPaymentMethod('pay_on_pickup')}
-              className={`w-full rounded-2xl border p-4 text-left transition sm:rounded-3xl sm:p-6 ${paymentMethod === 'pay_on_pickup' ? 'border-gold bg-gradient-to-b from-[#1d1810] to-[#0f1724]' : 'border-white/15 bg-[#0f1726] hover:border-gold/45'}`}
+              className={`order-1 w-full rounded-2xl border p-4 text-left transition sm:rounded-3xl sm:p-6 ${paymentMethod === 'pay_on_pickup' ? 'border-gold bg-gradient-to-b from-[#1d1810] to-[#0f1724]' : 'border-white/15 bg-[#0f1726] hover:border-gold/45'}`}
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
@@ -261,7 +261,7 @@ const Checkout = () => {
                     <p className="mt-1 text-sm text-white/70 sm:text-lg">Kontant / Swish • Betala när maten levereras</p>
                   </div>
                 </div>
-                <span className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm sm:h-10 sm:w-10 sm:text-base ${paymentMethod === 'pay_on_pickup' ? 'border-gold bg-gold text-black' : 'border-white/35 text-transparent'}`}>✓</span>
+                <span className={`flex h-8 w-8 shrink-0 aspect-square items-center justify-center rounded-full border text-sm sm:h-10 sm:w-10 sm:text-base ${paymentMethod === 'pay_on_pickup' ? 'border-gold bg-gold text-black' : 'border-white/35 text-transparent'}`}>✓</span>
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-white/10 pt-4 text-sm text-white/70 sm:gap-8">
                 <span className="inline-flex items-center gap-2"><BadgeDollarSign size={16} className="text-gold" /> Inga extra avgifter</span>
@@ -278,35 +278,9 @@ const Checkout = () => {
             <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-center"><ShieldCheck size={20} className="mx-auto text-gold" /><p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-white/85">Premium support</p><p className="mt-1 text-xs text-white/55">Snabb hjälp när du behöver</p></div>
           </div>
 
-          {!isOpen && (
-            <p className="mt-6 border border-red-400/40 bg-red-950/20 px-4 py-3 text-sm text-red-200">
-              Restaurangen är stängd just nu.
-            </p>
-          )}
-
-          {submitError && (
-            <p className="mt-6 border border-red-400/40 bg-red-950/20 px-4 py-3 text-sm text-red-200">
-              {submitError}
-            </p>
-          )}
-
-          <div className="mt-8 flex justify-end">
-            <button
-              type="button"
-              onClick={onPlaceOrder}
-              disabled={isSubmitting || normalizedItems.length === 0 || !isOpen}
-              className="group relative flex w-full sm:w-fit items-center justify-center gap-4 rounded-full border border-gold bg-gold px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] text-black shadow-[0_10px_30px_rgba(200,164,77,0.2)] hover:bg-goldSoft hover:scale-105 active:scale-95 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <span className="inline-flex items-center gap-2">
-                <Lock size={15} /> 
-                {isSubmitting ? 'Processing...' : `Bekräfta beställning - ${finalTotal} SEK`}
-              </span>
-              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-            </button>
-          </div>
         </div>
 
-        <aside className="h-fit border-l border-gold/70 bg-white/[0.05] p-6 xl:p-10">
+        <aside className="h-fit border-l border-gold/70 bg-white/[0.05] p-6 xl:p-10 sticky top-32">
           <h2 className="sm:whitespace-nowrap whitespace-normal font-display text-3xl sm:text-4xl">Din Beställning</h2>
           <div className="mt-3 border border-white/10 bg-white/[0.04] p-3 text-sm">
             <p className="text-white/70">Sätt: <span className="text-white">{orderPrefs.orderMode === 'delivery' ? 'Leverans' : 'Hämta själv'}</span></p>
@@ -335,11 +309,36 @@ const Checkout = () => {
               </div>
             ))}
           </div>
-          <div className="mt-6 border-t border-white/10 pt-4 text-lg">
-            <p className="flex items-center justify-between">
-              <span>Totalt</span>
-              <span className="text-gold">{finalTotal} SEK</span>
+          <div className="mt-6 border-t border-white/10 pt-4 space-y-5">
+            <p className="flex items-center justify-between text-lg">
+              <span className="font-semibold">Totalt</span>
+              <span className="text-gold font-display text-2xl font-bold">{finalTotal} SEK</span>
             </p>
+
+            {!isOpen && (
+              <p className="border border-red-400/40 bg-red-950/20 px-4 py-3 text-xs text-red-200 rounded-xl">
+                Restaurangen är stängd just nu.
+              </p>
+            )}
+
+            {submitError && (
+              <p className="border border-red-400/40 bg-red-950/20 px-4 py-3 text-xs text-red-200 rounded-xl">
+                {submitError}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={onPlaceOrder}
+              disabled={isSubmitting || normalizedItems.length === 0 || !isOpen}
+              className="group relative flex w-full items-center justify-center gap-4 rounded-full border border-gold bg-gold py-4 text-xs font-extrabold uppercase tracking-[0.2em] text-black shadow-[0_10px_30px_rgba(200,164,77,0.2)] hover:bg-goldSoft hover:scale-[1.02] active:scale-95 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <span className="inline-flex items-center gap-2 font-black">
+                <Lock size={15} /> 
+                {isSubmitting ? 'Behandlar...' : 'Bekräfta beställning'}
+              </span>
+              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+            </button>
           </div>
         </aside>
       </section>

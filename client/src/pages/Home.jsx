@@ -245,7 +245,7 @@ const Home = () => {
   const rightColumnItems = useMemo(() => filteredItems.filter((_, idx) => idx % 2 === 1), [filteredItems]);
 
   return (
-    <main className="min-h-screen bg-[#070b11] text-white">
+    <main className="min-h-screen bg-background text-white">
       <SiteHeader />
 
       <div className="relative">

@@ -42,8 +42,8 @@ const HeroSection = () => {
           className="h-full w-full object-cover object-center"
         />
         */}
-        {/* Luxury gradient mask overlays for high typography contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/35 to-background" />
+        {/* Luxury gradient mask overlays for high typography contrast (fading to transparent at bottom to avoid visual seams) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/25 to-transparent pointer-events-none" />
       </div>
 
       {/* Hero Content Overlaid directly on the image */}
@@ -66,7 +66,7 @@ const HeroSection = () => {
         </div>
 
         {/* Smaller, centered buttons wrapper to prevent keyframe overrides */}
-        <div className="transform translate-y-8 sm:translate-y-14 lg:translate-y-20 xl:translate-y-24">
+        <div className="transform translate-y-1 sm:translate-y-2 lg:translate-y-3">
           <div className="flex flex-col min-[480px]:flex-row items-center justify-center gap-3 sm:gap-4 w-full animate-[fade-in-up_1s_ease-out_0.5s_both]">
             <Link 
               to="/menu" 
@@ -91,6 +91,7 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
+
 
 
       <style dangerouslySetInnerHTML={{ __html: `
