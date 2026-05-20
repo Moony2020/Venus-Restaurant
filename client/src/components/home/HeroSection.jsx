@@ -27,11 +27,21 @@ const HeroSection = () => {
           transform: windowWidth < 1024 ? 'none' : `translateY(${scrollY * 0.08}px) scale(1.03)`,
         }}
       >
+        <video
+          src="/videos/hero-bg.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="h-full w-full object-cover object-center"
+        />
+        {/* Fallback Static Image (Preserved for quick restoration)
         <img
           src="/images/home-steak.jpg"
           alt="Venus hero"
           className="h-full w-full object-cover object-center"
         />
+        */}
         {/* Luxury gradient mask overlays for high typography contrast */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/35 to-background" />
       </div>
@@ -60,7 +70,7 @@ const HeroSection = () => {
           <div className="flex flex-col min-[480px]:flex-row items-center justify-center gap-3 sm:gap-4 w-full animate-[fade-in-up_1s_ease-out_0.5s_both]">
             <Link 
               to="/menu" 
-              className="w-[220px] rounded-full bg-gold px-6 py-2.5 sm:px-8 sm:py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-goldSoft hover:scale-105 active:scale-95 shadow-xl shadow-gold/25 flex items-center justify-center"
+              className="w-[220px] rounded-full bg-gold px-6 py-2 sm:px-8 sm:py-3 text-xs font-bold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-goldSoft hover:scale-105 active:scale-95 shadow-lg shadow-gold/10 flex items-center justify-center"
             >
               Beställ nu
             </Link>
@@ -74,7 +84,7 @@ const HeroSection = () => {
                   window.location.href = '/menu';
                 }
               }}
-              className="w-[220px] rounded-full border border-white/20 bg-white/10 backdrop-blur-xl px-6 py-2.5 sm:px-8 sm:py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all duration-300 hover:border-gold hover:text-gold hover:scale-105 active:scale-95 flex items-center justify-center"
+              className="w-[220px] rounded-full border border-white/20 bg-white/10 backdrop-blur-xl px-6 py-2 sm:px-8 sm:py-3 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all duration-300 hover:border-gold hover:text-gold hover:scale-105 active:scale-95 flex items-center justify-center"
             >
               Utforska menyn
             </button>
