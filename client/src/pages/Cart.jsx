@@ -23,22 +23,22 @@ const Cart = () => {
   return (
     <main className="min-h-screen bg-background text-white">
       <SiteHeader />
-      <section className="mx-auto max-w-7xl px-8 sm:px-12 lg:px-16 pt-4 pb-20 lg:pt-6 lg:pb-32">
-        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl mb-6">Din Beställning</h1>
+      <section className="mx-auto max-w-7xl px-2 min-[370px]:px-4 sm:px-12 lg:px-16 pt-4 pb-20 lg:pt-6 lg:pb-32">
+        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl mb-6 px-1">Din Beställning</h1>
         
         <div className="grid gap-16 lg:grid-cols-[1fr_400px]">
           <div className="space-y-8">
             {items.map((item) => (
-              <article key={item.id || item._id} className="flex flex-col sm:flex-row gap-8 items-start border-b border-white/5 pb-8">
-                <div className="aspect-square w-32 bg-panel overflow-hidden border border-white/10">
+              <article key={item.id || item._id} className="flex flex-row gap-3 min-[370px]:gap-4 sm:gap-8 items-start border-b border-white/5 pb-8">
+                <div className="aspect-square w-20 min-[370px]:w-24 sm:w-32 shrink-0 bg-panel overflow-hidden border border-white/10">
                   <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
                 </div>
                 
-                <div className="flex-1 space-y-4">
-                  <div className="flex justify-between items-start">
+                <div className="flex-1 space-y-4 min-w-0">
+                  <div className="flex justify-between items-start gap-2">
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-gold/60 mb-2">{item.category}</p>
-                      <h2 className="font-display text-3xl">{item.name}</h2>
+                      <h2 className="font-display text-xl min-[370px]:text-2xl sm:text-3xl">{item.name}</h2>
                       {item.extras && item.extras.length > 0 && (
                         <div className="mt-4 space-y-3 pl-1">
                           {item.extras.map((extra, idx) => (
@@ -62,29 +62,29 @@ const Cart = () => {
                     </div>
                     <button 
                       onClick={() => removeFromCart(item.id || item._id)}
-                      className="p-2 text-white/30 hover:text-red-400 transition-colors"
+                      className="p-2 text-white/30 hover:text-red-400 transition-colors shrink-0"
                     >
                       <Trash2 size={18} />
                     </button>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center border border-white/10 bg-black/40">
+                  <div className="flex items-center justify-between gap-4 mt-6">
+                    <div className="flex items-center border border-white/10 bg-black/40 shrink-0">
                       <button 
                         onClick={() => updateQty(item.id || item._id, item.quantity - 1)}
-                        className="px-4 py-2 text-white/40 hover:text-gold"
+                        className="px-2 py-1 min-[370px]:px-3 min-[370px]:py-1.5 sm:px-4 sm:py-2 text-white/40 hover:text-gold"
                       >
-                        <Minus size={14} />
+                        <Minus size={12} className="sm:w-3.5 sm:h-3.5" />
                       </button>
-                      <span className="px-4 text-sm font-medium w-12 text-center">{item.quantity}</span>
+                      <span className="px-1 text-xs sm:text-sm font-medium w-8 sm:w-12 text-center">{item.quantity}</span>
                       <button 
                         onClick={() => updateQty(item.id || item._id, item.quantity + 1)}
-                        className="px-4 py-2 text-white/40 hover:text-gold"
+                        className="px-2 py-1 min-[370px]:px-3 min-[370px]:py-1.5 sm:px-4 sm:py-2 text-white/40 hover:text-gold"
                       >
-                        <Plus size={14} />
+                        <Plus size={12} className="sm:w-3.5 sm:h-3.5" />
                       </button>
                     </div>
-                    <p className="text-xl text-gold font-display">{item.subtotal ?? item.price * item.quantity} KR</p>
+                    <p className="text-lg sm:text-xl text-gold font-display whitespace-nowrap">{item.subtotal ?? item.price * item.quantity} KR</p>
                   </div>
                 </div>
               </article>
@@ -92,8 +92,8 @@ const Cart = () => {
           </div>
 
           <aside className="h-fit">
-            <div className="border border-gold/20 bg-panel/30 p-10 space-y-8 sticky top-32">
-              <h2 className="font-display text-4xl mb-4 text-white">Sammanfattning</h2>
+            <div className="border border-gold/20 bg-panel/30 p-5 min-[370px]:p-8 sm:p-10 space-y-6 sm:space-y-8 sticky top-32">
+              <h2 className="font-display text-3xl sm:text-4xl mb-4 text-white">Sammanfattning</h2>
               
               <div className="space-y-4 border-b border-white/5 pb-8 text-sm">
                 <div className="flex justify-between text-white/60">
@@ -108,12 +108,12 @@ const Cart = () => {
               
               <div className="flex justify-between items-baseline">
                 <p className="text-xs uppercase tracking-[0.2em] text-gold/80">Totalt</p>
-                <p className="font-display text-5xl text-gold">{Math.round(total)} KR</p>
+                <p className="font-display text-4xl sm:text-5xl text-gold">{Math.round(total)} KR</p>
               </div>
               
               <Link 
                 to="/checkout" 
-                className="flex w-full items-center justify-center rounded-full bg-gold py-4 text-center text-[11px] font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:bg-goldSoft hover:scale-[1.02] active:scale-95 shadow-xl shadow-gold/15"
+                className="flex w-full items-center justify-center rounded-full bg-gold py-3.5 sm:py-4 text-center text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.16em] min-[370px]:tracking-[0.25em] text-black transition-all duration-300 hover:bg-goldSoft hover:scale-[1.02] active:scale-95 shadow-xl shadow-gold/15"
               >
                 Fortsätt till kassan
               </Link>

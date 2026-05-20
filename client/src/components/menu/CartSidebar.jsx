@@ -21,7 +21,7 @@ const CartSidebar = ({
   const etaText = orderMode === 'delivery' ? deliveryEtaText : pickupEtaText;
 
   return (
-    <aside className="sticky top-[140px] mt-8 hidden h-fit rounded-2xl border border-white/15 bg-white/[0.03] p-4 pb-7 min-[1200px]:block">
+    <aside className="sticky top-[150px] mt-8 hidden h-fit rounded-2xl border border-white/15 bg-white/[0.03] p-4 pb-7 min-[1200px]:block">
       <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3 shadow-inner">
         <div className="grid grid-cols-2 gap-2">
           <button
