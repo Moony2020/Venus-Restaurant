@@ -118,7 +118,7 @@ const About = () => {
         
         <div className="relative z-10 mx-auto max-w-4xl border border-gold/20 p-12 sm:p-24 text-center backdrop-blur-sm">
           <div className="absolute -inset-2 border border-gold/5 pointer-events-none" />
-          <h2 className="font-display text-5xl sm:text-7xl text-white mb-12 leading-tight">Bli en del av vår historia</h2>
+          <h2 className="font-display text-3xl min-[481px]:text-4xl md:text-5xl lg:text-6xl text-white mb-12 leading-tight">Bli en del av vår historia</h2>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
             <Link to="/reservations" className="min-w-[240px] bg-gold px-12 py-5 text-[11px] font-bold uppercase tracking-[0.3em] text-black hover:bg-goldSoft transition-all shadow-xl shadow-gold/10">
               Boka bord

@@ -127,9 +127,14 @@ const Reservations = () => {
                 <textarea placeholder="Speciella önskemål (valfritt)" rows="3" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 focus:border-gold outline-none" />
               </div>
 
-              <button disabled={isSubmitting} className="w-full rounded-lg bg-gold py-5 text-[11px] font-bold uppercase tracking-[0.3em] text-black transition-all hover:bg-goldSoft shadow-xl shadow-gold/10">
-                {isSubmitting ? 'Bokar...' : 'Bekräfta bokning'}
-              </button>
+              <div className="flex justify-start pt-2">
+                <button 
+                  disabled={isSubmitting} 
+                  className="w-full sm:w-fit rounded-full bg-gold px-10 py-4 text-[11px] font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:bg-goldSoft hover:scale-105 active:scale-95 shadow-xl shadow-gold/10 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Bokar...' : 'Bekräfta bokning'}
+                </button>
+              </div>
             </form>
           </div>
 

@@ -53,7 +53,7 @@ const SiteFooter = () => {
 
   return (
     <footer className="mt-auto border-t border-white/10 bg-[#05090e] pt-16 pb-8 text-white">
-      <div className="mx-auto w-[92vw] max-w-[2200px] px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[2200px] px-4 sm:px-6 lg:w-[92vw] lg:px-8">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand Section */}
           <div className="space-y-6">

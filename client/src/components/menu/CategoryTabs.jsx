@@ -8,6 +8,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
   const tabRefs = useRef({});
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
   const updateScrollState = () => {
     const node = scrollRef.current;
@@ -62,6 +63,32 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
     return () => cancelAnimationFrame(id);
   }, [activeCategory, categories.length]);
 
+  useEffect(() => {
+    const updateIndicator = () => {
+      const activeTabEl = tabRefs.current[activeCategory];
+      if (activeTabEl) {
+        const left = activeTabEl.offsetLeft;
+        const width = activeTabEl.offsetWidth;
+        setIndicatorStyle({
+          left: left,
+          width: width,
+          opacity: 1
+        });
+      }
+    };
+
+    updateIndicator();
+    const id1 = setTimeout(updateIndicator, 50);
+    const id2 = setTimeout(updateIndicator, 150);
+
+    window.addEventListener('resize', updateIndicator);
+    return () => {
+      window.removeEventListener('resize', updateIndicator);
+      clearTimeout(id1);
+      clearTimeout(id2);
+    };
+  }, [activeCategory, categories.length]);
+
   const hasOverflow = useMemo(() => canScrollLeft || canScrollRight, [canScrollLeft, canScrollRight]);
 
   const scrollByStep = (dir) => {
@@ -101,10 +128,20 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
 
           <div
             ref={scrollRef}
-            className={`flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+            className={`relative flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
               hasOverflow ? 'px-12' : ''
             }`}
           >
+            {/* Sliding Gold Indicator */}
+            <div 
+              className="absolute top-0 bottom-1 rounded-lg bg-gold shadow-lg shadow-gold/25 transition-all duration-500 ease-[cubic-bezier(0.2,0.9,0.25,1)] pointer-events-none"
+              style={{
+                left: `${indicatorStyle.left}px`,
+                width: `${indicatorStyle.width}px`,
+                opacity: indicatorStyle.opacity
+              }}
+            />
+
             {categories.map((category) => {
               const isActive = category.id === activeCategory;
               return (
@@ -116,9 +153,9 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                   }}
                   type="button"
                   onClick={() => onChange(category.id)}
-                  className={`whitespace-nowrap border px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all duration-300 ease-[cubic-bezier(0.2,0.9,0.25,1)] rounded-lg ${
+                  className={`relative z-10 whitespace-nowrap border px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all duration-300 ease-[cubic-bezier(0.2,0.9,0.25,1)] rounded-lg ${
                     isActive
-                      ? 'border-gold bg-gold text-black shadow-[0_0_0_1px_rgba(200,164,77,0.2)]'
+                      ? 'border-transparent text-black font-semibold'
                       : 'border-white/20 bg-white/5 text-white/75 hover:border-gold/50 hover:text-gold'
                   }`}
                 >

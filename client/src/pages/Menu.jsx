@@ -63,17 +63,35 @@ const resolveCategoryId = (rawCategory) => {
   return CATEGORY_ID_BY_NORMALIZED_KEY.get(normalized) || 'popular';
 };
 
-const normalizeItem = (item) => ({
-  _id: String(item._id || item.id || ''),
-  category: resolveCategoryId(item.category),
-  name: item.name || '',
-  description: item.description || '',
-  price: Number(item.price) || 0,
-  image: item.image || '/images/menu-pizza.png',
-  tags: Array.isArray(item.tags) ? item.tags : [],
-  available: item.available !== false,
-  customizations: item.customizations || []
-});
+const normalizeItem = (item) => {
+  let resolvedCat = resolveCategoryId(item.category);
+  const lowerName = (item.name || '').toLowerCase();
+  
+  if (resolvedCat === 'others' || resolvedCat === 'ovrigt') {
+    if (
+      lowerName.includes('pommes') ||
+      lowerName.includes('frites') ||
+      lowerName.includes('nuggets') ||
+      lowerName.includes('lökringar') ||
+      lowerName.includes('lokringar') ||
+      lowerName.includes('mozzarella')
+    ) {
+      resolvedCat = 'starters';
+    }
+  }
+  
+  return {
+    _id: String(item._id || item.id || ''),
+    category: resolvedCat,
+    name: item.name || '',
+    description: item.description || '',
+    price: Number(item.price) || 0,
+    image: item.image || '/images/menu-pizza.png',
+    tags: Array.isArray(item.tags) ? item.tags : [],
+    available: item.available !== false,
+    customizations: item.customizations || []
+  };
+};
 
 const isMenuDatasetUsable = (items, categoryIds) => {
   if (!items.length) return false;
@@ -287,6 +305,26 @@ const Menu = () => {
   const onCategoryChange = (categoryId) => {
     setActiveCategory(categoryId);
     setSearchParams({ category: categoryId });
+
+    // Scroll to the top of the menu section adjusted for sticky header & tabs
+    setTimeout(() => {
+      const header = document.querySelector('header');
+      const stickyTabs = document.querySelector('[data-category-tabs]');
+      const stickyOffset =
+        (header?.getBoundingClientRect().height || 0) +
+        (stickyTabs?.getBoundingClientRect().height || 0);
+
+      const section = document.querySelector('section');
+      if (section) {
+        const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+        const targetY = Math.max(0, sectionTop - stickyOffset - 16); // 16px extra padding for aesthetics
+
+        // Only scroll if the user has scrolled past this point
+        if (window.scrollY > targetY) {
+          window.scrollTo({ top: targetY, behavior: 'smooth' });
+        }
+      }
+    }, 50);
   };
 
   const activeCategoryLabel = useMemo(() => categories.find((c) => c.id === activeCategory)?.label || '', [categories, activeCategory]);
@@ -331,7 +369,7 @@ const Menu = () => {
 
       <CategoryTabs categories={categories} activeCategory={activeCategory} onChange={onCategoryChange} />
 
-      <section className="mx-auto grid w-[98vw] max-w-[2200px] gap-4 px-3 py-5 pb-16 min-[1200px]:grid-cols-[1fr_320px] xl:gap-6 lg:px-8 xl:pb-24">
+      <section className="mx-auto grid w-full max-w-[2200px] gap-4 px-3 py-5 pb-16 min-[1200px]:grid-cols-[1fr_320px] xl:gap-6 lg:px-8 xl:pb-24">
         <div>
           <div className="mb-4">
             <div className="mb-2 flex items-center justify-end text-xs">

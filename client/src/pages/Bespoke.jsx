@@ -86,7 +86,7 @@ const Bespoke = () => {
         </div>
         <div className="mt-14 text-center">
           <p className="text-white/65 mb-5">Redo att planera din upplevelse?</p>
-          <a href="#inquiry" className="inline-block border border-gold px-10 py-4 text-xs font-bold uppercase tracking-[0.24em] text-gold hover:bg-gold hover:text-black transition-all">
+          <a href="#inquiry" className="inline-flex items-center justify-center border border-gold px-10 py-4 text-xs font-bold uppercase tracking-[0.24em] text-gold hover:bg-gold hover:text-black rounded-full hover:scale-105 active:scale-95 transition-all duration-300 w-full sm:w-auto">
             Begär Konsultation
           </a>
         </div>
@@ -162,8 +162,11 @@ const Bespoke = () => {
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40">Meddelande / Vision</label>
                 <textarea value={form.message} onChange={(e) => updateField('message', e.target.value)} rows="3" className="w-full border-b border-white/10 bg-transparent py-3 text-white focus:border-gold outline-none transition-colors" placeholder="Beskriv tillfället..." required></textarea>
               </div>
-              <div className="sm:col-span-2 pt-6">
-                <button disabled={isSubmitting} className="w-full bg-gold py-5 text-[11px] font-bold uppercase tracking-[0.3em] text-black hover:bg-goldSoft transition-all disabled:opacity-70">
+              <div className="sm:col-span-2 pt-6 flex justify-start">
+                <button 
+                  disabled={isSubmitting} 
+                  className="w-full sm:w-fit rounded-full bg-gold px-10 py-4 text-[11px] font-bold uppercase tracking-[0.25em] text-black hover:bg-goldSoft hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-70 flex items-center justify-center"
+                >
                   {isSubmitting ? 'Bearbetar...' : 'Skicka förfrågan'}
                 </button>
               </div>

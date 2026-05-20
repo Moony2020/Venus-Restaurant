@@ -1,18 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, User, Menu, X } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, Calendar } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 const linksDesktop = [
-  { label: 'Upplevelsen', path: '/about' },
   { label: 'Meny', path: '/menu' },
+  { label: 'Upplevelsen', path: '/about' },
   { label: 'Bokningar', path: '/reservations' },
   { label: 'Skräddarsytt', path: '/bespoke' }
 ];
 
 const linksMobile = [
-  { label: 'Upplevelsen', path: '/about' },
   { label: 'Vår Meny', path: '/menu' },
+  { label: 'Upplevelsen', path: '/about' },
   { label: 'Bokningar', path: '/reservations' },
   { label: 'Skräddarsytt', path: '/bespoke' },
   { label: 'Mitt Konto', path: '/account' }
@@ -22,6 +22,41 @@ const SiteHeader = () => {
   const { count } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const [navIndicatorStyle, setNavIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const navContainerRef = useRef(null);
+  const navTabRefs = useRef({});
+
+  useEffect(() => {
+    const updateIndicator = () => {
+      const activeLink = linksDesktop.find(link => 
+        location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path))
+      );
+      if (activeLink) {
+        const activeEl = navTabRefs.current[activeLink.path];
+        if (activeEl) {
+          const extraWidth = window.innerWidth < 1024 ? 12 : 8;
+          setNavIndicatorStyle({
+            left: activeEl.offsetLeft - (extraWidth / 2),
+            width: activeEl.offsetWidth + extraWidth,
+            opacity: 1
+          });
+          return;
+        }
+      }
+      setNavIndicatorStyle(prev => ({ ...prev, opacity: 0 }));
+    };
+
+    updateIndicator();
+    const id1 = setTimeout(updateIndicator, 50);
+    const id2 = setTimeout(updateIndicator, 150);
+
+    window.addEventListener('resize', updateIndicator);
+    return () => {
+      window.removeEventListener('resize', updateIndicator);
+      clearTimeout(id1);
+      clearTimeout(id2);
+    };
+  }, [location.pathname]);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -45,20 +80,42 @@ const SiteHeader = () => {
   return (
     <>
       <header className="sticky top-0 z-[100] border-b border-gold/15 bg-black/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-20 w-[92vw] max-w-[2200px] items-center justify-between px-6 lg:px-8">
-          <Link to="/" className="font-display text-3xl tracking-[0.3em] text-gold transition-colors hover:text-goldSoft">
+        <div className="mx-auto flex h-[72px] w-full max-w-[2200px] items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link to="/" className="font-display text-2xl lg:text-3xl tracking-[0.2em] lg:tracking-[0.3em] text-gold transition-colors hover:text-goldSoft">
             VENUS
           </Link>
 
-          <nav className="hidden items-center gap-10 text-[11px] uppercase tracking-[0.25em] text-white/60 md:flex">
-            {linksDesktop.map((link) => (
-              <Link key={link.path} to={link.path} className="nav-link transition-colors hover:text-gold">
-                {link.label}
-              </Link>
-            ))}
+          <nav ref={navContainerRef} className="relative hidden items-center gap-1.5 lg:gap-2.5 text-[10px] lg:text-[11px] uppercase tracking-[0.2em] lg:tracking-[0.25em] text-white/60 md:flex">
+            {/* Sliding Glassy Gold Capsule Overlay */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 h-8 rounded-full bg-gold/10 border border-gold/30 shadow-[0_0_15px_rgba(200,164,77,0.15)] transition-all duration-500 ease-[cubic-bezier(0.2,0.9,0.25,1)] pointer-events-none"
+              style={{
+                left: `${navIndicatorStyle.left}px`,
+                width: `${navIndicatorStyle.width}px`,
+                opacity: navIndicatorStyle.opacity
+              }}
+            />
+
+            {linksDesktop.map((link) => {
+              const isActive = location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path));
+              return (
+                <Link
+                  key={link.path}
+                  ref={(el) => {
+                    if (el) navTabRefs.current[link.path] = el;
+                  }}
+                  to={link.path}
+                  className={`relative z-10 px-2.5 lg:px-3.5 py-1.5 rounded-full transition-colors duration-500 ${
+                    isActive ? 'text-gold font-medium' : 'text-white/60 hover:text-white'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-4">
             <Link to="/cart" className="group relative p-2 text-white/80 transition-colors hover:text-gold">
               <ShoppingBag size={20} strokeWidth={1.5} />
               {count > 0 && (
@@ -74,9 +131,12 @@ const SiteHeader = () => {
 
             <Link
               to="/reservations"
-              className="ml-2 hidden rounded-lg border border-gold/40 px-6 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-gold transition-all hover:bg-gold hover:text-black lg:block"
+              className="hidden rounded-lg border border-gold/40 p-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-gold transition-all hover:bg-gold hover:text-black md:flex md:items-center md:justify-center md:p-1.5 lg:px-6 lg:py-2.5"
             >
-              Boka bord
+              <span className="hidden lg:inline">Boka bord</span>
+              <span className="hidden md:inline lg:hidden">
+                <Calendar size={16} strokeWidth={1.5} />
+              </span>
             </Link>
 
             <button
@@ -111,14 +171,17 @@ const SiteHeader = () => {
           </div>
 
           <nav className="flex flex-col gap-3 sm:gap-4">
-            {linksMobile.map((link) => (
-              <Link key={link.path} to={link.path} className="group flex items-center justify-between">
-                <span className="font-display text-[24px] leading-[1.1] text-white transition-colors group-hover:text-gold sm:text-[28px]">
-                  {link.label}
-                </span>
-                <div className="h-[1px] w-0 bg-gold/50 transition-all duration-300 group-hover:w-8" />
-              </Link>
-            ))}
+            {linksMobile.map((link) => {
+              const isActive = location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path));
+              return (
+                <Link key={link.path} to={link.path} className="group flex items-center justify-between">
+                  <span className={`font-display text-[24px] leading-[1.1] transition-colors sm:text-[28px] ${isActive ? 'text-gold' : 'text-white group-hover:text-gold'}`}>
+                    {link.label}
+                  </span>
+                  <div className={`h-[1px] bg-gold/50 transition-all duration-300 ${isActive ? 'w-8' : 'w-0 group-hover:w-8'}`} />
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="mt-auto border-t border-white/5 pt-4 sm:pt-5">

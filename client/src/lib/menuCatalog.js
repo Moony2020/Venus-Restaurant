@@ -103,9 +103,13 @@ export const menuData = [
       { id: 'starter_1', name: 'Toast Skagen', description: 'Räkröra på smörstekt toast.', price: 99, image: '/images/menu-starter.png', tags: [] },
       { id: 'starter_1b', name: 'Tzatziki med bröd', description: 'Krämig tzatziki serverad med varmt bröd.', price: 69, image: '/images/menu-starter.png', tags: ['vegetarian'] },
       { id: 'starter_2', name: 'Vitlöksbröd Special', description: 'Vitlöksbröd med ost och örter.', price: 69, image: '/images/menu-starter.png', tags: ['vegetarian'] },
-      { id: 'starter_3', name: 'Mozzarellasticks', description: 'Friterade mozzarellasticks med dip.', price: 79, image: '/images/menu-starter.png', tags: ['vegetarian'] },
+      { id: 'starter_3', name: 'Mozzarellasticks', description: 'Serveras med chilisås.', price: 79, image: '/images/menu-starter.png', tags: ['vegetarian'] },
       { id: 'starter_4', name: 'Chiliräkor', description: 'Räkor i vitlök, chili och citron.', price: 109, image: '/images/menu-starter.png', tags: ['spicy'] },
-      { id: 'starter_5', name: 'Lökringar', description: 'Krispiga lökringar med aioli.', price: 75, image: '/images/menu-starter.png', tags: ['vegetarian'] }
+      { id: 'starter_5', name: 'Lökringar', description: 'Friterade lökringar med aioli.', price: 75, image: '/images/menu-starter.png', tags: ['vegetarian'] },
+      { id: 'starter_6', name: 'Tartar på Oxfilé', description: 'Klassisk tartar på finhackad oxfilé serverad med kapris, lök och äggula.', price: 195, image: '/images/menu-tartar.png', tags: ['popular'] },
+      { id: 'starter_7', name: 'Pommes Frites', description: 'Krispiga pommes, lättsaltade.', price: 69, image: '/images/menu-starter.png', tags: ['vegetarian'] },
+      { id: 'starter_8', name: 'Sötpotatispommes', description: 'Sötpotatispommes med örtkrydda.', price: 75, image: '/images/menu-starter.png', tags: ['vegetarian'] },
+      { id: 'starter_9', name: 'Nuggets 8 st', description: 'Kycklingnuggets med dippsås.', price: 89, image: '/images/menu-starter.png', tags: [] }
     ]
   },
   {
@@ -165,7 +169,8 @@ export const menuData = [
       { id: 'special_3', name: 'Milan', description: 'Fläskfilé, champinjoner, jalapeño och texmexsås.', price: 172, image: '/images/menu-pizza.png', tags: ['spicy'], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] },
       { id: 'special_4', name: 'Miami', description: 'Kyckling, ananas, banan och curry.', price: 170, image: '/images/menu-pizza.png', tags: [], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] },
       { id: 'special_5', name: 'Nobis', description: 'Räkor, sparris, fläskfilé och bearnaisesås.', price: 175, image: '/images/menu-pizza.png', tags: [], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] },
-      { id: 'special_6', name: 'Gorgonzola', description: 'Tomatsås, ost, champinjoner, lök, fläskfilé och gorgonzolaost.', price: 170, image: '/images/menu-pizza.png', tags: [], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] }
+      { id: 'special_6', name: 'Gorgonzola', description: 'Tomatsås, ost, champinjoner, lök, fläskfilé och gorgonzolaost.', price: 170, image: '/images/menu-pizza.png', tags: [], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] },
+      { id: 'special_7', name: 'Pizza Aurora', description: 'Vit pizza med tryffelkräm, fior di latte, parmaskinka och krossade pistagenötter.', price: 215, image: '/images/menu-pizza-aurora.png', tags: ['popular'], customizations: [GLUTEN_FREE, EXTRAS_SECTION, POPULAR_PAIRS] }
     ]
   },
   {
@@ -199,18 +204,18 @@ export const menuData = [
       { id: 'alacarte_2', name: 'Pannbiff', description: 'Med stekt lök, gräddsås och potatis.', price: 169, image: '/images/menu-duck.png', tags: [], customizations: [EXTRAS_SECTION] },
       { id: 'alacarte_3', name: 'Schnitzel', description: 'Klassisk schnitzel med bearnaisesås och pommes.', price: 179, image: '/images/menu-duck.png', tags: ['popular'], customizations: [EXTRAS_SECTION] },
       { id: 'alacarte_4', name: 'Fish & Chips', description: 'Friterad torsk med pommes och remoulad.', price: 165, image: '/images/menu-duck.png', tags: [], customizations: [EXTRAS_SECTION] },
-      { id: 'alacarte_5', name: 'Pasta Carbonara', description: 'Krämig pasta med bacon och parmesan.', price: 159, image: '/images/menu-duck.png', tags: [], customizations: [EXTRAS_SECTION] }
+      { id: 'alacarte_5', name: 'Pasta Carbonara', description: 'Krämig pasta med bacon och parmesan.', price: 159, image: '/images/menu-duck.png', tags: [], customizations: [EXTRAS_SECTION] },
+      { id: 'alacarte_6', name: 'Vildfångad Röding', description: 'Serveras med sandefjordsås, dillolja, forellrom och smörslungad smålpotatis från lokala odlare i trakten.', price: 345, image: '/images/menu-char.png', tags: ['popular'] },
+      { id: 'alacarte_7', name: 'Entrecôte Venus', description: '30 dagars hängmörad ryggbiff, serveras med tryffelsmör, rödvinsky och krispig jordärtskocka.', price: 425, image: '/images/menu-entrecote.png', tags: ['popular'] },
+      { id: 'alacarte_8', name: 'Skogens Guld Pasta', description: 'Hemgjord tagliatelle med färska kantareller, lagrad parmesan och en touch av svartpeppar.', price: 285, image: '/images/menu-chanterelle.png', tags: ['popular'] },
+      { id: 'alacarte_9', name: 'Stjärnstoft & Hav', description: 'Hängmörad ryggbiff stekt över björkved, rödvinsreduktion, handskurna pommes och ugnsbakade smålökar.', price: 1295, image: '/images/menu-ribeye-sig.png', tags: ['popular'] }
     ]
   },
   {
     category: 'Övrigt',
     slug: 'others',
     items: [
-      { id: 'other_1', name: 'Pommes Frites', description: 'Krispiga pommes, lättsaltade.', price: 69, image: '/images/menu-starter.png', tags: ['vegetarian'] },
-      { id: 'other_2', name: 'Sötpotatispommes', description: 'Sötpotatispommes med örtkrydda.', price: 75, image: '/images/menu-starter.png', tags: ['vegetarian'] },
-      { id: 'other_3', name: 'Nuggets 8 st', description: 'Kycklingnuggets med dippsås.', price: 89, image: '/images/menu-starter.png', tags: [] },
-      { id: 'other_4', name: 'Lökringar', description: 'Friterade lökringar med aioli.', price: 75, image: '/images/menu-starter.png', tags: ['vegetarian'] },
-      { id: 'other_5', name: 'Mozzarellasticks', description: 'Serveras med chilisås.', price: 79, image: '/images/menu-starter.png', tags: ['vegetarian'] }
+      { id: 'other_6', name: 'Mörk Chokladmousse', description: 'Himmelskt len chokladmousse i kristallglas med 70% kakaohalt, hallon och guldflarn.', price: 125, image: '/images/menu-chocolate.png', tags: ['vegetarian', 'popular'] }
     ]
   },
   {

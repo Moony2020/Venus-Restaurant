@@ -290,15 +290,20 @@ const Checkout = () => {
             </p>
           )}
 
-          <button
-            type="button"
-            onClick={onPlaceOrder}
-            disabled={isSubmitting || normalizedItems.length === 0 || !isOpen}
-            className="mt-8 flex w-full items-center justify-between rounded-2xl border border-gold bg-gold px-4 py-4 text-xs font-black uppercase tracking-[0.16em] text-black shadow-[0_10px_30px_rgba(200,164,77,0.25)] hover:bg-goldSoft disabled:cursor-not-allowed disabled:opacity-50 sm:px-8 sm:py-5 sm:text-sm sm:tracking-[0.2em]"
-          >
-            <span className="inline-flex items-center gap-2"><Lock size={16} className="sm:h-[17px] sm:w-[17px]" /> {isSubmitting ? 'Processing...' : `Bekräfta beställning - ${finalTotal} SEK`}</span>
-            <ArrowRight size={22} />
-          </button>
+          <div className="mt-8 flex justify-end">
+            <button
+              type="button"
+              onClick={onPlaceOrder}
+              disabled={isSubmitting || normalizedItems.length === 0 || !isOpen}
+              className="group relative flex w-full sm:w-fit items-center justify-center gap-4 rounded-full border border-gold bg-gold px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] text-black shadow-[0_10px_30px_rgba(200,164,77,0.2)] hover:bg-goldSoft hover:scale-105 active:scale-95 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Lock size={15} /> 
+                {isSubmitting ? 'Processing...' : `Bekräfta beställning - ${finalTotal} SEK`}
+              </span>
+              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+            </button>
+          </div>
         </div>
 
         <aside className="h-fit border-l border-gold/70 bg-white/[0.05] p-6 xl:p-10">

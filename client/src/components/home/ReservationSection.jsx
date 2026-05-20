@@ -17,10 +17,10 @@ const ReservationSection = () => {
   };
 
   return (
-    <section className="bg-background py-32 px-6">
-      <div className="mx-auto max-w-4xl border border-gold/15 bg-panel/30 p-12 sm:p-20 text-center">
+    <section className="bg-background py-32 px-3 sm:px-4 md:px-6">
+      <div className="mx-auto max-w-4xl border border-gold/15 bg-panel/30 p-6 sm:p-10 lg:p-14 text-center">
         <p className="text-[13px] sm:text-base uppercase tracking-[0.6em] text-gold font-bold mb-8">Bordsbokning</p>
-        <h2 className="font-display text-5xl sm:text-7xl mb-12 text-white">Säkra din upplevelse</h2>
+        <h2 className="font-display text-3xl min-[481px]:text-4xl md:text-5xl lg:text-6xl mb-10 text-white">Säkra din upplevelse</h2>
 
         <form onSubmit={handleSubmit} className="text-left">
           <div className="grid sm:grid-cols-3 gap-8">
@@ -78,4 +78,3 @@ const ReservationSection = () => {
 };
 
 export default ReservationSection;
-

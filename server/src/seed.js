@@ -49,7 +49,7 @@ export async function seedMenuIfEmpty() {
     {
       name: 'Pommes Frites',
       slug: 'pommes-frites',
-      category: 'Övrigt',
+      category: 'Förrätt',
       description: 'Krispiga pommes, lattsaltade.',
       image: '/images/menu-starter.png',
       price: 69,

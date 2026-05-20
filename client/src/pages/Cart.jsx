@@ -12,7 +12,7 @@ const Cart = () => {
         <SiteHeader />
         <div className="flex flex-col items-center justify-center py-32 text-center">
           <h1 className="font-display text-5xl sm:text-7xl mb-8">Din korg är tom</h1>
-          <Link to="/menu" className="border border-gold px-10 py-4 text-[11px] uppercase tracking-[0.3em] text-gold hover:bg-gold hover:text-black transition-all">
+          <Link to="/menu" className="inline-flex items-center justify-center border border-gold px-10 py-4 text-[11px] uppercase tracking-[0.3em] text-gold hover:bg-gold hover:text-black rounded-full hover:scale-105 active:scale-95 transition-all duration-300 w-fit mx-auto">
             Se vår meny
           </Link>
         </div>
@@ -113,7 +113,7 @@ const Cart = () => {
               
               <Link 
                 to="/checkout" 
-                className="block w-full bg-gold py-5 text-center text-[11px] font-bold uppercase tracking-[0.3em] text-black transition-all hover:bg-goldSoft shadow-xl shadow-gold/10"
+                className="flex w-full items-center justify-center rounded-full bg-gold py-4 text-center text-[11px] font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:bg-goldSoft hover:scale-[1.02] active:scale-95 shadow-xl shadow-gold/15"
               >
                 Fortsätt till kassan
               </Link>
