@@ -33,7 +33,7 @@ const HeroSection = () => {
           loop
           muted
           playsInline
-          className="h-full w-full object-cover object-center"
+          className="h-full w-full object-cover object-center scale-[1.08]"
         />
         {/* Fallback Static Image (Preserved for quick restoration)
         <img
