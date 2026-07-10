@@ -34,8 +34,12 @@ select option {
 }
 
 /* Custom Date Picker Icon Styling */
+input[type="date"] {
+  color-scheme: dark;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(73%) sepia(50%) saturate(600%) hue-rotate(3deg) brightness(100%) contrast(100%);
+  filter: invert(27%) sepia(50%) saturate(600%) hue-rotate(3deg) brightness(100%) contrast(100%);
   cursor: pointer;
   opacity: 0.8;
   transition: opacity 0.3s ease;
@@ -44,7 +48,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
-  filter: invert(73%) sepia(50%) saturate(1000%) hue-rotate(3deg) brightness(110%);
+  filter: invert(27%) sepia(50%) saturate(1000%) hue-rotate(3deg) brightness(110%);
 }
 
 /* Cinematic Reveal on Scroll */

@@ -126,43 +126,43 @@ const Bespoke = () => {
               <div className="flex items-center gap-4 text-sm text-white/40"><ShieldCheck className="text-gold" size={18} />Garanterad sekretess</div>
             </div>
           </div>
-          <div className="bg-panel border border-white/10 p-10 sm:p-14">
+          <div className="bg-panel border border-white/10 p-6 sm:p-8">
             {toast && <p className={`mb-6 border px-4 py-3 text-sm ${toast.includes('Tack') ? 'border-gold/40 bg-gold/10 text-gold' : 'border-red-500/40 bg-red-500/10 text-red-400'}`}>{toast}</p>}
-            <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 gap-8">
-              <div className="space-y-2">
+            <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 gap-x-6 gap-y-4">
+              <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40">Fullständigt namn</label>
-                <input value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} type="text" className="w-full border-b border-white/10 bg-transparent py-3 text-white focus:border-gold outline-none transition-colors" placeholder="Ditt namn" required />
+                <input value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} type="text" className="w-full border-b border-white/10 bg-transparent py-1.5 text-white focus:border-gold outline-none transition-colors" placeholder="Ditt namn" required />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40">E-postadress</label>
-                <input value={form.email} onChange={(e) => updateField('email', e.target.value)} type="email" className="w-full border-b border-white/10 bg-transparent py-3 text-white focus:border-gold outline-none transition-colors" placeholder="email@exempel.se" required />
+                <input value={form.email} onChange={(e) => updateField('email', e.target.value)} type="email" className="w-full border-b border-white/10 bg-transparent py-1.5 text-white focus:border-gold outline-none transition-colors" placeholder="email@exempel.se" required />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40">Typ av evenemang</label>
-                <select value={form.eventType} onChange={(e) => updateField('eventType', e.target.value)} className="w-full border-b border-white/10 bg-transparent py-3 text-white/70 focus:border-gold outline-none transition-colors appearance-none">
+                <select value={form.eventType} onChange={(e) => updateField('eventType', e.target.value)} className="w-full border-b border-white/10 bg-transparent py-1.5 text-white/70 focus:border-gold outline-none transition-colors appearance-none">
                   <option>Privat Middag</option>
                   <option>Företagsevenemang</option>
                   <option>Kock i hemmet</option>
                   <option>Skräddarsydd meny</option>
                 </select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40">Uppskattat antal gäster</label>
-                <input value={form.guests} onChange={(e) => updateField('guests', e.target.value)} type="number" className="w-full border-b border-white/10 bg-transparent py-3 text-white focus:border-gold outline-none transition-colors" placeholder="t.ex. 12" min="1" required />
+                <input value={form.guests} onChange={(e) => updateField('guests', e.target.value)} type="number" className="w-full border-b border-white/10 bg-transparent py-1.5 text-white focus:border-gold outline-none transition-colors" placeholder="t.ex. 12" min="1" required />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40">Önskat datum</label>
-                <input value={form.preferredDate} onChange={(e) => updateField('preferredDate', e.target.value)} type="date" className="w-full border-b border-white/10 bg-transparent py-3 text-white focus:border-gold outline-none transition-colors" />
+                <input value={form.preferredDate} onChange={(e) => updateField('preferredDate', e.target.value)} type="date" min={new Date().toISOString().split('T')[0]} className="w-full border-b border-white/10 bg-transparent py-1.5 text-white focus:border-gold outline-none transition-colors" />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40">Budget (valfritt)</label>
-                <input value={form.budgetRange} onChange={(e) => updateField('budgetRange', e.target.value)} type="text" className="w-full border-b border-white/10 bg-transparent py-3 text-white focus:border-gold outline-none transition-colors" placeholder="t.ex. 20 000 - 35 000 KR" />
+                <input value={form.budgetRange} onChange={(e) => updateField('budgetRange', e.target.value)} type="text" className="w-full border-b border-white/10 bg-transparent py-1.5 text-white focus:border-gold outline-none transition-colors" placeholder="t.ex. 20 000 - 35 000 KR" />
               </div>
-              <div className="sm:col-span-2 space-y-2">
+              <div className="sm:col-span-2 space-y-1">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40">Meddelande / Vision</label>
-                <textarea value={form.message} onChange={(e) => updateField('message', e.target.value)} rows="3" className="w-full border-b border-white/10 bg-transparent py-3 text-white focus:border-gold outline-none transition-colors" placeholder="Beskriv tillfället..." required></textarea>
+                <textarea value={form.message} onChange={(e) => updateField('message', e.target.value)} rows="3" className="w-full border-b border-white/10 bg-transparent py-1.5 text-white focus:border-gold outline-none transition-colors" placeholder="Beskriv tillfället..." required></textarea>
               </div>
-              <div className="sm:col-span-2 pt-6 flex justify-start">
+              <div className="sm:col-span-2 pt-3 flex justify-start">
                 <button 
                   disabled={isSubmitting} 
                   className="w-full sm:w-fit rounded-full bg-gold px-10 py-4 text-[11px] font-bold uppercase tracking-[0.25em] text-black hover:bg-goldSoft hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-70 flex items-center justify-center"
