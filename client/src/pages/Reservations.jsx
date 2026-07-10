@@ -141,16 +141,16 @@ const Reservations = () => {
 
       <section className="relative z-20 mx-auto max-w-4xl px-8 pt-4 pb-20">
         <div className="grid gap-16 lg:grid-cols-[1.5fr_1fr]">
-          <div className="rounded-2xl border border-white/5 bg-panel p-8 sm:p-12">
+          <div className="rounded-2xl border border-white/5 bg-panel p-6 sm:p-8">
             {msg && (
-              <div className={`mb-8 p-4 text-sm ${msg.includes('bekräftad') ? 'bg-gold/10 text-gold border border-gold/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+              <div className={`mb-6 p-4 text-sm ${msg.includes('bekräftad') ? 'bg-gold/10 text-gold border border-gold/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
                 {msg}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-10">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Date on its own line */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-widest text-white/40">Datum</label>
                 <input 
                   type="date" 
@@ -158,7 +158,7 @@ const Reservations = () => {
                   value={form.date} 
                   min={new Date().toISOString().split('T')[0]}
                   onChange={e => setForm({...form, date: e.target.value})} 
-                  className="w-full border-b border-white/10 bg-transparent py-4 text-lg text-gold focus:border-gold outline-none" 
+                  className="w-full border-b border-white/10 bg-transparent py-1.5 text-lg text-gold focus:border-gold outline-none" 
                 />
                 {isDayClosed && (
                   <p className="mt-2 text-xs font-semibold text-red-400">
@@ -168,14 +168,14 @@ const Reservations = () => {
               </div>
 
               {/* Time and Guests side by side */}
-              <div className="grid sm:grid-cols-2 gap-10">
-                <div className="space-y-2">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
                   <label className="text-[10px] uppercase tracking-widest text-white/40">Tid</label>
                   <select 
                     value={form.time} 
                     onChange={e => setForm({...form, time: e.target.value})} 
                     disabled={isDayClosed || filteredTimes.length === 0}
-                    className={`w-full border-b border-white/10 bg-transparent py-4 focus:border-gold outline-none appearance-none ${isDayClosed ? 'text-white/35 cursor-not-allowed' : 'text-white'}`}
+                    className={`w-full border-b border-white/10 bg-transparent py-1.5 focus:border-gold outline-none appearance-none ${isDayClosed ? 'text-white/35 cursor-not-allowed' : 'text-white'}`}
                   >
                     {isDayClosed ? (
                       <option className="bg-background">Stängt hela dagen</option>
@@ -186,7 +186,7 @@ const Reservations = () => {
                     )}
                   </select>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <label className="text-[10px] uppercase tracking-widest text-white/40">Gäster</label>
                   <input 
                     type="number" 
@@ -195,19 +195,19 @@ const Reservations = () => {
                     required 
                     value={form.guests} 
                     onChange={e => setForm({...form, guests: e.target.value})} 
-                    className="w-full border-b border-white/10 bg-transparent py-4 focus:border-gold outline-none" 
+                    className="w-full border-b border-white/10 bg-transparent py-1.5 focus:border-gold outline-none" 
                   />
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <input placeholder="Fullständigt namn" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 focus:border-gold outline-none" />
-                <input type="email" placeholder="E-post" required value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 focus:border-gold outline-none" />
-                <input type="tel" placeholder="Telefon" required value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 focus:border-gold outline-none" />
-                <textarea placeholder="Speciella önskemål (valfritt)" rows="3" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-3 focus:border-gold outline-none" />
+              <div className="space-y-3">
+                <input placeholder="Fullständigt namn" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-1.5 focus:border-gold outline-none" />
+                <input type="email" placeholder="E-post" required value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-1.5 focus:border-gold outline-none" />
+                <input type="tel" placeholder="Telefon" required value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-1.5 focus:border-gold outline-none" />
+                <textarea placeholder="Speciella önskemål (valfritt)" rows="3" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full border-b border-white/10 bg-transparent py-1.5 focus:border-gold outline-none" />
               </div>
 
-              <div className="flex justify-start pt-2">
+              <div className="flex justify-start pt-1">
                 <button 
                   disabled={isSubmitting || isDayClosed || filteredTimes.length === 0} 
                   className="w-full sm:w-fit rounded-full bg-gold px-10 py-4 text-[11px] font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:bg-goldSoft hover:scale-105 active:scale-95 shadow-xl shadow-gold/10 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
