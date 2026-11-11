@@ -221,7 +221,7 @@ const Confirmation = () => {
         <div className="text-center">
           <div className="inline-flex items-center gap-2 border border-gold/30 bg-gold/5 px-4 py-1 rounded-full mb-3">
             <span className="text-[9.5px] sm:text-[10px] uppercase font-bold tracking-[0.28em] text-gold">
-              ORDERBEKRÄFTELSE • VENUS GASTRONOMI
+              ORDERBEKRÄFTELSE • RESTAURANG VENUS
             </span>
           </div>
 
@@ -245,7 +245,7 @@ const Confirmation = () => {
                 Ordern mottagen & verifierad
               </p>
               <p className="text-xs text-emerald-300/70 mt-0.5">
-                Köket tillagar beställningen enligt Venus gastronomiska standard.
+                Köket tillagar beställningen med noggrannhet och omsorg.
               </p>
             </div>
           </div>
@@ -536,7 +536,7 @@ const Confirmation = () => {
                 </div>
 
                 <a
-                  href="https://maps.google.com/?q=Varbergagatan+39A,+703+51+Örebro"
+                  href="https://www.google.com/maps/place/Pizzeria+Venus/@59.2869414,15.1773326,17z/data=!3m1!4b1!4m6!3m5!1s0x465c152c1fd82447:0x43c6d995c0863e13!8m2!3d59.2869414!4d15.1799129!16s%2Fg%2F1yh9ttv40"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 border border-white/15 hover:border-gold/50 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white/80 hover:text-white transition-all shadow-sm"
@@ -589,7 +589,7 @@ const Confirmation = () => {
       {/* Hidden print receipt optimized for standard receipt/PDF printing */}
       <div className="print-receipt hidden">
         <div className="print-header">
-          <h1>VENUS GASTRONOMI</h1>
+          <h1>RESTAURANG VENUS</h1>
           <p>Varbergagatan 39A, Örebro</p>
           <p>Org.nr: 559281-9923 | Tel: 019-25 70 90</p>
           <hr />
