@@ -22,7 +22,7 @@ const GrillSection = () => (
       
       <div className="relative order-1 md:order-2">
         <img 
-          src="/images/grill-fire.png" 
+          src="/images/grill-fire.webp" 
           alt="Grillsektionen" 
           className="aspect-[4/3] w-full object-cover shadow-premium rounded-sm" 
           loading="lazy" 

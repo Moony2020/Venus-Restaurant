@@ -19,7 +19,7 @@ const linksMobile = [
 ];
 
 const SiteHeader = () => {
-  const { count } = useCart();
+  const { count, openCartDrawer } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const [navIndicatorStyle, setNavIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
@@ -71,9 +71,9 @@ const SiteHeader = () => {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? 'hidden' : 'unset';
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     };
   }, [isMenuOpen]);
 
@@ -116,14 +116,19 @@ const SiteHeader = () => {
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-4">
-            <Link to="/cart" className="group relative p-2 text-white/80 transition-colors hover:text-gold">
+            <button
+              type="button"
+              onClick={openCartDrawer}
+              className="group relative p-2 text-white/80 transition-colors hover:text-gold"
+              aria-label="Öppna varukorg"
+            >
               <ShoppingBag size={20} strokeWidth={1.5} />
               {count > 0 && (
                 <span className="absolute -right-0 -top-0 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[9px] font-bold text-black ring-2 ring-black">
                   {count}
                 </span>
               )}
-            </Link>
+            </button>
 
             <Link to="/account" className="p-2 text-white/80 transition-colors hover:text-gold">
               <User size={20} strokeWidth={1.5} />

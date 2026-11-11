@@ -134,7 +134,7 @@ const Account = () => {
               <Link to="/menu" className="block border border-white/15 px-4 py-3 text-sm hover:border-gold hover:text-gold">Beställ igen</Link>
               <Link to="/checkout" className="block border border-white/15 px-4 py-3 text-sm hover:border-gold hover:text-gold">Boka bord</Link>
             </div>
-            <img src="/images/story-interior.png" alt="account ambiance" className="mt-6 h-48 w-full border border-white/10 object-cover" loading="lazy" />
+            <img src="/images/story-interior.webp" alt="account ambiance" className="mt-6 h-48 w-full border border-white/10 object-cover" loading="lazy" />
           </article>
         </div>
 

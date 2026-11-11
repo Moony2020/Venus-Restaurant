@@ -86,7 +86,7 @@ const normalizeItem = (item) => {
     name: item.name || '',
     description: item.description || '',
     price: Number(item.price) || 0,
-    image: item.image || '/images/menu-pizza.png',
+    image: item.image || '/images/menu-pizza.webp',
     tags: Array.isArray(item.tags) ? item.tags : [],
     available: item.available !== false,
     customizations: item.customizations || []
@@ -109,7 +109,6 @@ const Menu = () => {
   const [activeCategory, setActiveCategory] = useState('popular');
   const [activeTag, setActiveTag] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [isCategoryTransitioning, setIsCategoryTransitioning] = useState(false);
   const [liveMenuItems, setLiveMenuItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -132,7 +131,7 @@ const Menu = () => {
 
   const { items: apiItems, loading, error } = useMenuData();
   const { data: restaurantStatus } = useRestaurantStatus();
-  const { items: cartItems, total, count, addToCart, lastAddedId, updateQuantity, removeFromCart, removeExtra } = useCart();
+  const { items: cartItems, total, count, addToCart, lastAddedId, updateQuantity, removeFromCart, removeExtra, clearCart, openCartDrawer } = useCart();
 
   const normalizedApiItems = useMemo(() => (apiItems || []).map(normalizeItem), [apiItems]);
 
@@ -367,25 +366,72 @@ const Menu = () => {
     <main className="min-h-screen bg-background text-white">
       <SiteHeader />
 
-      <CategoryTabs categories={categories} activeCategory={activeCategory} onChange={onCategoryChange} />
+      {/* Menu Hero Section with Floating Opening Hours */}
+      <div className="relative">
+        {restaurantStatus?.week && (
+          <div className="absolute top-3 right-3 sm:right-6 sm:top-5 lg:right-8 lg:top-6 z-40 pointer-events-auto">
+            <OpeningHoursDropdown 
+              week={restaurantStatus.week} 
+              statusText={statusText}
+              isOpen={isOpen}
+              isRollover={restaurantStatus?.nowStatus?.isRollover}
+            />
+          </div>
+        )}
 
-      <section className="mx-auto grid w-full max-w-[2200px] gap-4 px-3 py-5 pb-16 min-[1200px]:grid-cols-[1fr_320px] xl:gap-6 lg:px-8 xl:pb-24">
-        <div>
-          <div className="mb-4">
-            <div className="mb-2 flex items-center justify-center sm:justify-end text-xs">
-              {restaurantStatus?.week && (
-                <OpeningHoursDropdown 
-                  week={restaurantStatus.week} 
-                  statusText={statusText}
-                  isOpen={isOpen}
-                  isRollover={restaurantStatus?.nowStatus?.isRollover}
-                />
-              )}
+        <section className="relative overflow-hidden border-b border-white/10 bg-[#070b10] min-h-[260px] sm:min-h-[300px] md:min-h-[340px] lg:min-h-[380px] flex items-center">
+        {/* Background Image: Steak dish centered on mobile, right-aligned on desktop */}
+        <div className="absolute inset-0 pointer-events-none">
+          <img
+            src="/images/menu-hero.webp"
+            alt="Venus Gastronomisk Meny"
+            className="w-full h-full object-cover object-[52%_center] md:object-[78%_center] opacity-65 md:opacity-80"
+          />
+          {/* Subtle mobile scrim + desktop horizontal gradient */}
+          <div className="absolute inset-0 bg-[#070b10]/60 md:bg-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#070b10] via-[#070b10]/60 to-[#070b10]/40 md:bg-gradient-to-r md:from-[#070b10] md:via-[#070b10]/90 md:to-transparent md:w-[72%] lg:w-[60%]" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#070b10] to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#070b10]/80 to-transparent" />
+        </div>
+
+        <div className="relative z-10 mx-auto w-full max-w-[2200px] px-4 sm:px-6 lg:px-8 py-8 sm:py-10 md:py-12">
+          <div className="max-w-xl lg:max-w-2xl text-left space-y-2.5 sm:space-y-3.5">
+            {/* Top Pill Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/60 backdrop-blur-md px-3 sm:px-3.5 py-0.5 sm:py-1 text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.2em] text-gold">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              <span>KULINARISK KONST • ÖREBRO</span>
             </div>
 
-            <h2 className="mb-3 font-display text-4xl leading-[0.95] sm:text-5xl lg:text-5xl">
-              {activeCategoryLabel}
-            </h2>
+            {/* Main Title: 2 lines */}
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-light text-white leading-tight tracking-wide">
+              Vår Filosofi &amp; <br />
+              <span className="italic text-gold font-normal">Gastronomiska Meny</span>
+            </h1>
+
+            {/* Description */}
+            <p className="text-white/70 text-xs sm:text-sm md:text-[14px] font-light leading-relaxed max-w-lg">
+              En intim symfoni mellan vedugnens hetta, noggrant utvalda råvaror från nordiska gårdar och ett kompromisslöst italienskt hantverk.
+            </p>
+          </div>
+        </div>
+      </section>
+      </div>
+
+      <CategoryTabs categories={categories} activeCategory={activeCategory} onChange={onCategoryChange} />
+
+      <section id="menu-items-section" className="mx-auto grid w-full max-w-[2200px] gap-4 px-3 py-5 pb-16 min-[1200px]:grid-cols-[1fr_320px] xl:gap-6 lg:px-8 xl:pb-24">
+        <div>
+          <div className="mb-4">
+            <div className="pb-2 sm:pb-2.5">
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white">
+                {activeCategoryLabel}
+              </h2>
+              <p className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-white/50">
+                {activeCategory === 'popular'
+                  ? 'Gästernas mest älskade kreationer och husets specialiteter.'
+                  : `Noggrant tillagade rätter i kategorin ${activeCategoryLabel.toLowerCase()}.`}
+              </p>
+            </div>
 
             {/* Desktop: one row — search + filters side by side */}
             {/* Mobile: search full-width, filters wrap below */}
@@ -465,25 +511,28 @@ const Menu = () => {
           restaurantOpen={isOpen}
           updateQuantity={updateQuantity}
           removeFromCart={removeFromCart}
+          clearCart={clearCart}
+          restaurantStatus={restaurantStatus}
         />
       </section>
 
-      {count > 0 && (
-        <button
-          onClick={() => setIsMobileCartOpen(true)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-gold px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-black shadow-2xl shadow-gold/20 min-[1200px]:hidden"
-        >
-          <ShoppingBag size={18} />
-          {count} • {finalTotal} kr
-        </button>
-      )}
-
-      <div
-        className={`fixed inset-0 z-[200] bg-black/60 transition-opacity min-[1200px]:hidden ${
-          isMobileCartOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
-        onClick={() => setIsMobileCartOpen(false)}
-      />
+      {/* Floating Mobile/Tablet Cart Button - Always visible on screens < 1200px */}
+      <button
+        type="button"
+        onClick={openCartDrawer}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-full bg-gold px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-black shadow-2xl shadow-gold/30 hover:scale-105 active:scale-95 transition-all min-[1200px]:hidden"
+        aria-label="Öppna varukorg"
+      >
+        <div className="relative">
+          <ShoppingBag size={18} strokeWidth={2} />
+          {count > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-extrabold text-gold ring-1 ring-gold/40">
+              {count}
+            </span>
+          )}
+        </div>
+        <span>{count > 0 ? `${finalTotal} kr` : 'Varukorg'}</span>
+      </button>
 
       <ItemModal 
         item={selectedItem} 
@@ -491,168 +540,6 @@ const Menu = () => {
         onClose={() => setSelectedItem(null)} 
         onAdd={addToCart} 
       />
-
-      <aside
-        className={`fixed bottom-0 right-0 top-0 z-[201] w-[85%] max-w-sm border-l border-white/10 bg-[#0a0f14] p-6 shadow-2xl transition-transform min-[1200px]:hidden ${
-          isMobileCartOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="flex items-center justify-between border-b border-white/10 pb-5">
-          <h2 className="font-display text-3xl">Din varukorg</h2>
-          <button onClick={() => setIsMobileCartOpen(false)} className="text-white/50 hover:text-white">
-            <X size={22} />
-          </button>
-        </div>
-
-        <div className="mt-5 border border-white/10 bg-white/[0.04] p-3">
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => deliveryAvailable && setOrderMode('delivery')}
-              disabled={!deliveryAvailable}
-              className={`border px-3 py-2 text-[10px] uppercase tracking-[0.14em] transition ${
-                orderMode === 'delivery'
-                  ? 'border-gold bg-gold text-black'
-                  : deliveryAvailable
-                    ? 'border-white/20 bg-white/[0.03] text-white/70 hover:border-gold/50 hover:text-gold'
-                    : 'cursor-not-allowed border-white/10 bg-white/[0.03] text-white/35'
-              }`}
-            >
-              Leverans
-            </button>
-            <button
-              type="button"
-              onClick={() => setOrderMode('pickup')}
-              className={`border px-3 py-2 text-[10px] uppercase tracking-[0.14em] transition ${
-                orderMode === 'pickup'
-                  ? 'border-gold bg-gold text-black'
-                  : 'border-white/20 bg-white/[0.03] text-white/70 hover:border-gold/50 hover:text-gold'
-              }`}
-            >
-              Hämta själv
-            </button>
-          </div>
-          <div className="mt-3">
-            {!deliveryAvailable && orderMode === 'delivery' ? (
-              <p className="text-white/55">Ej tillgänglig</p>
-            ) : (
-              <>
-                <p className="text-sm text-white/60">{orderMode === 'pickup' ? 'Upphämtningstid' : 'Leveranstid'}</p>
-                <p className="text-base font-semibold text-white/90">
-                  {orderMode === 'delivery' ? deliveryEtaText : pickupEtaText}
-                </p>
-              </>
-            )}
-          </div>
-          <div className="mt-2 flex items-center justify-between text-sm text-white/65">
-            <span>Leveransavgift</span>
-            <span>{orderMode === 'delivery' ? `${deliveryFee} kr` : '0 kr'}</span>
-          </div>
-        </div>
-
-        <div className="mt-6 max-h-[44vh] space-y-4 overflow-y-auto pr-1 custom-scrollbar">
-          {cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 opacity-20 text-center">
-              <ShoppingBag size={48} className="mb-3" strokeWidth={1} />
-              <p className="text-sm italic">Din varukorg är tom</p>
-            </div>
-          ) : (
-            cartItems.map((item, i) => (
-              <div key={`${item.id}-${i}`} className="border-b border-white/5 pb-4 last:border-0 last:pb-0">
-                <div className="flex gap-3">
-                  {/* Thumbnail */}
-                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/5">
-                    <img 
-                      src={item.image || '/images/menu-pizza.png'} 
-                      alt={item.name} 
-                      className="h-full w-full object-cover" 
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-[14px] font-medium text-white/95 leading-tight">{item.name}</p>
-                        <p className="text-[14px] font-bold text-gold">{Math.round(item.price * item.quantity)} kr</p>
-                      </div>
-                      
-                      {/* Extras List */}
-                      {item.extras && item.extras.length > 0 && (
-                        <div className="mt-2.5 space-y-2">
-                          {item.extras.map((extra, idx) => (
-                            <div key={`${extra.optionId}-${idx}`} className="flex items-center justify-between">
-                              <div className="flex items-center gap-2.5">
-                                <button 
-                                  onClick={() => removeExtra(item.id, extra.groupId, extra.optionId)}
-                                  className="flex h-4 w-4 items-center justify-center rounded-sm border border-white/10 bg-white/[0.05] text-white/40 hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-400 transition-all shadow-sm"
-                                >
-                                  <X size={8} strokeWidth={3} />
-                                </button>
-                                <span className="text-[10px] text-gold/70 font-medium italic leading-none tracking-tight">{extra.label}</span>
-                              </div>
-                              <span className="text-[10px] text-gold/60 font-bold leading-none tracking-tighter">+ {extra.price} kr</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center rounded-lg border border-white/10 bg-white/5 p-0.5">
-                        <button 
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="px-2 py-1 text-white/40"
-                        >
-                          <Minus size={12} />
-                        </button>
-                        <span className="min-w-[20px] text-center text-xs font-bold text-white">{item.quantity}</span>
-                        <button 
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="px-2 py-1 text-white/40"
-                        >
-                          <Plus size={12} />
-                        </button>
-                      </div>
-
-                      <button
-                        type="button"
-                        aria-label={`Ta bort ${item.name}`}
-                        title="Ta bort"
-                        onClick={() => removeFromCart(item.id)}
-                        className="rounded-md border border-white/10 bg-white/5 p-1.5 text-white/35 transition-colors hover:border-red-400/40 hover:text-red-400"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        <div className="mt-5 border-t border-white/10 pt-4">
-          {!isOpen && <p className="mb-2 text-xs text-red-300">Restaurangen är stängd just nu</p>}
-          <p className="flex items-center justify-between text-xl">
-            <span>Totalt</span>
-            <span className="text-gold">{finalTotal} kr</span>
-          </p>
-          {count > 0 && isOpen ? (
-            <Link
-              to="/cart"
-              onClick={() => setIsMobileCartOpen(false)}
-              className="mt-3 block w-full border border-gold bg-gold px-4 py-3 text-center text-xs uppercase tracking-[0.2em] text-black transition hover:bg-[#d4b56a]"
-            >
-              Förhandsgranska beställning
-            </Link>
-          ) : (
-            <span className="mt-3 block w-full cursor-not-allowed border border-white/20 bg-white/10 px-4 py-3 text-center text-xs uppercase tracking-[0.2em] text-white/40">
-              Förhandsgranska beställning
-            </span>
-          )}
-        </div>
-      </aside>
     </main>
   );
 };

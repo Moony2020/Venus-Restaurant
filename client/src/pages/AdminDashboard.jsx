@@ -64,12 +64,12 @@ const AdminDashboard = () => {
 
             <div className="grid sm:grid-cols-2 gap-6 mt-12">
               <div className="relative aspect-video border border-white/5 overflow-hidden group rounded-xl">
-                <img src="/images/grill-fire.png" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" alt="Kitchen" />
+                <img src="/images/grill-fire.webp" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" alt="Kitchen" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
                 <p className="absolute bottom-6 left-6 font-display text-xl text-gold">Dining Status: 85%</p>
               </div>
               <div className="relative aspect-video border border-white/5 overflow-hidden group rounded-xl">
-                <img src="/images/about-cellar.png" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" alt="Cellar" />
+                <img src="/images/about-cellar.webp" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" alt="Cellar" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
                 <p className="absolute bottom-6 left-6 font-display text-xl text-gold">Källartemp: 12.4°C</p>
               </div>

@@ -8,7 +8,7 @@ const mockProduct = {
   name: 'Entrecôte Wagyu A5',
   category: 'main',
   price: 895,
-  image: '/images/hero-steak.png',
+  image: '/images/hero-steak.webp',
   description:
     'Upplev höjdpunkten av japansk gastronomi. Vår A5 Wagyu kommer direkt från Miyazaki-prefekturen, känd för sin exceptionella marmorering och smöriga konsistens. Varje snitt är noggrant utvalt för att garantera en smakupplevelse som bokstavligen smälter på tungan.'
 };
@@ -33,14 +33,14 @@ const ProductPage = () => {
           <div className="space-y-6">
             <div className="border border-gold/20 p-2 bg-panel/30">
               <img 
-                src="/images/hero-steak.png" 
+                src="/images/hero-steak.webp" 
                 alt={mockProduct.name} 
                 className="aspect-[4/3] w-full object-cover shadow-2xl" 
               />
             </div>
             <div className="grid grid-cols-2 gap-6">
-              <img src="/images/menu-starter.png" alt="Detail view" className="aspect-square w-full object-cover border border-white/5 opacity-80 hover:opacity-100 transition-opacity" />
-              <img src="/images/menu-duck.png" alt="Preparation view" className="aspect-square w-full object-cover border border-white/5 opacity-80 hover:opacity-100 transition-opacity" />
+              <img src="/images/menu-starter.webp" alt="Detail view" className="aspect-square w-full object-cover border border-white/5 opacity-80 hover:opacity-100 transition-opacity" />
+              <img src="/images/menu-duck.webp" alt="Preparation view" className="aspect-square w-full object-cover border border-white/5 opacity-80 hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
@@ -126,7 +126,7 @@ const ProductPage = () => {
           <div className="grid gap-8 md:grid-cols-3">
             <div className="group cursor-pointer">
               <div className="aspect-[3/4] overflow-hidden border border-white/5 bg-panel">
-                <img src="/images/menu-pizza.png" alt="Tartufo Pizza" className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+                <img src="/images/menu-pizza.webp" alt="Tartufo Pizza" className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
               </div>
               <p className="mt-6 text-[10px] uppercase tracking-[0.3em] text-gold/80">Signature Main</p>
               <h3 className="mt-3 font-display text-3xl text-white">Tartufo Pizza</h3>
@@ -135,7 +135,7 @@ const ProductPage = () => {
             
             <div className="group cursor-pointer">
               <div className="aspect-[3/4] overflow-hidden border border-white/5 bg-panel">
-                <img src="/images/menu-dessert.png" alt="Cosmic Chocolate" className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+                <img src="/images/menu-dessert.webp" alt="Cosmic Chocolate" className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
               </div>
               <p className="mt-6 text-[10px] uppercase tracking-[0.3em] text-gold/80">Celestial Final</p>
               <h3 className="mt-3 font-display text-3xl text-white">Cosmic Chocolate</h3>
@@ -144,7 +144,7 @@ const ProductPage = () => {
 
             <div className="group cursor-pointer">
               <div className="aspect-[3/4] overflow-hidden border border-white/5 bg-panel">
-                <img src="/images/menu-drink.png" alt="Nightcap" className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+                <img src="/images/menu-drink.webp" alt="Nightcap" className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
               </div>
               <p className="mt-6 text-[10px] uppercase tracking-[0.3em] text-gold/80">Bar Artisan</p>
               <h3 className="mt-3 font-display text-3xl text-white">Nightcap</h3>

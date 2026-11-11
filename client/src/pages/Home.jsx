@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import HeroSection from '../components/home/HeroSection';
 import ReservationSection from '../components/home/ReservationSection';
 import SiteHeader from '../layout/SiteHeader';
@@ -43,8 +44,8 @@ const CUSTOM_ASPECTS = {
   'special_7': 'aspect-[3/2]'   // Pizza Aurora (Wide)
 };
 
-const PremiumMenuCard = ({ item, quantityInCart, onAdd, isOpen, direction, index }) => {
-  const disabled = !isOpen || item.available === false;
+const PremiumMenuCard = ({ item, quantityInCart, onAdd, isOpen, direction, index, closedText }) => {
+  const isAvailable = item.available !== false;
 
   const aspectClass = useMemo(() => {
     const id = item._id || item.id;
@@ -68,16 +69,47 @@ const PremiumMenuCard = ({ item, quantityInCart, onAdd, isOpen, direction, index
     return charSum % 2 === 0 ? 'aspect-[4/3]' : 'aspect-[4/5]';
   }, [item, index]);
 
+  const handleClick = () => {
+    if (!isAvailable) {
+      toast.error('Denna rätt är tyvärr inte tillgänglig just nu.', {
+        style: { background: '#1c1917', color: '#fff', border: '1px solid #dc2626' }
+      });
+      return;
+    }
+
+    if (!isOpen) {
+      toast(
+        <div className="flex flex-col text-left">
+          <span className="font-medium text-white/95 text-[13px]">Restaurangen är stängd just nu.</span>
+          <span className="text-gold font-semibold text-[12.5px] mt-0.5">Vi öppnar kl 11:00!</span>
+        </div>,
+        {
+          icon: '🕒',
+          duration: 3500,
+          style: {
+            background: '#0d1218',
+            color: '#f6d894',
+            border: '1px solid rgba(200, 164, 77, 0.4)',
+            padding: '10px 14px'
+          }
+        }
+      );
+      return;
+    }
+
+    onAdd(item);
+  };
+
   return (
     <article
       data-menu-item-id={item._id}
-      onClick={() => !disabled && onAdd(item)}
-      className={`group flex flex-col w-full max-w-[380px] sm:max-w-[360px] text-left transition-opacity duration-300 mx-auto ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
-        } ${direction === 'left' ? 'sm:ml-auto sm:mr-0' : 'sm:mr-auto sm:ml-0'
-        }`}
+      onClick={handleClick}
+      className={`group flex flex-col w-full max-w-[380px] sm:max-w-[360px] text-left transition-all duration-300 mx-auto cursor-pointer ${
+        direction === 'left' ? 'sm:ml-auto sm:mr-0' : 'sm:mr-auto sm:ml-0'
+      }`}
     >
       {/* Premium Food Image Wrapper */}
-      <div className={`relative ${aspectClass} w-full overflow-hidden rounded-2xl border border-white/5 bg-black/40 shadow-2xl`}>
+      <div className={`relative ${aspectClass} w-full overflow-hidden rounded-2xl border border-white/5 bg-[#0d1218] shadow-2xl`}>
         <img
           src={item.image}
           alt={item.name}
@@ -85,11 +117,8 @@ const PremiumMenuCard = ({ item, quantityInCart, onAdd, isOpen, direction, index
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
         />
 
-        {/* Dark vignette gradient overlay for price text pop */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-
         {/* Floating Glassmorphic Price Badge */}
-        <div className="absolute bottom-4 right-4 rounded border border-white/10 bg-black/55 backdrop-blur-md px-3.5 py-1.5 text-[12px] sm:text-[13px] font-bold tracking-widest text-white shadow-lg uppercase font-display">
+        <div className="absolute bottom-4 right-4 rounded border border-white/10 bg-black/60 backdrop-blur-md px-3.5 py-1.5 text-[12px] sm:text-[13px] font-bold tracking-widest text-white shadow-lg uppercase font-display">
           {item.price} KR
         </div>
       </div>
@@ -124,7 +153,7 @@ const PremiumMenuCard = ({ item, quantityInCart, onAdd, isOpen, direction, index
         </p>
 
         {/* Premium interactive button */}
-        <div className={`inline-flex items-center gap-3 mt-4 group/btn ${disabled ? 'pointer-events-none' : ''}`}>
+        <div className="inline-flex items-center gap-3 mt-4 group/btn">
           {direction === 'left' && (
             <span className="w-8 h-[1px] bg-gold group-hover/btn:w-12 transition-all duration-300 shrink-0" />
           )}
@@ -191,7 +220,7 @@ const Home = () => {
           }
         });
       },
-      { threshold: 0, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0, rootMargin: '0px 0px 100px 0px' }
     );
 
     const elements = document.querySelectorAll('.reveal');
@@ -217,7 +246,7 @@ const Home = () => {
       id: 'alacarte_9',
       name: 'Stjärnstoft & Hav',
       price: 1295,
-      image: '/images/menu-ribeye-sig.png',
+      image: '/images/menu-ribeye-sig.webp',
       category: 'alacarte',
       description: 'Hängmörad ryggbiff stekt över björkved, rödvinsreduktion, handskurna pommes och ugnsbakade smålökar.'
     };
@@ -249,9 +278,9 @@ const Home = () => {
       <SiteHeader />
 
       <div className="relative">
-        {/* Floating Status Bar Overlay - Responsive Banner on Mobile, Elegant Float on Desktop */}
+        {/* Floating Status Bar Overlay - Seamless without background bar */}
         {restaurantStatus?.week && (
-          <div className="relative w-full flex justify-center py-3.5 px-6 border-b border-white/5 bg-black/30 scale-100 z-40 sm:absolute sm:right-6 sm:top-6 sm:left-auto sm:w-auto sm:flex-none sm:py-0 sm:px-0 sm:border-none sm:bg-transparent sm:scale-90 sm:transform-gpu sm:origin-top-right lg:right-8 lg:top-8">
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 sm:left-auto sm:translate-x-0 sm:right-6 sm:top-6 lg:right-10 lg:top-8 pointer-events-auto">
             <OpeningHoursDropdown
               week={restaurantStatus.week}
               statusText={restaurantStatus?.nowStatus?.text}
@@ -265,7 +294,7 @@ const Home = () => {
       </div>
 
       {/* 1. Kockens Val (Signature Section) */}
-      <section className="reveal relative py-24 px-6 md:px-12 max-w-7xl mx-auto overflow-hidden">
+      <section className="reveal relative pt-16 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 md:pb-28 px-6 md:px-12 max-w-7xl mx-auto overflow-hidden">
         {/* Background ambient glow */}
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[400px] h-[400px] bg-gold/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -338,10 +367,29 @@ const Home = () => {
               </div>
 
               <button
-                onClick={() => isOpen && addToCart(signatureDish)}
-                disabled={!isOpen}
-                className={`w-auto shrink-0 rounded-full bg-gold hover:bg-goldSoft hover:scale-105 active:scale-95 transition-all duration-300 text-black text-[11px] font-bold uppercase tracking-[0.18em] px-6 sm:px-10 py-3.5 sm:py-4 text-center flex items-center justify-center gap-2.5 shadow-2xl shadow-gold/15 ${!isOpen ? 'opacity-40 cursor-not-allowed hover:bg-gold hover:scale-100' : ''
-                  }`}
+                onClick={() => {
+                  if (!isOpen) {
+                    toast(
+                      <div className="flex flex-col text-left">
+                        <span className="font-medium text-white/95 text-[13px]">Restaurangen är stängd just nu.</span>
+                        <span className="text-gold font-semibold text-[12.5px] mt-0.5">Vi öppnar kl 11:00!</span>
+                      </div>,
+                      {
+                        icon: '🕒',
+                        duration: 3500,
+                        style: {
+                          background: '#0d1218',
+                          color: '#f6d894',
+                          border: '1px solid rgba(200, 164, 77, 0.4)',
+                          padding: '10px 14px'
+                        }
+                      }
+                    );
+                    return;
+                  }
+                  addToCart(signatureDish);
+                }}
+                className="w-auto shrink-0 rounded-full bg-gold hover:bg-goldSoft hover:scale-105 active:scale-95 transition-all duration-300 text-black text-[11px] font-bold uppercase tracking-[0.18em] px-6 sm:px-10 py-3.5 sm:py-4 text-center flex items-center justify-center gap-2.5 shadow-2xl shadow-gold/15"
               >
                 <span className="whitespace-nowrap">LÄGG TILL I KORG</span>
                 {isOpen && quantitiesByItemId[signatureDish._id] > 0 && (
@@ -416,7 +464,7 @@ const Home = () => {
         </div>
 
         {/* Featured Items Grid - Staggered Premium Masonry (Desktop & Tablet) */}
-        <div className="hidden sm:grid sm:grid-cols-2 gap-x-6 lg:gap-x-10 items-start max-w-4xl mx-auto">
+        <div className="hidden sm:grid sm:grid-cols-2 gap-x-3 sm:gap-x-4 lg:gap-x-6 items-start max-w-4xl mx-auto">
           {/* Left Column (Even index items) */}
           <div className="flex flex-col gap-8 lg:gap-12">
             {leftColumnItems.map((item, idx) => (

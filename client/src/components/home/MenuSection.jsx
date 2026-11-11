@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 
 const categories = [
-  { title: 'Förrätter', slug: 'starters', image: '/images/menu-starter.png' },
-  { title: 'Varmrätter', slug: 'alacarte', image: '/images/hero-steak.png' },
-  { title: 'Desserter', slug: 'others', image: '/images/menu-dessert.png' },
-  { title: 'Dryck', slug: 'drinks', image: '/images/menu-drink.png' }
+  { title: 'Förrätter', slug: 'starters', image: '/images/menu-starter.webp' },
+  { title: 'Varmrätter', slug: 'alacarte', image: '/images/hero-steak.webp' },
+  { title: 'Desserter', slug: 'others', image: '/images/menu-dessert.webp' },
+  { title: 'Dryck', slug: 'drinks', image: '/images/menu-drink.webp' }
 ];
 
 const MenuSection = () => (

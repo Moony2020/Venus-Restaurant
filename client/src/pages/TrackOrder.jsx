@@ -89,7 +89,7 @@ const TrackOrder = () => {
 
       {/* Hero Section */}
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <img src="/images/hero-steak.png" className="absolute inset-0 w-full h-full object-cover opacity-40" alt="Track Hero" />
+        <img src="/images/hero-steak.webp" className="absolute inset-0 w-full h-full object-cover opacity-40" alt="Track Hero" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-background" />
         <h1 className="relative z-10 font-display text-5xl sm:text-7xl">Spåra Order</h1>
       </section>

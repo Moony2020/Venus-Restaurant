@@ -5,7 +5,7 @@ const StorySection = () => (
     <div className="relative">
       <div className="absolute -left-4 -top-4 bottom-4 right-4 border border-gold/30" />
       <img 
-        src="/images/story-interior.png" 
+        src="/images/story-interior.webp" 
         alt="Vår historia" 
         className="relative z-10 aspect-[4/5] w-full object-cover shadow-2xl" 
         loading="lazy" 

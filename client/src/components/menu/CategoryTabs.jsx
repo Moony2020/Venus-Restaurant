@@ -8,14 +8,13 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
   const tabRefs = useRef({});
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
   const updateScrollState = () => {
     const node = scrollRef.current;
     if (!node) return;
     const maxLeft = node.scrollWidth - node.clientWidth;
-    setCanScrollLeft(node.scrollLeft > 2);
-    setCanScrollRight(maxLeft - node.scrollLeft > 2);
+    setCanScrollLeft(node.scrollLeft > 4);
+    setCanScrollRight(maxLeft - node.scrollLeft > 4);
   };
 
   useEffect(() => {
@@ -63,32 +62,6 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
     return () => cancelAnimationFrame(id);
   }, [activeCategory, categories.length]);
 
-  useEffect(() => {
-    const updateIndicator = () => {
-      const activeTabEl = tabRefs.current[activeCategory];
-      if (activeTabEl) {
-        const left = activeTabEl.offsetLeft;
-        const width = activeTabEl.offsetWidth;
-        setIndicatorStyle({
-          left: left,
-          width: width,
-          opacity: 1
-        });
-      }
-    };
-
-    updateIndicator();
-    const id1 = setTimeout(updateIndicator, 50);
-    const id2 = setTimeout(updateIndicator, 150);
-
-    window.addEventListener('resize', updateIndicator);
-    return () => {
-      window.removeEventListener('resize', updateIndicator);
-      clearTimeout(id1);
-      clearTimeout(id2);
-    };
-  }, [activeCategory, categories.length]);
-
   const hasOverflow = useMemo(() => canScrollLeft || canScrollRight, [canScrollLeft, canScrollRight]);
 
   const scrollByStep = (dir) => {
@@ -99,7 +72,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
 
   return (
     <div data-category-tabs className="sticky top-[73px] z-30 border-y border-white/10 bg-[#0a0f14]/95 backdrop-blur">
-      <div className="mx-auto w-full max-w-[2200px] px-8 py-3 lg:px-16">
+      <div className="mx-auto w-full max-w-[2200px] px-3 py-2.5 lg:px-5 xl:px-5">
         <div className="relative">
           {hasOverflow && (
             <>
@@ -107,7 +80,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                 <button
                   type="button"
                   onClick={() => scrollByStep(-1)}
-                  className="absolute -left-4 top-[40%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0a0f14]/90 text-white shadow-xl backdrop-blur-md transition-all hover:border-gold hover:text-gold lg:-left-10"
+                  className="absolute -left-1 sm:left-0 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0a0f14]/95 text-white shadow-xl backdrop-blur-md transition-all hover:border-gold hover:text-gold hover:scale-105 active:scale-95"
                   aria-label="Scroll categories left"
                 >
                   <ChevronLeft size={16} />
@@ -117,7 +90,7 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                 <button
                   type="button"
                   onClick={() => scrollByStep(1)}
-                  className="absolute -right-4 top-[40%] z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0a0f14]/90 text-white shadow-xl backdrop-blur-md transition-all hover:border-gold hover:text-gold lg:-right-10"
+                  className="absolute -right-1 sm:right-0 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0a0f14]/95 text-white shadow-xl backdrop-blur-md transition-all hover:border-gold hover:text-gold hover:scale-105 active:scale-95"
                   aria-label="Scroll categories right"
                 >
                   <ChevronRight size={16} />
@@ -128,20 +101,8 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
 
           <div
             ref={scrollRef}
-            className={`relative flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
-              hasOverflow ? 'px-12' : ''
-            }`}
+            className="flex gap-2 overflow-x-auto px-1 py-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden scroll-smooth"
           >
-            {/* Sliding Gold Indicator */}
-            <div 
-              className="absolute top-0 bottom-1 rounded-lg bg-gold shadow-lg shadow-gold/25 transition-all duration-500 ease-[cubic-bezier(0.2,0.9,0.25,1)] pointer-events-none"
-              style={{
-                left: `${indicatorStyle.left}px`,
-                width: `${indicatorStyle.width}px`,
-                opacity: indicatorStyle.opacity
-              }}
-            />
-
             {categories.map((category) => {
               const isActive = category.id === activeCategory;
               return (
@@ -153,10 +114,10 @@ const CategoryTabs = ({ categories, activeCategory, onChange }) => {
                   }}
                   type="button"
                   onClick={() => onChange(category.id)}
-                  className={`relative z-10 whitespace-nowrap border px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all duration-300 ease-[cubic-bezier(0.2,0.9,0.25,1)] rounded-lg ${
+                  className={`whitespace-nowrap px-4 py-2 text-xs uppercase tracking-[0.18em] rounded-lg transition-all duration-200 select-none ${
                     isActive
-                      ? 'border-transparent text-black font-semibold'
-                      : 'border-white/20 bg-white/5 text-white/75 hover:border-gold/50 hover:text-gold'
+                      ? 'bg-gold text-black border border-gold shadow-[0_2px_12px_rgba(200,164,77,0.35)] font-bold'
+                      : 'border border-white/15 bg-white/5 text-white/75 hover:border-gold/50 hover:bg-gold/10 hover:text-white font-medium'
                   }`}
                 >
                   {category.label}

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useCart } from './context/CartContext';
 import PageLoader from './components/PageLoader';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -32,8 +33,17 @@ const About = lazy(() => import('./pages/About'));
 const Bespoke = lazy(() => import('./pages/Bespoke'));
 const Reservations = lazy(() => import('./pages/Reservations'));
 import ScrollToTop from './components/ScrollToTop';
+import GlobalCartDrawer from './components/menu/GlobalCartDrawer';
 import SiteFooter from './layout/SiteFooter';
 import { Toaster } from 'react-hot-toast';
+
+const CartRedirect = () => {
+  const { openCartDrawer } = useCart();
+  useEffect(() => {
+    openCartDrawer();
+  }, [openCartDrawer]);
+  return <Navigate to="/menu" replace />;
+};
 
 const AppContent = () => {
   const { pathname } = useLocation();
@@ -53,7 +63,7 @@ const AppContent = () => {
           <Route path="/bespoke" element={<Bespoke />} />
           <Route path="/reservations" element={<Reservations />} />
           <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="/cart" element={<Cart />} />
+          <Route path="/cart" element={<CartRedirect />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
@@ -136,6 +146,7 @@ const AppContent = () => {
       </Suspense>
       <Toaster position="bottom-right" reverseOrder={false} />
       <ScrollToTop />
+      <GlobalCartDrawer />
     </>
   );
 };

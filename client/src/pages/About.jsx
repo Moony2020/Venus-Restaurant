@@ -10,7 +10,7 @@ const About = () => {
       {/* Hero Section */}
       <section className="relative h-[68svh] min-[1025px]:h-screen max-h-[760px] min-[1025px]:max-h-none flex items-center justify-center overflow-hidden">
         <img 
-          src="/images/story-interior.png" 
+          src="/images/story-interior.webp" 
           className="absolute inset-0 w-full h-full object-cover opacity-60 scale-105" 
           alt="Restaurang Venus interiör" 
         />
@@ -31,7 +31,7 @@ const About = () => {
       <section className="mx-auto max-w-7xl px-6 md:px-12 py-24 md:py-32 grid min-[993px]:grid-cols-12 gap-8 min-[993px]:gap-12 items-start">
         <div className="relative min-[993px]:col-span-6">
           <div className="absolute -left-6 -top-6 bottom-6 right-6 border border-gold/10" />
-          <img src="/images/about-heritage.png" className="relative z-10 w-full aspect-[4/3] sm:aspect-[16/10] min-[993px]:aspect-[4/3] object-cover grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-1000 shadow-2xl" alt="Venus 1994" />
+          <img src="/images/about-heritage.webp" className="relative z-10 w-full aspect-[4/3] sm:aspect-[16/10] min-[993px]:aspect-[4/3] object-cover grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-1000 shadow-2xl" alt="Venus 1994" />
           <div className="absolute right-4 bottom-4 bg-[#0b1118]/92 backdrop-blur-md px-6 py-4 border border-gold/30 shadow-2xl hidden sm:block z-20 rounded-sm">
             <p className="font-display text-4xl leading-none text-gold">1994</p>
             <p className="mt-1 text-[10px] uppercase tracking-widest text-white/75">Etableringen</p>
@@ -65,7 +65,7 @@ const About = () => {
           </div>
           <div className="order-1 min-[993px]:order-2 relative min-[993px]:col-span-6">
             <div className="absolute -right-6 -top-6 bottom-6 left-6 border border-gold/10" />
-            <img src="/images/grill-fire.png" className="relative z-10 w-full aspect-[4/3] sm:aspect-[16/10] min-[993px]:aspect-square object-cover shadow-2xl" alt="The Fire" />
+            <img src="/images/grill-fire.webp" className="relative z-10 w-full aspect-[4/3] sm:aspect-[16/10] min-[993px]:aspect-square object-cover shadow-2xl" alt="The Fire" />
           </div>
         </div>
       </section>
@@ -82,17 +82,17 @@ const About = () => {
         
         <div className="grid md:grid-cols-3 gap-8">
           <div className="space-y-6">
-            <img src="/images/about-chef.png" className="w-full aspect-[3/4] object-cover border border-white/5 grayscale hover:grayscale-0 transition-all duration-700" alt="Kock" />
+            <img src="/images/about-chef.webp" className="w-full aspect-[3/4] object-cover border border-white/5 grayscale hover:grayscale-0 transition-all duration-700" alt="Kock" />
             <h3 className="font-display text-3xl">Köket</h3>
             <p className="text-white/50 text-sm leading-relaxed">Ett team av hantverkare som förstår råvarans själ och eldens kraft.</p>
           </div>
           <div className="space-y-6 md:pt-24">
-            <img src="/images/about-cellar.png" className="w-full aspect-[3/4] object-cover border border-white/5 grayscale hover:grayscale-0 transition-all duration-700" alt="Vinkällare" />
+            <img src="/images/about-cellar.webp" className="w-full aspect-[3/4] object-cover border border-white/5 grayscale hover:grayscale-0 transition-all duration-700" alt="Vinkällare" />
             <h3 className="font-display text-3xl">Källaren</h3>
             <p className="text-white/50 text-sm leading-relaxed">En samling av världens främsta viner, kuraterade för att lyfta varje tugga.</p>
           </div>
           <div className="space-y-6">
-            <img src="/images/reservations-hero.png" className="w-full aspect-[3/4] object-cover border border-white/5 grayscale hover:grayscale-0 transition-all duration-700" alt="Atmosfär" />
+            <img src="/images/reservations-hero.webp" className="w-full aspect-[3/4] object-cover border border-white/5 grayscale hover:grayscale-0 transition-all duration-700" alt="Atmosfär" />
             <h3 className="font-display text-3xl">Atmosfären</h3>
             <p className="text-white/50 text-sm leading-relaxed">En intim miljö där varje ljus och skugga är noga planerad.</p>
           </div>
@@ -101,7 +101,7 @@ const About = () => {
 
       {/* The Visionary Quote */}
       <section className="bg-panel relative py-32 lg:py-48 flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[url('/images/story-interior.png')] bg-cover bg-fixed grayscale" />
+        <div className="absolute inset-0 opacity-10 bg-[url('/images/story-interior.webp')] bg-cover bg-fixed grayscale" />
         <div className="relative z-10 max-w-4xl px-6 text-center">
           <Quote className="mx-auto text-gold/30 mb-12" size={64} />
           <h2 className="font-display text-3xl sm:text-4xl min-[993px]:text-6xl text-white leading-tight italic">

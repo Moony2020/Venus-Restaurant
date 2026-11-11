@@ -53,6 +53,10 @@ export const CartProvider = ({ children }) => {
     }
   });
   const [lastAddedId, setLastAddedId] = useState(null);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+
+  const openCartDrawer = useCallback(() => setIsCartDrawerOpen(true), []);
+  const closeCartDrawer = useCallback(() => setIsCartDrawerOpen(false), []);
 
   useEffect(() => {
     try {
@@ -192,9 +196,13 @@ export const CartProvider = ({ children }) => {
       subtotal,
       total,
       count,
-      lastAddedId
+      lastAddedId,
+      isCartDrawerOpen,
+      setIsCartDrawerOpen,
+      openCartDrawer,
+      closeCartDrawer
     }),
-    [itemsWithSubtotal, addToCart, removeFromCart, removeExtra, updateQty, clearCart, subtotal, total, count, lastAddedId]
+    [itemsWithSubtotal, addToCart, removeFromCart, removeExtra, updateQty, clearCart, subtotal, total, count, lastAddedId, isCartDrawerOpen, openCartDrawer, closeCartDrawer]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

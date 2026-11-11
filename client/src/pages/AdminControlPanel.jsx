@@ -423,7 +423,7 @@ const AdminControlPanel = () => {
                 <label className="text-[9px] uppercase tracking-widest text-white/30 ml-1">Bild-URL</label>
                 <input 
                   className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-gold transition-colors" 
-                  placeholder="/images/menu-pizza.png" 
+                  placeholder="/images/menu-pizza.webp" 
                   value={createForm.image} 
                   onChange={(e) => setCreateForm((p) => ({ ...p, image: e.target.value }))} 
                   required 

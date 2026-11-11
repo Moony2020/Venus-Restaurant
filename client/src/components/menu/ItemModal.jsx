@@ -26,6 +26,23 @@ const ItemModal = ({ item, isOpen, onClose, onAdd }) => {
   }, [isOpen, item]);
 
   useEffect(() => {
+    if (!isOpen) return;
+    const root = document.documentElement;
+    const body = document.body;
+    root.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    root.style.overscrollBehavior = 'none';
+    body.style.overscrollBehavior = 'none';
+
+    return () => {
+      root.style.overflow = '';
+      body.style.overflow = '';
+      root.style.overscrollBehavior = '';
+      body.style.overscrollBehavior = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
 

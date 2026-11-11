@@ -17,7 +17,7 @@ const ReservationSection = () => {
   };
 
   return (
-    <section className="bg-background py-32 px-3 sm:px-4 md:px-6">
+    <section className="bg-background py-32 px-4 sm:px-6 md:px-8">
       <div className="mx-auto max-w-4xl border border-gold/15 bg-panel/30 p-6 sm:p-10 lg:p-14 text-center">
         <p className="text-[13px] sm:text-base uppercase tracking-[0.6em] text-gold font-bold mb-8">Bordsbokning</p>
         <h2 className="font-display text-3xl min-[481px]:text-4xl md:text-5xl lg:text-6xl mb-10 text-white">Säkra din upplevelse</h2>

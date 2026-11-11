@@ -1,106 +1,108 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { UtensilsCrossed, Calendar, Leaf, Flame, MapPin } from 'lucide-react';
 
 const HeroSection = () => {
-  const [scrollY, setScrollY] = useState(0);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   return (
-    <section className="relative flex h-[38svh] min-h-[310px] sm:h-[48svh] sm:min-h-[420px] lg:h-[70svh] lg:min-h-[560px] xl:h-[78svh] xl:min-h-[640px] max-h-[780px] items-center justify-center overflow-hidden bg-background">
-      {/* Cinematic Parallax Background (Unified landscape scaling to completely eliminate side crop) */}
-      <div 
-        className="absolute inset-0 z-0 transition-transform duration-300 ease-out bg-background"
-        style={{ 
-          transform: windowWidth < 1024 ? 'none' : `translateY(${scrollY * 0.08}px) scale(1.03)`,
-        }}
-      >
-        <video
-          src="/videos/hero-bg.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="h-full w-full object-cover object-center scale-[1.08]"
-        />
-        {/* Fallback Static Image (Preserved for quick restoration)
+    <section className="relative flex flex-col justify-between min-h-[480px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] xl:min-h-[640px] overflow-hidden bg-[#070b10] pt-3 sm:pt-5 md:pt-6 pb-3 sm:pb-4">
+      {/* Cinematic Solid Background */}
+      <div className="absolute inset-0 z-0 bg-[#070b10]">
         <img
-          src="/images/home-steak.jpg"
-          alt="Venus hero"
-          className="h-full w-full object-cover object-center"
+          src="/images/home-hero.jpg"
+          alt="Venus Gastronomi"
+          fetchPriority="high"
+          className="h-full w-full object-cover object-center opacity-90 md:opacity-95"
         />
-        */}
-        {/* Luxury gradient mask overlays for high typography contrast (fading to transparent at bottom to avoid visual seams) */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/25 to-transparent pointer-events-none" />
+        {/* Subtle, clear gradient: crisp visibility on the dish, seamless contrast for typography */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-[#070b10] pointer-events-none" />
       </div>
 
-      {/* Hero Content Overlaid directly on the image */}
-      <div className="relative z-10 px-8 text-center sm:px-12 max-w-7xl w-full">
-        {/* Shifting text elements upward to clear visual center */}
-        <div className="transform -translate-y-4 sm:-translate-y-6 md:-translate-y-8 lg:-translate-y-16">
-          <div className="overflow-hidden">
-            <p className="mb-3 sm:mb-4 text-[9px] sm:text-xs md:text-sm uppercase tracking-[0.4em] sm:tracking-[0.5em] text-gold font-bold animate-[fade-in-down_1.2s_ease-out]">
-              Kockens Val - Populära
-            </p>
-          </div>
+      {/* Hero Content - Centered */}
+      <div className="relative z-10 my-auto px-4 text-center sm:px-8 max-w-4xl w-full mx-auto flex flex-col items-center">
+        {/* Top decorative line and badge */}
+        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-2 sm:mb-3 animate-[fade-in-down_1s_ease-out]">
+          <span className="w-6 sm:w-14 h-[1px] bg-gold/50" />
+          <span className="text-[9px] sm:text-[10.5px] uppercase tracking-[0.25em] sm:tracking-[0.35em] text-gold font-bold">
+            KULINARISK UPPLEVELSE I ÖREBRO
+          </span>
+          <span className="w-6 sm:w-14 h-[1px] bg-gold/50" />
+        </div>
+        
+        {/* Main Title */}
+        <h1 className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.12] text-white font-light tracking-wide mb-2 sm:mb-3 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.2s_both]">
+          Modern Gastronomi <br />
+          <span className="italic text-gold font-normal">med Nordiska Råvaror</span>
+        </h1>
+
+        {/* Subtitle / Description */}
+        <p className="max-w-2xl text-[11px] sm:text-xs md:text-sm text-white/85 font-light leading-relaxed mb-3 sm:mb-5 px-2 line-clamp-2 sm:line-clamp-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.35s_both]">
+          Vällagade rätter, utvalda råvaror och en atmosfär som ger dig en oförglömlig smakupplevelse — mitt i hjärtat av Örebro. En hyllning till hantverket med råvaror från traktens producenter.
+        </p>
+
+        {/* Action Buttons - Compact & responsive */}
+        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-8 sm:mt-14 md:mt-20 lg:mt-24 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
+          {/* Button 1: Beställ Nu */}
+          <Link 
+            to="/menu" 
+            className="rounded-full border border-gold bg-gold hover:bg-[#d4b56a] px-3.5 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-black transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl shadow-gold/20 flex items-center justify-center gap-1.5 whitespace-nowrap"
+          >
+            <UtensilsCrossed size={12} className="sm:w-3.5 sm:h-3.5" strokeWidth={2.2} />
+            <span>Beställ nu</span>
+          </Link>
           
-          <h1 className="mx-auto mb-3 sm:mb-4 max-w-5xl font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight text-white animate-[fade-in-up_1s_ease-out_0.2s_both]">
-            Utforska Smakernas Galax
-          </h1>
-
-          <p className="mx-auto mb-10 sm:mb-12 md:mb-14 lg:mb-20 max-w-2xl text-[10px] sm:text-[13px] md:text-sm text-white/70 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-medium leading-relaxed animate-[fade-in-up_1s_ease-out_0.4s_both]">
-            Venus ger en brutal gastronomisk upplevelse i Örebro
-          </p>
-        </div>
-
-        {/* Smaller, centered buttons wrapper to prevent keyframe overrides */}
-        <div className="transform translate-y-1 sm:translate-y-2 lg:translate-y-3">
-          <div className="flex flex-col min-[480px]:flex-row items-center justify-center gap-3 sm:gap-4 w-full animate-[fade-in-up_1s_ease-out_0.5s_both]">
-            <Link 
-              to="/menu" 
-              className="w-[220px] rounded-full bg-gold px-6 py-2 sm:px-8 sm:py-3 text-xs font-bold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-goldSoft hover:scale-105 active:scale-95 shadow-lg shadow-gold/10 flex items-center justify-center"
-            >
-              Beställ nu
-            </Link>
-            
-            <button 
-              onClick={() => {
-                const el = document.getElementById('featured-section');
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } else {
-                  window.location.href = '/menu';
-                }
-              }}
-              className="w-[220px] rounded-full border border-white/20 bg-white/10 backdrop-blur-xl px-6 py-2 sm:px-8 sm:py-3 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all duration-300 hover:border-gold hover:text-gold hover:scale-105 active:scale-95 flex items-center justify-center"
-            >
-              Utforska menyn
-            </button>
-          </div>
+          {/* Button 2: Boka Bord */}
+          <Link 
+            to="/reservations"
+            className="rounded-full border border-gold/50 bg-black/80 hover:bg-black hover:border-gold px-3.5 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-white hover:text-gold transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md shadow-xl flex items-center justify-center gap-1.5 whitespace-nowrap"
+          >
+            <Calendar size={12} className="sm:w-3.5 sm:h-3.5 text-gold" strokeWidth={2.2} />
+            <span>Boka bord</span>
+          </Link>
         </div>
       </div>
 
+      {/* 3 Info Highlights Row - Cleanly anchored at the bottom edge */}
+      <div className="relative z-10 mt-auto hidden sm:grid sm:grid-cols-3 gap-6 lg:gap-10 pt-3 sm:pt-4 border-t border-white/10 w-full max-w-3xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
+        {/* Feature 1 */}
+        <div className="flex items-center justify-start gap-3 text-left">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/20 text-gold">
+            <Leaf size={15} />
+          </div>
+          <div>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-white">Färska Råvaror</p>
+            <p className="text-[10px] text-white/50">Lokalt & säsongsbetonat</p>
+          </div>
+        </div>
 
+        {/* Feature 2 */}
+        <div className="flex items-center justify-start gap-3 text-left">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/20 text-gold">
+            <Flame size={15} />
+          </div>
+          <div>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-white">Passion i Köket</p>
+            <p className="text-[10px] text-white/50">Konstfullt hantverk</p>
+          </div>
+        </div>
+
+        {/* Feature 3 */}
+        <div className="flex items-center justify-start gap-3 text-left">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/20 text-gold">
+            <MapPin size={15} />
+          </div>
+          <div>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-white">Örebro</p>
+            <p className="text-[10px] text-white/50">Varbergagatan 39A</p>
+          </div>
+        </div>
+      </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(40px); }
+          from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fade-in-down {
-          from { opacity: 0; transform: translateY(-20px); }
+          from { opacity: 0; transform: translateY(-12px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}} />

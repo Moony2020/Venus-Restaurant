@@ -10,7 +10,7 @@ export async function seedMenuIfEmpty() {
       slug: 'miyazaki-wagyu',
       category: 'Populärt',
       description: 'A5 Wagyu med tryffelsmor och rostade rodbetor.',
-      image: '/images/hero-steak.png',
+      image: '/images/hero-steak.webp',
       price: 1250,
       lunchOfDay: true,
       prepMinutes: 25,
@@ -21,7 +21,7 @@ export async function seedMenuIfEmpty() {
       slug: 'tartufo-pizza',
       category: 'Pizzor Klass 4',
       description: 'Svart tryffel, fior di latte, lagrad sojaglasyr, guldflingor.',
-      image: '/images/menu-pizza.png',
+      image: '/images/menu-pizza.webp',
       price: 650,
       prepMinutes: 18,
       position: 1
@@ -31,7 +31,7 @@ export async function seedMenuIfEmpty() {
       slug: 'cosmic-chocolate',
       category: 'Övrigt',
       description: 'Saltkaramell, guldstoft, kakaonib-crunch.',
-      image: '/images/menu-dessert.png',
+      image: '/images/menu-dessert.webp',
       price: 350,
       prepMinutes: 12,
       position: 2
@@ -41,7 +41,7 @@ export async function seedMenuIfEmpty() {
       slug: 'nightcap',
       category: 'Drycker',
       description: 'Gin, citron, timjan.',
-      image: '/images/menu-drink.png',
+      image: '/images/menu-drink.webp',
       price: 145,
       prepMinutes: 5,
       position: 3
@@ -51,7 +51,7 @@ export async function seedMenuIfEmpty() {
       slug: 'pommes-frites',
       category: 'Förrätt',
       description: 'Krispiga pommes, lattsaltade.',
-      image: '/images/menu-starter.png',
+      image: '/images/menu-starter.webp',
       price: 69,
       prepMinutes: 10,
       position: 4

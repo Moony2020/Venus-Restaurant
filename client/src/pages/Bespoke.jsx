@@ -47,7 +47,7 @@ const Bespoke = () => {
       {/* Hero Section */}
       <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src="/images/bespoke-room.png" className="w-full h-full object-cover opacity-40" alt="Bespoke Hero" />
+          <img src="/images/bespoke-room.webp" className="w-full h-full object-cover opacity-40" alt="Bespoke Hero" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-background" />
         </div>
         <div className="relative z-10 text-center px-8 sm:px-12">
@@ -65,7 +65,7 @@ const Bespoke = () => {
         <div className="grid md:grid-cols-2 gap-10">
           <div className="group relative border border-white/5 bg-panel/20 overflow-hidden hover:border-gold/30 transition-all duration-500">
             <div className="aspect-video overflow-hidden">
-              <img src="/images/about-chef.png" className="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-700" alt="Kock i hemmet" loading="lazy" />
+              <img src="/images/about-chef.webp" className="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-700" alt="Kock i hemmet" loading="lazy" />
             </div>
             <div className="p-10 space-y-3">
               <h3 className="font-display text-3xl text-gold">Kocken i Hemmet</h3>
@@ -75,7 +75,7 @@ const Bespoke = () => {
           </div>
           <div className="group relative border border-white/5 bg-panel/20 overflow-hidden hover:border-gold/30 transition-all duration-500">
             <div className="aspect-video overflow-hidden">
-              <img src="/images/bespoke-menu.png" className="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-700" alt="Menycurering" loading="lazy" />
+              <img src="/images/bespoke-menu.webp" className="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-700" alt="Menycurering" loading="lazy" />
             </div>
             <div className="p-10 space-y-3">
               <h3 className="font-display text-3xl text-gold">Gastronomisk Design</h3>

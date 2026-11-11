@@ -129,29 +129,27 @@ const SiteFooter = () => {
 
           {/* Opening Hours Section */}
           <div className="space-y-6">
-            <h4 className="text-sm font-bold uppercase tracking-widest text-gold">Öppettider</h4>
-            <div className="space-y-4 text-sm text-white/50">
-              <div className="flex items-start gap-3">
-                <Clock size={18} className="mt-0.5 text-gold" />
-                <div className="w-full space-y-2">
-                  {WEEK_ORDER.map((key) => {
-                    const oh = restaurantData?.week?.[key];
-                    const label = DAY_LABELS[key];
-                    const isToday = new Date().toLocaleDateString('en-US', { weekday: 'long', timeZone: 'Europe/Stockholm' }).toLowerCase() === key;
-                    
-                    return (
-                      <div key={key} className={`flex gap-1 ${isToday ? 'text-white font-bold' : ''}`}>
-                        <span className="w-[62px] shrink-0">{label}:</span>
-                        {oh?.closed ? (
-                          <span className="text-red-500/50 uppercase text-[10px] tracking-tighter">Stängt</span>
-                        ) : (
-                          <span className={isToday ? 'text-gold' : 'text-white/80'}>{oh?.open} - {oh?.close}</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+            <h4 className="flex items-center gap-2.5 text-sm font-bold uppercase tracking-widest text-gold">
+              <Clock size={18} className="text-gold shrink-0" />
+              <span>Öppettider</span>
+            </h4>
+            <div className="space-y-2 text-sm text-white/50">
+              {WEEK_ORDER.map((key) => {
+                const oh = restaurantData?.week?.[key];
+                const label = DAY_LABELS[key];
+                const isToday = new Date().toLocaleDateString('en-US', { weekday: 'long', timeZone: 'Europe/Stockholm' }).toLowerCase() === key;
+                
+                return (
+                  <div key={key} className={`flex gap-1.5 ${isToday ? 'text-white font-bold' : ''}`}>
+                    <span className="w-[66px] shrink-0">{label}:</span>
+                    {oh?.closed ? (
+                      <span className="text-red-500/50 uppercase text-[10px] tracking-tighter">Stängt</span>
+                    ) : (
+                      <span className={isToday ? 'text-gold' : 'text-white/80'}>{oh?.open} - {oh?.close}</span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
