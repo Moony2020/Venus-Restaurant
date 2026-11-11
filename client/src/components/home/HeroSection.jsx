@@ -3,7 +3,7 @@ import { UtensilsCrossed, Calendar, Leaf, Flame, MapPin } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative flex flex-col justify-between min-h-[440px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] xl:min-h-[640px] overflow-hidden bg-[#070b10] pt-2 sm:pt-5 md:pt-6 pb-0 sm:pb-4">
+    <section className="relative flex flex-col justify-between min-h-[460px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] xl:min-h-[640px] overflow-hidden bg-[#070b10] pt-2 sm:pt-5 md:pt-6 pb-0 sm:pb-4">
       {/* Cinematic Solid Background */}
       <div className="absolute inset-0 z-0 bg-[#070b10]">
         <img
@@ -33,13 +33,13 @@ const HeroSection = () => {
           <span className="italic text-gold font-normal">med Nordiska Råvaror</span>
         </h1>
 
-        {/* Subtitle / Description */}
-        <p className="max-w-2xl text-[11px] sm:text-xs md:text-sm text-white/85 font-light leading-relaxed mb-2 sm:mb-5 px-2 line-clamp-2 sm:line-clamp-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.35s_both]">
+        {/* Subtitle / Description - Full text visible without truncation dots */}
+        <p className="max-w-2xl text-[11px] sm:text-xs md:text-sm text-white/85 font-light leading-relaxed mb-2 sm:mb-5 px-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.35s_both]">
           Vällagade rätter, utvalda råvaror och en atmosfär som ger dig en oförglömlig smakupplevelse — mitt i hjärtat av Örebro. En hyllning till hantverket med råvaror från traktens producenter.
         </p>
 
         {/* Action Buttons - Pushed down onto the puree below the salmon */}
-        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-20 sm:mt-16 md:mt-20 lg:mt-24 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
+        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-12 sm:mt-16 md:mt-20 lg:mt-24 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
           {/* Button 1: Beställ Nu */}
           <Link 
             to="/menu" 
