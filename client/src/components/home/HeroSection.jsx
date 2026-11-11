@@ -27,8 +27,8 @@ const HeroSection = () => {
           <span className="w-5 sm:w-14 h-[1px] bg-gold/50" />
         </div>
         
-        {/* Main Title - Pushed slightly down on mobile for balanced breathing room */}
-        <h1 className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.12] text-white font-light tracking-wide mt-1.5 sm:mt-0 mb-2.5 sm:mb-3 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.2s_both]">
+        {/* Main Title - Prominent luxury typography on all devices */}
+        <h1 className="font-display text-[27px] sm:text-4xl md:text-5xl lg:text-6xl leading-[1.14] text-white font-light tracking-wide mt-1.5 sm:mt-0 mb-2.5 sm:mb-3 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.2s_both]">
           Modern Gastronomi <br />
           <span className="italic text-gold font-normal">med Nordiska Råvaror</span>
         </h1>
@@ -61,7 +61,7 @@ const HeroSection = () => {
       </div>
 
       {/* 3 Info Highlights Row - Cleanly anchored at the bottom edge */}
-      <div className="relative z-10 mt-auto hidden sm:grid sm:grid-cols-3 gap-6 lg:gap-10 pt-3 sm:pt-4 border-t border-white/10 w-full max-w-3xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
+      <div className="relative z-10 mt-auto hidden sm:grid sm:grid-cols-3 gap-6 lg:gap-10 pt-3 sm:pt-4 w-full max-w-3xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
         {/* Feature 1 */}
         <div className="flex items-center justify-start gap-3 text-left">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/20 text-gold">
