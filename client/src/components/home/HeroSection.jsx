@@ -3,7 +3,7 @@ import { UtensilsCrossed, Calendar, Leaf, Flame, MapPin } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative flex flex-col justify-between min-h-[420px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] xl:min-h-[640px] overflow-hidden bg-[#070b10] pt-2 sm:pt-5 md:pt-6 pb-0 sm:pb-4">
+    <section className="relative flex flex-col justify-between min-h-[440px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] xl:min-h-[640px] overflow-hidden bg-[#070b10] pt-2 sm:pt-5 md:pt-6 pb-0 sm:pb-4">
       {/* Cinematic Solid Background */}
       <div className="absolute inset-0 z-0 bg-[#070b10]">
         <img
@@ -39,7 +39,7 @@ const HeroSection = () => {
         </p>
 
         {/* Action Buttons - Pushed down onto the puree below the salmon */}
-        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-16 sm:mt-16 md:mt-20 lg:mt-24 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
+        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-20 sm:mt-16 md:mt-20 lg:mt-24 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
           {/* Button 1: Beställ Nu */}
           <Link 
             to="/menu" 
