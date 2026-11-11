@@ -17,9 +17,9 @@ const HeroSection = () => {
       </div>
 
       {/* Hero Content - Cleanly clear of opening hours dropdown on mobile, centered on desktop */}
-      <div className="relative z-10 pt-[58px] sm:pt-0 sm:my-auto px-4 text-center sm:px-8 max-w-4xl w-full mx-auto flex flex-col items-center">
+      <div className="relative z-10 pt-11 sm:pt-0 sm:my-auto px-4 text-center sm:px-8 max-w-4xl w-full mx-auto flex flex-col items-center">
         {/* Top decorative line and badge */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 -mt-1 sm:mt-0 mb-2 sm:mb-3 animate-[fade-in-down_1s_ease-out]">
+        <div className="flex items-center justify-center gap-2 sm:gap-4 -mt-2 sm:mt-0 mb-2.5 sm:mb-3 animate-[fade-in-down_1s_ease-out]">
           <span className="w-5 sm:w-14 h-[1px] bg-gold/50" />
           <span className="text-[8.5px] sm:text-[10.5px] uppercase tracking-[0.25em] sm:tracking-[0.35em] text-gold font-bold">
             KULINARISK UPPLEVELSE I ÖREBRO
