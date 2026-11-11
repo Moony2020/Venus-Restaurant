@@ -19,7 +19,7 @@ const HeroSection = () => {
       {/* Hero Content - Cleanly clear of opening hours dropdown on mobile, centered on desktop */}
       <div className="relative z-10 pt-11 sm:pt-0 sm:my-auto px-4 text-center sm:px-8 max-w-4xl w-full mx-auto flex flex-col items-center">
         {/* Top decorative line and badge */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 -mt-2 sm:mt-0 mb-2.5 sm:mb-3 animate-[fade-in-down_1s_ease-out]">
+        <div className="flex items-center justify-center gap-2 sm:gap-4 -mt-2 sm:mt-0 mb-3.5 sm:mb-3 animate-[fade-in-down_1s_ease-out]">
           <span className="w-5 sm:w-14 h-[1px] bg-gold/50" />
           <span className="text-[8.5px] sm:text-[10.5px] uppercase tracking-[0.25em] sm:tracking-[0.35em] text-gold font-bold">
             KULINARISK UPPLEVELSE I ÖREBRO
@@ -27,19 +27,19 @@ const HeroSection = () => {
           <span className="w-5 sm:w-14 h-[1px] bg-gold/50" />
         </div>
         
-        {/* Main Title */}
-        <h1 className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.12] text-white font-light tracking-wide mb-2 sm:mb-3 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.2s_both]">
+        {/* Main Title - Pushed slightly down on mobile for balanced breathing room */}
+        <h1 className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.12] text-white font-light tracking-wide mt-1.5 sm:mt-0 mb-2.5 sm:mb-3 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.2s_both]">
           Modern Gastronomi <br />
           <span className="italic text-gold font-normal">med Nordiska Råvaror</span>
         </h1>
 
         {/* Subtitle / Description - Full text visible without truncation dots */}
-        <p className="max-w-2xl text-[11px] sm:text-xs md:text-sm text-white/85 font-light leading-relaxed mb-2 sm:mb-5 px-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.35s_both]">
+        <p className="max-w-2xl text-[11px] sm:text-xs md:text-sm text-white/85 font-light leading-relaxed mb-3 sm:mb-5 px-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.35s_both]">
           Vällagade rätter, utvalda råvaror och en atmosfär som ger dig en oförglömlig smakupplevelse — mitt i hjärtat av Örebro. En hyllning till hantverket med råvaror från traktens producenter.
         </p>
 
         {/* Action Buttons - Pushed down onto the puree below the salmon on mobile */}
-        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-32 sm:mt-16 md:mt-20 lg:mt-24 mb-3 sm:mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
+        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-24 sm:mt-16 md:mt-20 lg:mt-24 mb-3 sm:mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
           {/* Button 1: Beställ Nu */}
           <Link 
             to="/menu" 
