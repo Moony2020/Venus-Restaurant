@@ -3,7 +3,7 @@ import { UtensilsCrossed, Calendar, Leaf, Flame, MapPin } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative flex flex-col justify-between min-h-[480px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] xl:min-h-[640px] overflow-hidden bg-[#070b10] pt-3 sm:pt-5 md:pt-6 pb-3 sm:pb-4">
+    <section className="relative flex flex-col justify-between min-h-[430px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] xl:min-h-[640px] overflow-hidden bg-[#070b10] pt-2 sm:pt-5 md:pt-6 pb-2 sm:pb-4">
       {/* Cinematic Solid Background */}
       <div className="absolute inset-0 z-0 bg-[#070b10]">
         <img
@@ -16,15 +16,15 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-[#070b10] pointer-events-none" />
       </div>
 
-      {/* Hero Content - Centered */}
-      <div className="relative z-10 my-auto px-4 text-center sm:px-8 max-w-4xl w-full mx-auto flex flex-col items-center">
+      {/* Hero Content - Lifted on small screens, vertically centered on larger screens */}
+      <div className="relative z-10 pt-4 sm:pt-0 sm:my-auto px-4 text-center sm:px-8 max-w-4xl w-full mx-auto flex flex-col items-center">
         {/* Top decorative line and badge */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-2 sm:mb-3 animate-[fade-in-down_1s_ease-out]">
-          <span className="w-6 sm:w-14 h-[1px] bg-gold/50" />
-          <span className="text-[9px] sm:text-[10.5px] uppercase tracking-[0.25em] sm:tracking-[0.35em] text-gold font-bold">
+        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-1.5 sm:mb-3 animate-[fade-in-down_1s_ease-out]">
+          <span className="w-5 sm:w-14 h-[1px] bg-gold/50" />
+          <span className="text-[8.5px] sm:text-[10.5px] uppercase tracking-[0.25em] sm:tracking-[0.35em] text-gold font-bold">
             KULINARISK UPPLEVELSE I ÖREBRO
           </span>
-          <span className="w-6 sm:w-14 h-[1px] bg-gold/50" />
+          <span className="w-5 sm:w-14 h-[1px] bg-gold/50" />
         </div>
         
         {/* Main Title */}
@@ -34,12 +34,12 @@ const HeroSection = () => {
         </h1>
 
         {/* Subtitle / Description */}
-        <p className="max-w-2xl text-[11px] sm:text-xs md:text-sm text-white/85 font-light leading-relaxed mb-3 sm:mb-5 px-2 line-clamp-2 sm:line-clamp-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.35s_both]">
+        <p className="max-w-2xl text-[11px] sm:text-xs md:text-sm text-white/85 font-light leading-relaxed mb-2.5 sm:mb-5 px-2 line-clamp-2 sm:line-clamp-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.35s_both]">
           Vällagade rätter, utvalda råvaror och en atmosfär som ger dig en oförglömlig smakupplevelse — mitt i hjärtat av Örebro. En hyllning till hantverket med råvaror från traktens producenter.
         </p>
 
         {/* Action Buttons - Compact & responsive */}
-        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-8 sm:mt-14 md:mt-20 lg:mt-24 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
+        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-4 sm:mt-14 md:mt-20 lg:mt-24 mb-1 sm:mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
           {/* Button 1: Beställ Nu */}
           <Link 
             to="/menu" 
