@@ -559,28 +559,28 @@ const Confirmation = () => {
           </div>
         </div>
 
-        {/* Action Buttons Row */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* Action Buttons Row - Sleek, compact and elegant, never stretching full width */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-xl mx-auto px-4">
           <Link
             to={`/track/${displayTrackingCode}`}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-gold hover:bg-[#d4b56a] px-8 py-3.5 text-xs font-bold uppercase tracking-[0.18em] text-black transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl shadow-gold/20"
+            className="w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-gold hover:bg-[#d4b56a] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-black transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 whitespace-nowrap"
           >
             <span>Följ beställning i realtid</span>
-            <ArrowRight size={15} />
+            <ArrowRight size={13} strokeWidth={2.5} />
           </Link>
 
           <Link
             to="/menu"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-white/20 hover:border-gold bg-black/40 hover:bg-black/60 px-8 py-3.5 text-xs font-bold uppercase tracking-[0.18em] text-white hover:text-gold transition-all duration-300 backdrop-blur-md"
+            className="w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 hover:border-gold/50 bg-[#0d1218] hover:bg-[#131a22] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/90 hover:text-white transition-all duration-300 whitespace-nowrap"
           >
-            Tillbaka till menyn
+            <span>Tillbaka till menyn</span>
           </Link>
 
           <button
             onClick={handlePrintReceipt}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/60 hover:text-white transition-colors px-6 py-3.5"
+            className="w-auto inline-flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/50 hover:text-white transition-colors px-4 py-2.5 whitespace-nowrap"
           >
-            <Download size={14} className="text-gold" />
+            <Download size={13} className="text-gold" />
             <span>Ladda ner kvitto (PDF)</span>
           </button>
         </div>
