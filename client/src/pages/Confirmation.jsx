@@ -14,7 +14,6 @@ import {
   Phone 
 } from 'lucide-react';
 import SiteHeader from '../layout/SiteHeader';
-import SiteFooter from '../layout/SiteFooter';
 import { apiGet, apiPost } from '../lib/api';
 import { useCart } from '../context/CartContext';
 import { MENU_ITEMS } from '../lib/menuCatalog';
@@ -617,8 +616,6 @@ const Confirmation = () => {
           <span><strong>{totalAmount} SEK</strong></span>
         </div>
       </div>
-
-      <SiteFooter />
     </main>
   );
 };
