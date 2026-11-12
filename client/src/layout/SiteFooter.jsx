@@ -54,7 +54,7 @@ const SiteFooter = () => {
   return (
     <footer className="mt-auto border-t border-white/10 bg-[#05090e] pt-16 pb-8 text-white">
       <div className="mx-auto w-full max-w-[2200px] px-4 sm:px-6 lg:w-[92vw] lg:px-8">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8 sm:gap-x-12 lg:gap-12">
           {/* Brand Section */}
           <div className="space-y-6">
             <Link to="/" className="font-display text-3xl tracking-[0.3em] text-gold">
@@ -86,7 +86,7 @@ const SiteFooter = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-6">
+          <div className="space-y-6 sm:justify-self-end lg:justify-self-auto sm:w-fit lg:w-auto">
             <h4 className="text-sm font-bold uppercase tracking-widest text-gold">Navigation</h4>
             <nav className="flex flex-col gap-4 text-sm text-white/50">
               <Link to="/" className="transition-colors hover:text-white" onClick={() => window.scrollTo(0, 0)}>Hem</Link>
@@ -128,7 +128,7 @@ const SiteFooter = () => {
           </div>
 
           {/* Opening Hours Section */}
-          <div className="space-y-6">
+          <div className="space-y-6 sm:justify-self-end lg:justify-self-auto sm:w-fit lg:w-auto">
             <h4 className="flex items-center gap-2.5 text-sm font-bold uppercase tracking-widest text-gold">
               <Clock size={18} className="text-gold shrink-0" />
               <span>Öppettider</span>

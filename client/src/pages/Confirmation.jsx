@@ -276,9 +276,9 @@ const Confirmation = () => {
           {/* Stepper Steps (4 steps connected) */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 relative">
             {/* Step 1: Mottagen */}
-            <div className="flex flex-col items-start gap-2.5">
-              <div className="h-9 w-9 rounded-full bg-gold text-black flex items-center justify-center font-bold text-xs shadow-lg shadow-gold/30">
-                <Check size={16} strokeWidth={3} />
+            <div className="flex flex-col items-start gap-2">
+              <div className="h-7 w-7 rounded-full bg-gold text-black flex items-center justify-center font-bold shadow-md shadow-gold/25">
+                <Check size={13} strokeWidth={3} />
               </div>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-white">1. Mottagen</p>
@@ -287,10 +287,10 @@ const Confirmation = () => {
             </div>
 
             {/* Step 2: Tillagas (Active) */}
-            <div className="flex flex-col items-start gap-2.5">
-              <div className="h-9 w-9 rounded-full bg-gold/20 border-2 border-gold text-gold flex items-center justify-center font-bold text-xs shadow-lg shadow-gold/25 relative">
-                <span className="h-3 w-3 rounded-full bg-gold animate-ping opacity-75" />
-                <span className="h-2.5 w-2.5 rounded-full bg-gold absolute" />
+            <div className="flex flex-col items-start gap-2">
+              <div className="h-7 w-7 rounded-full bg-gold/20 border-[1.5px] border-gold text-gold flex items-center justify-center relative shadow-md shadow-gold/20">
+                <span className="h-2 w-2 rounded-full bg-gold animate-ping opacity-75" />
+                <span className="h-1.5 w-1.5 rounded-full bg-gold absolute" />
               </div>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-gold flex items-center gap-1.5">
@@ -301,8 +301,8 @@ const Confirmation = () => {
             </div>
 
             {/* Step 3: Redo för hämtning */}
-            <div className="flex flex-col items-start gap-2.5 opacity-40">
-              <div className="h-9 w-9 rounded-full bg-white/5 border border-white/20 text-white/70 flex items-center justify-center font-bold text-xs">
+            <div className="flex flex-col items-start gap-2 opacity-40">
+              <div className="h-7 w-7 rounded-full bg-white/5 border border-white/20 text-white/70 flex items-center justify-center font-semibold text-[11px]">
                 3
               </div>
               <div>
@@ -312,8 +312,8 @@ const Confirmation = () => {
             </div>
 
             {/* Step 4: Slutförd */}
-            <div className="flex flex-col items-start gap-2.5 opacity-30">
-              <div className="h-9 w-9 rounded-full bg-white/5 border border-white/20 text-white/70 flex items-center justify-center font-bold text-xs">
+            <div className="flex flex-col items-start gap-2 opacity-30">
+              <div className="h-7 w-7 rounded-full bg-white/5 border border-white/20 text-white/70 flex items-center justify-center font-semibold text-[11px]">
                 4
               </div>
               <div>
@@ -559,11 +559,11 @@ const Confirmation = () => {
           </div>
         </div>
 
-        {/* Action Buttons Row - Sleek, compact and elegant, never stretching full width */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-xl mx-auto px-4">
+        {/* Action Buttons Row - Sleek, compact and elegant, vertical on mobile/tablet up to 768px, horizontal on desktop */}
+        <div className="mt-8 flex flex-col md:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 max-w-3xl mx-auto px-4">
           <Link
             to={`/track/${displayTrackingCode}`}
-            className="w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-gold hover:bg-[#d4b56a] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-black transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 whitespace-nowrap"
+            className="w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-gold hover:bg-[#d4b56a] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-black transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 whitespace-nowrap"
           >
             <span>Följ beställning i realtid</span>
             <ArrowRight size={13} strokeWidth={2.5} />
@@ -571,14 +571,14 @@ const Confirmation = () => {
 
           <Link
             to="/menu"
-            className="w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 hover:border-gold/50 bg-[#0d1218] hover:bg-[#131a22] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/90 hover:text-white transition-all duration-300 whitespace-nowrap"
+            className="w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 hover:border-gold/50 bg-[#0d1218] hover:bg-[#131a22] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/90 hover:text-white transition-all duration-300 whitespace-nowrap"
           >
             <span>Tillbaka till menyn</span>
           </Link>
 
           <button
             onClick={handlePrintReceipt}
-            className="w-auto inline-flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/50 hover:text-white transition-colors px-4 py-2.5 whitespace-nowrap"
+            className="w-auto inline-flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-white/50 hover:text-white transition-colors px-4 py-2.5 whitespace-nowrap"
           >
             <Download size={13} className="text-gold" />
             <span>Ladda ner kvitto (PDF)</span>

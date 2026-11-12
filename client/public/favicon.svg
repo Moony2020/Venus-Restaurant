@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bg" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#161e28" />
+      <stop offset="60%" stop-color="#0a0f16" />
+      <stop offset="100%" stop-color="#05080c" />
+    </radialGradient>
+    
+    <!-- Warm Luxury Gold Gradient -->
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f3dda0" />
+      <stop offset="25%" stop-color="#d8b668" />
+      <stop offset="60%" stop-color="#c8a44d" />
+      <stop offset="100%" stop-color="#926f23" />
+    </linearGradient>
+
+    <!-- Subtle Glow Filter -->
+    <filter id="subtle-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Dark Luxury Squircle Badge -->
+  <rect x="12" y="12" width="488" height="488" rx="115" fill="url(#bg)" stroke="url(#gold)" stroke-width="4.5" stroke-opacity="0.45" />
+
+  <!-- Inner Concentric Golden Halo -->
+  <circle cx="256" cy="256" r="214" fill="none" stroke="url(#gold)" stroke-width="2" stroke-opacity="0.25" stroke-dasharray="6 4" />
+
+  <!-- Morning Star of Venus (✦) -->
+  <g transform="translate(256, 118)" fill="url(#gold)">
+    <path d="M 0,-34 Q 3.5,-9 25,0 Q 3.5,9 0,34 Q -3.5,9 -25,0 Q -3.5,-9 0,-34 Z" />
+    <circle cx="0" cy="0" r="3.5" fill="#fff5db" />
+  </g>
+
+  <!-- Cormorant Garamond 'V' Monogram -->
+  <g transform="translate(256, 305) scale(0.48, -0.48) translate(-335, -311)" fill="url(#gold)" filter="url(#subtle-glow)">
+    <path d="M665 625Q668 625 668.0 619.0Q668 613 665 613Q628 613 595.5 581.0Q563 549 543 495L358 1Q357 -3 347.5 -3.0Q338 -3 336 1L81 542Q64 577 46.0 595.0Q28 613 5 613Q2 613 2.0 619.0Q2 625 5 625Q17 625 23.5 624.0Q30 623 41.5 622.5Q53 622 78 622Q134 622 169.0 622.5Q204 623 226.0 624.0Q248 625 264 625Q267 625 267.0 619.0Q267 613 264 613Q221 613 207.0 589.0Q193 565 212 524L394 136L347 54L515 498Q533 547 517.5 580.0Q502 613 453 613Q450 613 450.0 619.0Q450 625 453 625Q482 625 508.0 623.5Q534 622 577 622Q605 622 622.5 623.5Q640 625 665 625Z" />
+  </g>
+</svg>
