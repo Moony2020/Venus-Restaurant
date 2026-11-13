@@ -3,7 +3,7 @@ import { UtensilsCrossed, Calendar, Leaf, Flame, MapPin } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative flex flex-col justify-start min-h-[610px] sm:min-h-[620px] md:min-h-[660px] lg:min-h-[700px] overflow-hidden bg-[#070b10] pt-4 sm:pt-6 pb-8 sm:pb-12">
+    <section className="relative flex flex-col justify-start min-h-[640px] sm:min-h-[700px] md:min-h-[700px] lg:min-h-[700px] overflow-hidden bg-[#070b10] pt-4 sm:pt-6 pb-8 sm:pb-12">
       {/* Cinematic Solid Background */}
       <div className="absolute inset-0 z-0 bg-[#070b10]">
         <img
@@ -61,7 +61,7 @@ const HeroSection = () => {
       </div>
 
       {/* 3 Info Highlights Row - Perfectly positioned on the plate rim */}
-      <div className="relative z-10 mt-10 sm:mt-12 md:mt-14 lg:mt-16 hidden sm:flex flex-row items-center justify-center gap-3 sm:gap-3.5 lg:gap-4 w-full max-w-2xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
+      <div className="relative z-10 mt-20 sm:mt-28 md:mt-28 max-[1024px]:mt-28 lg:mt-20 hidden sm:flex flex-row items-center justify-center gap-3 sm:gap-3.5 lg:gap-4 w-full max-w-2xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
         {/* Feature 1 */}
         <div className="group flex-1 max-w-[220px] flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-3.5 py-2 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
