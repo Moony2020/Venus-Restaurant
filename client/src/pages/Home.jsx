@@ -294,7 +294,7 @@ const Home = () => {
       </div>
 
       {/* 1. Kockens Val (Signature Section) */}
-      <section className="reveal relative pt-0 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 md:pb-28 px-6 md:px-12 max-w-7xl mx-auto overflow-hidden">
+      <section className="reveal relative pt-4 sm:pt-8 md:pt-10 lg:pt-12 pb-20 sm:pb-24 md:pb-28 px-6 md:px-12 max-w-7xl mx-auto overflow-hidden">
         {/* Background ambient glow */}
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[400px] h-[400px] bg-gold/10 rounded-full blur-[120px] pointer-events-none" />
 
