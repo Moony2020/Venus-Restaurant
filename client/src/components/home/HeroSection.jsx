@@ -3,7 +3,7 @@ import { UtensilsCrossed, Calendar, Leaf, Flame, MapPin } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative flex flex-col justify-start min-h-[560px] sm:min-h-[600px] md:min-h-[660px] lg:min-h-[700px] overflow-hidden bg-[#070b10] pt-4 sm:pt-6 pb-8 sm:pb-12">
+    <section className="relative flex flex-col justify-start min-h-[610px] sm:min-h-[620px] md:min-h-[660px] lg:min-h-[700px] overflow-hidden bg-[#070b10] pt-4 sm:pt-6 pb-8 sm:pb-12">
       {/* Cinematic Solid Background */}
       <div className="absolute inset-0 z-0 bg-[#070b10]">
         <img
