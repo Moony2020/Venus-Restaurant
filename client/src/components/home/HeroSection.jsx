@@ -3,7 +3,7 @@ import { UtensilsCrossed, Calendar, Leaf, Flame, MapPin } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative flex flex-col justify-between min-h-[520px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] xl:min-h-[640px] overflow-hidden bg-[#070b10] pt-2 sm:pt-5 md:pt-6 pb-2 sm:pb-4">
+    <section className="relative flex flex-col justify-between min-h-[560px] sm:min-h-[600px] md:min-h-[660px] lg:min-h-[720px] xl:min-h-[760px] overflow-hidden bg-[#070b10] pt-4 sm:pt-6 md:pt-8 pb-4 sm:pb-6 md:pb-8">
       {/* Cinematic Solid Background */}
       <div className="absolute inset-0 z-0 bg-[#070b10]">
         <img
@@ -16,8 +16,8 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-[#070b10] pointer-events-none" />
       </div>
 
-      {/* Hero Content - Cleanly clear of opening hours dropdown on mobile, centered on desktop */}
-      <div className="relative z-10 pt-11 sm:pt-0 sm:my-auto px-4 text-center sm:px-8 max-w-4xl w-full mx-auto flex flex-col items-center">
+      {/* Hero Content - Pushed down gracefully below the opening hours dropdown and header */}
+      <div className="relative z-10 pt-14 sm:pt-16 md:pt-20 lg:pt-24 px-4 text-center sm:px-8 max-w-4xl w-full mx-auto flex flex-col items-center">
         {/* Top decorative line and badge */}
         <div className="flex items-center justify-center gap-2 sm:gap-4 -mt-2 sm:mt-0 mb-3.5 sm:mb-3 animate-[fade-in-down_1s_ease-out]">
           <span className="w-5 sm:w-14 h-[1px] bg-gold/50" />
@@ -60,38 +60,38 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* 3 Info Highlights Row - Glassy Background Cards */}
-      <div className="relative z-10 mt-auto hidden sm:grid sm:grid-cols-3 gap-3.5 md:gap-4 lg:gap-6 pt-3 sm:pt-4 w-full max-w-4xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
+      {/* 3 Info Highlights Row - Compact Glassy Background Cards */}
+      <div className="relative z-10 mt-auto hidden sm:flex flex-row items-center justify-center gap-3 sm:gap-3.5 lg:gap-4 pt-3 sm:pt-4 w-full max-w-2xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
         {/* Feature 1 */}
-        <div className="group flex items-center gap-3.5 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-4 py-3 transition-all duration-300 shadow-xl shadow-black/30">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
-            <Leaf size={16} strokeWidth={2.2} />
+        <div className="group flex-1 max-w-[220px] flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-3.5 py-2 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
+            <Leaf size={15} strokeWidth={2.2} />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white group-hover:text-gold transition-colors duration-300">Färska Råvaror</p>
-            <p className="text-[10px] text-white/55 font-light mt-0.5">Lokalt & säsongsbetonat</p>
+            <p className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-white group-hover:text-gold transition-colors duration-300 whitespace-nowrap">Färska Råvaror</p>
+            <p className="text-[9.5px] sm:text-[10px] text-white/55 font-light mt-0.5 whitespace-nowrap">Lokalt & säsongsbetonat</p>
           </div>
         </div>
 
         {/* Feature 2 */}
-        <div className="group flex items-center gap-3.5 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-4 py-3 transition-all duration-300 shadow-xl shadow-black/30">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
-            <Flame size={16} strokeWidth={2.2} />
+        <div className="group flex-1 max-w-[220px] flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-3.5 py-2 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
+            <Flame size={15} strokeWidth={2.2} />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white group-hover:text-gold transition-colors duration-300">Passion i Köket</p>
-            <p className="text-[10px] text-white/55 font-light mt-0.5">Konstfullt hantverk</p>
+            <p className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-white group-hover:text-gold transition-colors duration-300 whitespace-nowrap">Passion i Köket</p>
+            <p className="text-[9.5px] sm:text-[10px] text-white/55 font-light mt-0.5 whitespace-nowrap">Konstfullt hantverk</p>
           </div>
         </div>
 
         {/* Feature 3 */}
-        <div className="group flex items-center gap-3.5 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-4 py-3 transition-all duration-300 shadow-xl shadow-black/30">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
-            <MapPin size={16} strokeWidth={2.2} />
+        <div className="group flex-1 max-w-[220px] flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-3.5 py-2 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
+            <MapPin size={15} strokeWidth={2.2} />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white group-hover:text-gold transition-colors duration-300">Örebro</p>
-            <p className="text-[10px] text-white/55 font-light mt-0.5">Varbergagatan 39A</p>
+            <p className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-white group-hover:text-gold transition-colors duration-300 whitespace-nowrap">Örebro</p>
+            <p className="text-[9.5px] sm:text-[10px] text-white/55 font-light mt-0.5 whitespace-nowrap">Varbergagatan 39A</p>
           </div>
         </div>
       </div>
