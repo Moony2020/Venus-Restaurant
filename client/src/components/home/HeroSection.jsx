@@ -60,38 +60,38 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* 3 Info Highlights Row - Cleanly anchored at the bottom edge */}
-      <div className="relative z-10 mt-auto hidden sm:grid sm:grid-cols-3 gap-6 lg:gap-10 pt-3 sm:pt-4 w-full max-w-3xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
+      {/* 3 Info Highlights Row - Glassy Background Cards */}
+      <div className="relative z-10 mt-auto hidden sm:grid sm:grid-cols-3 gap-3.5 md:gap-4 lg:gap-6 pt-3 sm:pt-4 w-full max-w-4xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
         {/* Feature 1 */}
-        <div className="flex items-center justify-start gap-3 text-left">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/20 text-gold">
-            <Leaf size={15} />
+        <div className="group flex items-center gap-3.5 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-4 py-3 transition-all duration-300 shadow-xl shadow-black/30">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
+            <Leaf size={16} strokeWidth={2.2} />
           </div>
           <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-wider text-white">Färska Råvaror</p>
-            <p className="text-[10px] text-white/50">Lokalt & säsongsbetonat</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white group-hover:text-gold transition-colors duration-300">Färska Råvaror</p>
+            <p className="text-[10px] text-white/55 font-light mt-0.5">Lokalt & säsongsbetonat</p>
           </div>
         </div>
 
         {/* Feature 2 */}
-        <div className="flex items-center justify-start gap-3 text-left">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/20 text-gold">
-            <Flame size={15} />
+        <div className="group flex items-center gap-3.5 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-4 py-3 transition-all duration-300 shadow-xl shadow-black/30">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
+            <Flame size={16} strokeWidth={2.2} />
           </div>
           <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-wider text-white">Passion i Köket</p>
-            <p className="text-[10px] text-white/50">Konstfullt hantverk</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white group-hover:text-gold transition-colors duration-300">Passion i Köket</p>
+            <p className="text-[10px] text-white/55 font-light mt-0.5">Konstfullt hantverk</p>
           </div>
         </div>
 
         {/* Feature 3 */}
-        <div className="flex items-center justify-start gap-3 text-left">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/20 text-gold">
-            <MapPin size={15} />
+        <div className="group flex items-center gap-3.5 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-4 py-3 transition-all duration-300 shadow-xl shadow-black/30">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
+            <MapPin size={16} strokeWidth={2.2} />
           </div>
           <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-wider text-white">Örebro</p>
-            <p className="text-[10px] text-white/50">Varbergagatan 39A</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white group-hover:text-gold transition-colors duration-300">Örebro</p>
+            <p className="text-[10px] text-white/55 font-light mt-0.5">Varbergagatan 39A</p>
           </div>
         </div>
       </div>
