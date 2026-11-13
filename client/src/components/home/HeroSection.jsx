@@ -38,8 +38,8 @@ const HeroSection = () => {
           Vällagade rätter, utvalda råvaror och en atmosfär som ger dig en oförglömlig smakupplevelse — mitt i hjärtat av Örebro. En hyllning till hantverket med råvaror från traktens producenter.
         </p>
 
-        {/* Action Buttons - Pushed down onto the puree below the salmon */}
-        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-20 sm:mt-14 md:mt-16 lg:mt-18 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
+        {/* Action Buttons - Pushed down onto the puree below the salmon on mobile */}
+        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-28 sm:mt-14 md:mt-16 lg:mt-18 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
           {/* Button 1: Beställ Nu */}
           <Link 
             to="/menu" 
