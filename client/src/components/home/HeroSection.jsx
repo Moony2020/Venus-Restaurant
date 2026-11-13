@@ -3,7 +3,7 @@ import { UtensilsCrossed, Calendar, Leaf, Flame, MapPin } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative flex flex-col justify-between min-h-[560px] sm:min-h-[600px] md:min-h-[660px] lg:min-h-[720px] xl:min-h-[760px] overflow-hidden bg-[#070b10] pt-4 sm:pt-6 md:pt-8 pb-4 sm:pb-6 md:pb-8">
+    <section className="relative flex flex-col justify-start min-h-[560px] sm:min-h-[600px] md:min-h-[660px] lg:min-h-[700px] overflow-hidden bg-[#070b10] pt-4 sm:pt-6 pb-8 sm:pb-12">
       {/* Cinematic Solid Background */}
       <div className="absolute inset-0 z-0 bg-[#070b10]">
         <img
@@ -16,7 +16,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-[#070b10] pointer-events-none" />
       </div>
 
-      {/* Hero Content - Pushed down gracefully below the opening hours dropdown and header */}
+      {/* Hero Content - Kept gracefully pushed down below the header and opening hours */}
       <div className="relative z-10 pt-14 sm:pt-16 md:pt-20 lg:pt-24 px-4 text-center sm:px-8 max-w-4xl w-full mx-auto flex flex-col items-center">
         {/* Top decorative line and badge */}
         <div className="flex items-center justify-center gap-2 sm:gap-4 -mt-2 sm:mt-0 mb-3.5 sm:mb-3 animate-[fade-in-down_1s_ease-out]">
@@ -38,8 +38,8 @@ const HeroSection = () => {
           Vällagade rätter, utvalda råvaror och en atmosfär som ger dig en oförglömlig smakupplevelse — mitt i hjärtat av Örebro. En hyllning till hantverket med råvaror från traktens producenter.
         </p>
 
-        {/* Action Buttons - Pushed down onto the puree below the salmon on mobile */}
-        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-24 sm:mt-16 md:mt-20 lg:mt-24 mb-3 sm:mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
+        {/* Action Buttons - Pushed down onto the puree below the salmon */}
+        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-20 sm:mt-14 md:mt-16 lg:mt-18 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
           {/* Button 1: Beställ Nu */}
           <Link 
             to="/menu" 
@@ -60,8 +60,8 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* 3 Info Highlights Row - Compact Glassy Background Cards */}
-      <div className="relative z-10 mt-auto hidden sm:flex flex-row items-center justify-center gap-3 sm:gap-3.5 lg:gap-4 pt-3 sm:pt-4 w-full max-w-2xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
+      {/* 3 Info Highlights Row - Pushed up onto the plate rim so they are 100% visible without scrolling */}
+      <div className="relative z-10 mt-6 sm:mt-7 md:mt-8 hidden sm:flex flex-row items-center justify-center gap-3 sm:gap-3.5 lg:gap-4 w-full max-w-2xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
         {/* Feature 1 */}
         <div className="group flex-1 max-w-[220px] flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-3.5 py-2 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
