@@ -3,7 +3,7 @@ import { UtensilsCrossed, Calendar, Leaf, Flame, MapPin } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative flex flex-col justify-start min-h-[500px] sm:min-h-[540px] md:min-h-[580px] lg:min-h-[600px] overflow-hidden bg-[#070b10] pt-4 sm:pt-6 pb-4 sm:pb-6 md:pb-8">
+    <section className="relative flex flex-col justify-start min-h-[610px] sm:min-h-[620px] md:min-h-[660px] lg:min-h-[700px] overflow-hidden bg-[#070b10] pt-4 sm:pt-6 pb-8 sm:pb-12">
       {/* Cinematic Solid Background */}
       <div className="absolute inset-0 z-0 bg-[#070b10]">
         <img
@@ -38,8 +38,8 @@ const HeroSection = () => {
           Vällagade rätter, utvalda råvaror och en atmosfär som ger dig en oförglömlig smakupplevelse — mitt i hjärtat av Örebro. En hyllning till hantverket med råvaror från traktens producenter.
         </p>
 
-        {/* Action Buttons - Pushed down onto the puree below the salmon */}
-        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-14 sm:mt-12 md:mt-14 lg:mt-16 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
+        {/* Action Buttons - Pushed down onto the puree below the salmon on mobile */}
+        <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-auto mx-auto mt-28 sm:mt-14 md:mt-16 lg:mt-18 mb-2 animate-[fade-in-up_1s_ease-out_0.5s_both]">
           {/* Button 1: Beställ Nu */}
           <Link 
             to="/menu" 
@@ -60,38 +60,38 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* 3 Info Highlights Row - Perfectly positioned on the plate rim on all devices */}
-      <div className="relative z-10 mt-5 sm:mt-8 md:mt-10 lg:mt-12 flex flex-row items-center justify-center gap-2 sm:gap-3.5 lg:gap-4 w-full max-w-2xl mx-auto px-2.5 sm:px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
+      {/* 3 Info Highlights Row - Perfectly positioned on the plate rim */}
+      <div className="relative z-10 mt-10 sm:mt-12 md:mt-14 lg:mt-16 hidden sm:flex flex-row items-center justify-center gap-3 sm:gap-3.5 lg:gap-4 w-full max-w-2xl mx-auto px-4 animate-[fade-in-up_1s_ease-out_0.65s_both]">
         {/* Feature 1 */}
-        <div className="group flex-1 min-w-0 max-w-[220px] flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-1 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-2 py-1.5 sm:px-3.5 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
-          <div className="flex h-6 w-6 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
-            <Leaf size={12} className="sm:w-[15px] sm:h-[15px]" strokeWidth={2.2} />
+        <div className="group flex-1 max-w-[220px] flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-3.5 py-2 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
+            <Leaf size={15} strokeWidth={2.2} />
           </div>
-          <div className="min-w-0">
-            <p className="text-[9px] sm:text-[11px] font-bold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-white group-hover:text-gold transition-colors duration-300 truncate sm:whitespace-nowrap">Färska Råvaror</p>
-            <p className="text-[8px] sm:text-[10px] text-white/55 font-light mt-0.5 truncate sm:whitespace-nowrap">Lokalt & säsongsbetonat</p>
+          <div>
+            <p className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-white group-hover:text-gold transition-colors duration-300 whitespace-nowrap">Färska Råvaror</p>
+            <p className="text-[9.5px] sm:text-[10px] text-white/55 font-light mt-0.5 whitespace-nowrap">Lokalt & säsongsbetonat</p>
           </div>
         </div>
 
         {/* Feature 2 */}
-        <div className="group flex-1 min-w-0 max-w-[220px] flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-1 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-2 py-1.5 sm:px-3.5 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
-          <div className="flex h-6 w-6 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
-            <Flame size={12} className="sm:w-[15px] sm:h-[15px]" strokeWidth={2.2} />
+        <div className="group flex-1 max-w-[220px] flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-3.5 py-2 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
+            <Flame size={15} strokeWidth={2.2} />
           </div>
-          <div className="min-w-0">
-            <p className="text-[9px] sm:text-[11px] font-bold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-white group-hover:text-gold transition-colors duration-300 truncate sm:whitespace-nowrap">Passion i Köket</p>
-            <p className="text-[8px] sm:text-[10px] text-white/55 font-light mt-0.5 truncate sm:whitespace-nowrap">Konstfullt hantverk</p>
+          <div>
+            <p className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-white group-hover:text-gold transition-colors duration-300 whitespace-nowrap">Passion i Köket</p>
+            <p className="text-[9.5px] sm:text-[10px] text-white/55 font-light mt-0.5 whitespace-nowrap">Konstfullt hantverk</p>
           </div>
         </div>
 
         {/* Feature 3 */}
-        <div className="group flex-1 min-w-0 max-w-[220px] flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-1 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-2 py-1.5 sm:px-3.5 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
-          <div className="flex h-6 w-6 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
-            <MapPin size={12} className="sm:w-[15px] sm:h-[15px]" strokeWidth={2.2} />
+        <div className="group flex-1 max-w-[220px] flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/10 bg-black/40 hover:bg-black/60 hover:border-gold/40 backdrop-blur-md px-3.5 py-2 sm:py-2.5 transition-all duration-300 shadow-xl shadow-black/30">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 border border-gold/25 text-gold group-hover:bg-gold/20 group-hover:scale-105 transition-all duration-300">
+            <MapPin size={15} strokeWidth={2.2} />
           </div>
-          <div className="min-w-0">
-            <p className="text-[9px] sm:text-[11px] font-bold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-white group-hover:text-gold transition-colors duration-300 truncate sm:whitespace-nowrap">Örebro</p>
-            <p className="text-[8px] sm:text-[10px] text-white/55 font-light mt-0.5 truncate sm:whitespace-nowrap">Varbergagatan 39A</p>
+          <div>
+            <p className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-white group-hover:text-gold transition-colors duration-300 whitespace-nowrap">Örebro</p>
+            <p className="text-[9.5px] sm:text-[10px] text-white/55 font-light mt-0.5 whitespace-nowrap">Varbergagatan 39A</p>
           </div>
         </div>
       </div>
