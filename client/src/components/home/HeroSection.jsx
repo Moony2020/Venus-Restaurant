@@ -34,7 +34,7 @@ const HeroSection = () => {
         </h1>
 
         {/* Subtitle / Description - Full text visible without truncation dots */}
-        <p className="max-w-2xl text-[11px] sm:text-xs md:text-sm text-white/85 font-light leading-relaxed mb-3 sm:mb-5 px-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.35s_both]">
+        <p className="max-w-2xl text-[13px] sm:text-[15px] md:text-base text-white/90 font-light leading-relaxed mb-3 sm:mb-5 px-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] animate-[fade-in-up_1s_ease-out_0.35s_both]">
           Vällagade rätter, utvalda råvaror och en atmosfär som ger dig en oförglömlig smakupplevelse — mitt i hjärtat av Örebro. En hyllning till hantverket med råvaror från traktens producenter.
         </p>
 
